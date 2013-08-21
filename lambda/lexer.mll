@@ -18,7 +18,7 @@ rule token = parse
   | "#context"          { CONTEXT }
   | "#help"             { HELP }
   | "#quit"             { QUIT }
-  | "#var"              { VAR }
+  | "#constant"         { CONSTANT }
   | '('                 { LPAREN }
   | ')'                 { RPAREN }
   | ":="                { COLONEQ }

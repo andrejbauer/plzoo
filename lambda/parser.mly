@@ -10,8 +10,7 @@
 %token <string> NAME
 %token LPAREN RPAREN LAMBDA PERIOD
 %token COLONEQ SEMI
-%token VAR
-%token CONTEXT HELP QUIT
+%token CONTEXT HELP QUIT CONSTANT
 %token EOF
 
 %start <Input.toplevel list> file
@@ -57,8 +56,8 @@ plain_topexpr:
 (* Things that can be defined on toplevel. *)
 topdef: mark_position(plain_topdef) { $1 }
 plain_topdef:
-  | VAR xs = nonempty_list(NAME)
-    { TopParameter xs }
+  | CONSTANT xs = nonempty_list(NAME)
+    { TopConstant xs }
   | x = NAME COLONEQ e = expr
     { TopDefine (x, e) }
 

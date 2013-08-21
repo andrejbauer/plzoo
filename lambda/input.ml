@@ -10,7 +10,7 @@ and expr' =
 type toplevel = toplevel' * Common.position
 and toplevel' =
   | TopDefine of Common.variable * expr
-  | TopParameter of Common.variable list
+  | TopConstant of Common.variable list
   | Expr of expr
   | Help
   | Quit

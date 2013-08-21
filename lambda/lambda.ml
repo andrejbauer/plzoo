@@ -54,7 +54,7 @@ let options = Arg.align [
     " Do not use a command-line wrapper");
   ("-v",
     Arg.Unit (fun () ->
-      print_endline ("tt " ^ Version.version ^ "(" ^ Sys.os_type ^ ")");
+      print_endline ("lambda " ^ Version.version ^ "(" ^ Sys.os_type ^ ")");
       exit 0),
     " Print version information and exit");
   ("-V",
@@ -104,11 +104,11 @@ let rec exec_cmd interactive ctx (d, loc) =
              k + 1)
            0 ctx.names) ;
       ctx
-    | Input.TopParameter xs ->
+    | Input.TopConstant xs ->
       List.fold_left
         (fun ctx x ->
           if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
-          if interactive then Format.printf "%s is assumed.@." x ;
+          if interactive then Format.printf "%s is now a constant.@." x ;
           add_parameter x ctx)
         ctx xs
     | Input.TopDefine (x, e) ->
@@ -133,8 +133,8 @@ let toplevel ctx =
     | "Win32" -> "Ctrl-Z"
     | _ -> "EOF"
   in
-  print_endline ("tt " ^ Version.version);
-  print_endline ("[Type " ^ eof ^ " to exit or \"#help;;\" for help.]");
+  print_endline ("lambda " ^ Version.version);
+  print_endline ("[Type " ^ eof ^ " to exit or \"#help;\" for help.]");
   try
     let ctx = ref ctx in
     while true do

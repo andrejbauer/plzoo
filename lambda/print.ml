@@ -46,14 +46,31 @@ let sequence ?(sep="") f lst ppf =
   in
     seq lst
 
-(** [lambda xs x e ppf] prints abstraction [^ x . e] using formatter [ppf]. *)
-let rec lambda xs x e ppf =
-  let x =
-    if Syntax.occurs 0 e
-    then Beautify.refresh x xs 
-    else "_"
+(** Print an identifier *)
+let ident x ppf =
+  print ppf "%s" x
+
+(** [lambda e ppf] prints abstraction using formatter [ppf]. *)
+let rec lambda xs y e ppf =
+  let rec collect ((e',_) as e) =
+    match e' with
+      | Syntax.Subst (s, e) -> let e = Syntax.subst s e in collect e
+      | Syntax.Lambda (y, e) -> 
+        let ys, k, e = collect e in ((y,k) :: ys), k+1, e
+      | Syntax.Var _ | Syntax.App _ -> [], 0, e
   in
-    print ~at_level:3 ppf "λ %s .@ %t" x (expr (x :: xs) e)
+  let ys, k, e = collect e in
+  let ys = (y, k) :: ys in
+  let (ys, _) =
+    List.fold_right
+      (fun (y,k) (ys, xs) ->
+        let y = (if Syntax.occurs k e then Beautify.refresh y xs else "_") in
+          (y::ys, y::xs))
+      ys ([], xs)
+  in
+  let xs = (List.rev ys) @ xs
+  in
+    print ~at_level:3 ppf "λ %t .@ %t" (sequence ident ys) (expr xs e)
 
 (** [expr ctx e ppf] prints expression [e] using formatter [ppf]. *)
 and expr ?max_level xs e ppf =
@@ -64,7 +81,7 @@ and expr ?max_level xs e ppf =
         match e with
           | Syntax.Var k -> print "%s" (List.nth xs k)
           | Syntax.Subst (s, e) -> let e = Syntax.subst s e in print "%t" (expr ?max_level xs e)
-          | Syntax.Lambda (x, e) -> print ~at_level:3 "%t" (lambda xs x e)
+          | Syntax.Lambda (y, e) -> print ~at_level:3 "%t" (lambda xs y e)
           | Syntax.App (e1, e2) -> print ~at_level:1 "%t@ %t" (expr ~max_level:1 xs e1) (expr ~max_level:0 xs e2)
   in
     expr ?max_level xs e ppf

@@ -25,7 +25,7 @@ not := ^x . if x false true ;
 
 (* Seznami *)
 
-#var error ;
+#constant error ;
 
 nil := ^x f . x ;
 
