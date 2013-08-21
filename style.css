@@ -1,0 +1,62 @@
+body { 
+  background-color: #E6FFE6;
+  margin: 1em;
+  font-family: serif;
+}
+
+h1 {
+  text-align: center;
+}
+
+a:link { 
+  color: #933000;
+}
+
+a:visited { 
+  color: #702000;
+}
+
+div.intro { 
+  margin: 1em 1em 3em 1em;
+}
+
+p.signature { 
+  margin-right: 8em;
+  margin-top: 2em;
+  text-align: right;
+}
+
+div.lang {
+  background-color: #FFFFFF;
+  padding: 0px;
+  border: solid 2px;
+  padding-bottom: 1em;
+  margin: 1em 1em 2em 1em;
+}
+
+div.lang h3 { 
+  font-family: monospace;
+  margin: 0px;
+  padding: 0.2em 0.2em 0.2em 1em;
+  background-color: #FFAB60;  
+}
+
+div.description { 
+  padding-left: 1em;
+  padding-right: 1em;
+  margin-bottom: 1em;
+}
+
+div.version {
+  font-size: 75%;
+  text-align: right;
+  margin: 0px;
+  padding: 0.75em 2em 0.75em 0px;
+}
+
+div.download,
+div.source
+{ 
+  padding-left: 1em;
+  margin-top: 0.25em;
+}

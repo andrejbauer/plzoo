@@ -1,0 +1,59 @@
+# Osnovne operacije na seznamih.
+
+# Range
+let range = rec range : int -> int -> int list is
+  fun m : int -> fun n : int ->
+    if n < m then [int] else m :: (range (m+1) n)
+
+# Stakni dva seznama
+let append = rec append : int list -> int list -> int list is
+  fun lst1 : int list ->
+    fun lst2 : int list ->
+      match lst1 with
+	  [int] -> lst2
+	| x::xs -> x :: (append xs lst2)
+;;
+
+# fold_left f x0 (x1::x2::...::xn) = f(f(f(...f(x0 x1) x2) x3)...)
+let fold_left =
+  rec fold_left : (int -> int -> int) -> int -> int list -> int is
+    fun f : (int -> int -> int) ->
+      fun x0 : int ->
+	fun lst : int list ->
+	  match lst with
+	      [int] -> x0
+	    | x::xs -> fold_left f (f x0 x) xs
+;;
+# fold_right g (x1::x2::...::xn) y = g (x1 (g (x2 (.... (g xn y) ...))))
+
+# flatten (ena stopnja)
+let flatten =
+  rec flatten : int list list -> int list is
+    fun lsts : int list list ->
+      match lsts with
+	  [int list] -> [int]
+	| l :: ls -> append l (flatten ls)
+;;
+
+# zip2 l1 l2 preplete seznama l1 in l2
+let zip2 =
+  rec zip2 : int list -> int list -> int list is
+    fun l1 : int list ->
+      fun l2 : int list ->
+	match l1 with
+	    [int] -> l2
+	  | x::xs ->
+	      x :: (match l2 with
+			[int] -> xs
+		      | y::ys -> y::(zip2 xs ys))
+;;
+
+# zip
+let zip =
+  rec zip : int list list -> int list is
+    fun lsts : int list list ->
+      match lsts with
+	  [int list] -> [int]
+	| l::ls -> zip2 l (zip ls)
+
+	    
