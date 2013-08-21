@@ -8,10 +8,10 @@
 }
 
 let name = ['a'-'z' 'A'-'Z' '0'-'9' '\'' '!' '@' '$' '%' '&' '*' '-' '+' '|' '\\'
-            '[' ']' '{' '}' ':' ',' '<' '>' '?' '/' '~' '`' ]+
+            '[' ']' '{' '}' ',' '<' '=' '>' '?' '/' '~' '`' ]+
 
 rule token = parse
-  | "(*"                { comment 0 lexbuf }
+  | "/*"                { comment 0 lexbuf }
   | '\n'                { Lexing.new_line lexbuf; token lexbuf }
   | [' ' '\r' '\t']     { token lexbuf }
   | name                { let s = Lexing.lexeme lexbuf in NAME s }
@@ -30,8 +30,8 @@ rule token = parse
   | eof                 { EOF }
 
 and comment n = parse
-  | "*)"                { if n = 0 then token lexbuf else comment (n - 1) lexbuf }
-  | "(*"                { comment (n + 1) lexbuf }
+  | "*/"                { if n = 0 then token lexbuf else comment (n - 1) lexbuf }
+  | "/*"                { comment (n + 1) lexbuf }
   | '\n'                { Lexing.new_line lexbuf; comment n lexbuf }
   | _                   { comment n lexbuf }
   | eof                 { Error.syntax ~loc:(position_of_lex lexbuf) "Unterminated comment" }
