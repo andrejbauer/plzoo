@@ -2,8 +2,6 @@ open Syntax
 
 exception Interrupted of expr
 
-let current_expr = ref None
-
 let eager = ref false
 let hnf = ref false
 

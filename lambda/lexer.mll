@@ -17,16 +17,12 @@ rule token = parse
   | '#' [^ '\n']* '\n' { incr_linenum lexbuf; incr Message.lineno; token lexbuf }
   | '\n'               { incr_linenum lexbuf; incr Message.lineno; token lexbuf }
   | [' ' '\t' '\r']    { token lexbuf }
-  | "fst"              { FST }
-  | "snd"              { SND }
   | ident              { IDENT (Lexing.lexeme lexbuf) }
   | '='                { EQUAL }
   | '^'                { LAMBDA }
   | '('                { LPAREN }
   | ')'                { RPAREN }
   | '.'                { PERIOD }
-  | ','                { COMMA }
-  | ';'                { SEMICOLON }
   | eof                { EOF }
 
 (* trailer *)

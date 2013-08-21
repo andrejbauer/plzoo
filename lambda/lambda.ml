@@ -1,105 +1,148 @@
-(** Top level *)
+(** A list of command-line wrappers to look for. *)
+let wrapper = ref (Some ["rlwrap"; "ledit"])
 
-exception BadArgs;;
+(** Command-line options *)
+let options = Arg.align [
+  ("--wrapper",
+    Arg.String (fun str -> wrapper := Some [str]),
+    "<program> Specify a command-line wrapper to be used (such as rlwrap or ledit)");
+  ("--no-wrapper",
+    Arg.Unit (fun () -> wrapper := None),
+    " Do not use a command-line wrapper");
+  ("-v",
+    Arg.Unit (fun () ->
+      print_endline ("tt " ^ Version.version ^ "(" ^ Sys.os_type ^ ")");
+      exit 0),
+    " Print version information and exit");
+  ("-V",
+   Arg.Int (fun k -> Print.verbosity := k),
+   "<int> Set verbosity level");
+  ("-n",
+    Arg.Clear interactive_shell,
+    " Do not run the interactive toplevel");
+  ("-l",
+    Arg.String (fun str -> add_file false str),
+    "<file> Load <file> into the initial environment");
+]
 
-(** Possible command-line options.  Ocaml automatically adds
-    -help and --help.
-*)
-let command_line_options = []
+(** Treat anonymous arguments as files to be run. *)
+let anonymous str =
+  add_file true str;
+  interactive_shell := false
 
-(** One-line usage message *)
-let usage_msg = 
-  "Usage:  " ^ Sys.argv.(0) ^ " [filenames] \n\n" ^
-    "Shell commands: \n" ^
-    "\\q quit (Ctrl-D also works)\n" ^
-    "\\h display this help\n" ^
-    "\\d show current definitions\n" ^
-    "\\e toggle eager/lazy evaluation\n" ^
-    "\\l toggle evaluation inside abstractions\n" ^
-    "Syntax:\n" ^
-    "expr ::= ident | expr expr | ^ ident1 ... identN . expr"
+(** [exec_cmd ctx d] executes toplevel directive [d] in context [ctx]. It prints the
+    result if in interactive mode, and returns the new context. *)
+let rec exec_cmd interactive ctx (d, loc) =
+  match d with
+    | Syntax.expr e ->
+      let e = Desugar.expr ctx.names e in
+      let t = Typing.infer ctx e in
+      let e = Norm.nf ctx e in
+        if interactive then
+          Format.printf "    = %t@\n    : %t@."
+            (Print.expr ctx.names e)
+            (Print.expr ctx.names t) ;
+        ctx
+    | Syntax.Definition (x, e) ->
+      ignore
+        (List.fold_left
+           (fun k x ->
+             (match Context.lookup k ctx with
+               | Parameter t ->
+                 Format.printf "@[%s : %t@]@." x (Print.expr ctx.names t)
+               | Definition (t, e) ->
+                 Format.printf "@[%s = %t@]@\n    : %t@." x (Print.expr ctx.names e) (Print.expr ctx.names t)) ;
+             k + 1)
+           0 ctx.names) ;
+      ctx
+    | Input.TopLet (x, c) ->
+      if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
+      let c = Desugar.computation ctx.names c in
+        Machine.toplet ctx x c
+    | Input.TopParam (xs, t) ->
+      let t = Desugar.expr ctx.names t in
+        ignore (Typing.check_sort ctx t) ;
+        let ctx, _ = List.fold_left
+          (fun (ctx, t) x ->
+            if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
+            if interactive then Format.printf "%s is assumed.@." x ;
+            (add_parameter x t ctx, Syntax.shift 1 t))
+          (ctx, t) xs
+        in
+          ctx
+    | Input.TopDefine (x, e) ->
+      if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
+      let e = Desugar.expr ctx.names e in
+      let t = Typing.infer ctx e in
+        if interactive then
+          Format.printf "%s is defined.@." x ;
+        add_definition x t e ctx
+    | Input.Computation c ->
+      let c = Desugar.computation ctx.names c in
+      let v = Machine.toplevel ctx c in
+        if interactive then
+          Format.printf "%t@." (Print.value ctx.names v) ;
+        ctx
+    | Input.Help ->
+      print_endline help_text ; ctx
+    | Input.Quit -> exit 0
 
-(** A list of files to process, stored in REVERSE order *)
-let filenames = ref [] 
+(** Load directives from the given file. *)
+and use_file ctx (filename, interactive) =
+  let cmds = Lexer.read_file (parse Parser.file) filename in
+    List.fold_left (exec_cmd interactive) ctx cmds
 
-(** Add a file specified on the command-line to the list
-    of files to process *)
-let addFile strng = 
-  filenames := strng :: !filenames
-
-(* Helper function:  evaluate a given filename *)
-let read fn =
-  let fin = open_in fn in
-  let lexbuf = Lexing.from_channel fin in
+(** Interactive toplevel *)
+let toplevel ctx =
+  let eof = match Sys.os_type with
+    | "Unix" | "Cygwin" -> "Ctrl-D"
+    | "Win32" -> "Ctrl-Z"
+    | _ -> "EOF"
+  in
+  print_endline ("tt " ^ Version.version);
+  print_endline ("[Type " ^ eof ^ " to exit or \"#help;;\" for help.]");
   try
-    let e = Parser.script Lexer.token lexbuf in
-      (close_in fin ; e)
-  with
-    Message.Parse(_,_) ->
-      let pos = lexbuf.Lexing.lex_curr_p in
-      begin
-        print_string "Syntax error detected at line ";
-        print_string ( string_of_int pos.Lexing.pos_lnum );
-        print_string " column ";
-        print_string ( string_of_int ( pos.Lexing.pos_cnum - 
-					 pos.Lexing.pos_bol ) );
-        print_string "\n";
-        raise Parsing.Parse_error 
-      end
+    let ctx = ref ctx in
+    while true do
+      try
+        let cmd = Lexer.read_toplevel (parse Parser.commandline) () in
+        ctx := exec_cmd true !ctx cmd
+      with
+        | Error.Error err -> Print.error err
+        | Sys.Break -> prerr_endline "Interrupted."
+    done
+  with End_of_file -> ()
 
-(* Helper function:  Parses a line of input. *)
-let parse str = Parser.shell Lexer.token (Lexing.from_string str);;
-
-
-(** Main function for evaluating files. Takes a filename and the
-  current "rules". Successively processes each file in turn, using
-  updated rules to process the following file. Thus, dependencies
-  between files are allowed, as long filenames are given in an order
-  that respects dependencies.
-*)
-let process fns = List.fold_left (fun env fn -> Eval.eval_list env (read fn)) [] fns
-	
-(** MAIN PROGRAM *)
-
+(** Main program *)
 let main =
+  Sys.catch_break true;
+  (* Parse the arguments. *)
+  Arg.parse options anonymous usage;
+  (* Attempt to wrap yourself with a line-editing wrapper. *)
+  if !interactive_shell then
+    begin match !wrapper with
+      | None -> ()
+      | Some lst ->
+          let n = Array.length Sys.argv + 2 in
+          let args = Array.make n "" in
+            Array.blit Sys.argv 0 args 1 (n - 2);
+            args.(n - 1) <- "--no-wrapper";
+            List.iter
+              (fun wrapper ->
+                 try
+                   args.(0) <- wrapper;
+                   Unix.execvp wrapper args
+                 with Unix.Unix_error _ -> ())
+              lst
+    end;
+  (* Files were listed in the wrong order, so we reverse them *)
+  files := List.rev !files;
+  (* Set the maximum depth of pretty-printing, after which it prints ellipsis. *)
+  Format.set_max_boxes 42 ;
+  Format.set_ellipsis_text "..." ;
   try
-    (** Parse all the command-line options and store the names
-      of all the files to be processed *)
-    Arg.parse_argv Sys.argv command_line_options addFile usage_msg ;
-    
-    (** Then process the files *)
-    let env = ref (process (List.rev !filenames)) in
-      (** And enter the shell *)
-      print_endline "lambda" ;
-      print_endline "Type \\h for help." ;
-      Sys.catch_break true ;
-      while true do
-	try begin
-	  print_string "> " ;
-	  let s = read_line () in
-	    match s with
-		"\\h" -> print_endline usage_msg
-	      | "\\q" ->
-		  raise End_of_file
-	      | "\\d" ->
-		  List.iter (fun (x,e) -> print_endline (x ^ " = " ^ (Syntax.string_of_expr e))) !env
-	      | "\\e" ->
-		  Eval.eager := not !Eval.eager ;
-		  print_endline ("Eager evaluation is now " ^
-				   (if !Eval.eager then "on" else "off") ^ ".")
-	      | "\\l" ->
-		  Eval.hnf := not !Eval.hnf ;
-		  print_endline ("Evaluation inside abstraction is now " ^
-				   (if !Eval.hnf then "on" else "off") ^ ".")
-	      |  _ -> match parse s with
-		      None -> ()
-		    | Some c -> env := Eval.eval_command !env c
-	end with
-	    End_of_file -> exit 0
-	  | Eval.Interrupted e ->
-	      print_endline "Interrupted."
-	  | e -> print_endline ("Exception: " ^ (Printexc.to_string e))
-      done
+    (* Run and load all the specified files. *)
+    let ctx = List.fold_left use_file empty_context !files in
+    if !interactive_shell then toplevel ctx
   with
-      Arg.Bad s
-    | Arg.Help s -> prerr_endline s
+    Error.Error err -> Print.error err; exit 1
