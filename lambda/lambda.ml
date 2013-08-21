@@ -9,7 +9,7 @@ let interactive_shell = ref true
 let wrapper = ref (Some ["rlwrap"; "ledit"])
 
 (** The usage message. *)
-let usage = "Usage: tt [option] ... [file] ..."
+let usage = "Usage: lambda [option] ... [file] ..."
 
 (** The help text printed when [#help] is used. *)
 let help_text = "Toplevel directives:
@@ -18,6 +18,7 @@ let help_text = "Toplevel directives:
 #help ;;                       print this help
 #quit ;;                       exit
 
+FIX THIS!
 assume <ident> : <sort> ;;     assume variable <ident> has sort <sort>
 let <indent> := <expr> ;;      define <ident> to be <expr>
 [ <expr> :: <sort> ] ;;        check that <expr> has sort <sort>
@@ -86,55 +87,36 @@ let parse parser lex =
     result if in interactive mode, and returns the new context. *)
 let rec exec_cmd interactive ctx (d, loc) =
   match d with
-    | Input.Eval e ->
+    | Input.Expr e ->
       let e = Desugar.expr ctx.names e in
-      let t = Typing.infer ctx e in
       let e = Norm.nf ctx e in
-        if interactive then
-          Format.printf "    = %t@\n    : %t@."
-            (Print.expr ctx.names e)
-            (Print.expr ctx.names t) ;
+        if interactive then Format.printf "    = %t@." (Print.expr ctx.names e) ;
         ctx
     | Input.Context ->
       ignore
         (List.fold_left
            (fun k x ->
-             (match Context.lookup k ctx with
-               | Parameter t ->
-                 Format.printf "@[%s : %t@]@." x (Print.expr ctx.names t)
-               | Definition (t, e) ->
-                 Format.printf "@[%s = %t@]@\n    : %t@." x (Print.expr ctx.names e) (Print.expr ctx.names t)) ;
+             (match Context.lookup_definition k ctx with
+               | None ->
+                 Format.printf "@[%s@]@." x
+               | Some e ->
+                 Format.printf "@[%s = %t@]@." x (Print.expr ctx.names e)) ;
              k + 1)
            0 ctx.names) ;
       ctx
-    | Input.TopLet (x, c) ->
-      if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
-      let c = Desugar.computation ctx.names c in
-        Machine.toplet ctx x c
-    | Input.TopParam (xs, t) ->
-      let t = Desugar.expr ctx.names t in
-        ignore (Typing.check_sort ctx t) ;
-        let ctx, _ = List.fold_left
-          (fun (ctx, t) x ->
-            if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
-            if interactive then Format.printf "%s is assumed.@." x ;
-            (add_parameter x t ctx, Syntax.shift 1 t))
-          (ctx, t) xs
-        in
-          ctx
+    | Input.TopParameter xs ->
+      List.fold_left
+        (fun ctx x ->
+          if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
+          if interactive then Format.printf "%s is assumed.@." x ;
+          add_parameter x ctx)
+        ctx xs
     | Input.TopDefine (x, e) ->
       if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
       let e = Desugar.expr ctx.names e in
-      let t = Typing.infer ctx e in
         if interactive then
           Format.printf "%s is defined.@." x ;
-        add_definition x t e ctx
-    | Input.Computation c ->
-      let c = Desugar.computation ctx.names c in
-      let v = Machine.toplevel ctx c in
-        if interactive then
-          Format.printf "%t@." (Print.value ctx.names v) ;
-        ctx
+        add_definition x e ctx
     | Input.Help ->
       print_endline help_text ; ctx
     | Input.Quit -> exit 0

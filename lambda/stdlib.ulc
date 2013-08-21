@@ -1,67 +1,65 @@
-pair = ^ a b . ^p . p a b ;
-first = ^ p . p (^x y . x) ;
-second = ^ p . p (^x y. y) ;
+pair := ^ a b . ^p . p a b ;
+first := ^ p . p (^x y . x) ;
+second := ^ p . p (^x y. y) ;
 
-######################################################################
-# Konstantna funkcija
+(* Konstantna funkcija *)
 
-K = ^ x y . x ;
+K := ^ x y . x ;
 
 
-######################################################################
-# Rekurzivne definicije
+(* Rekurzivne definicije *)
 
-fix = ^f . (^x . f (x x)) (^x . f (x x)) ;
+fix := ^f . (^x . f (x x)) (^x . f (x x)) ;
 
-# Pogojni stavki in logika
+(* Pogojni stavki in logika *)
 
-true  = ^x y . x ;
-false = ^x y . y ;
-if = ^u . u ;
+true  := ^x y . x ;
+false := ^x y . y ;
+if := ^u . u ;
 
-and = ^x y . if x y false ;
-or  = ^x y . if x true y ;
-not = ^x . if x false true ;
+and := ^x y . if x y false ;
+or  := ^x y . if x true y ;
+not := ^x . if x false true ;
 
 
 
-######################################################################
-# Seznami
+(* Seznami *)
 
-nil = ^x f . x ;
+#var error ;
 
-cons = ^g r . ^x f . f g r ;
+nil := ^x f . x ;
 
-head = ^l . l error (^a b . a) ;
+cons := ^g r . ^x f . f g r ;
 
-tail = ^l . l error (^a b . b) ;
+head := ^l . l error (^a b . a) ;
 
-match = ^l x f. l x f ;
+tail := ^l . l error (^a b . b) ;
 
-map = fix (^map f l . match l nil (^x xs. cons (f x) (map f xs))) ;
+match := ^l x f. l x f ;
 
-fold = fix (^fold x f l. match l x (^y ys . f y (fold x f ys))) ;
+map := fix (^map f l . match l nil (^x xs. cons (f x) (map f xs))) ;
 
-######################################################################
-# Stevila
+fold := fix (^fold x f l. match l x (^y ys . f y (fold x f ys))) ;
 
-0 = ^f x . x ;
-1 = ^f x . f x ;
-2 = ^f x . f (f x) ;
-3 = ^f x . f (f (f x)) ;
+(* Stevila *)
 
-succ = ^n f x . f (n f x) ;
+0 := ^f x . x ;
+1 := ^f x . f x ;
+2 := ^f x . f (f x) ;
+3 := ^f x . f (f (f x)) ;
 
-plus = ^n m f x . (n f) ((m f) x) ;
+succ := ^n f x . f (n f x) ;
 
-times = ^n m f x . (n (m f)) x ;
+plus := ^n m f x . (n f) ((m f) x) ;
 
-power = ^n m . m n ;
+times := ^n m f x . (n (m f)) x ;
 
-iszero = ^n . (n (K false)) true ;
+power := ^n m . m n ;
 
-pred = ^n . second (n (^p. pair (succ (first p)) (first p)) (pair 0 error)) ;
+iszero := ^n . (n (K false)) true ;
 
-equal = fix (^equal n m . if (iszero n) (iszero m) (equal (pred n) (pred m))) ;
+pred := ^n . second (n (^p. pair (succ (first p)) (first p)) (pair 0 error)) ;
 
-fact = fix (^fact n . if (iszero n) 1 (times n (fact (pred n)))) ;
+equal := fix (^equal n m . if (iszero n) (iszero m) (equal (pred n) (pred m))) ;
+
+fact := fix (^fact n . if (iszero n) 1 (times n (fact (pred n)))) ;

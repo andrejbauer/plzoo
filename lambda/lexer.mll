@@ -3,67 +3,28 @@
 
   open Parser
 
-  let reserved = [
-    ("check", CHECK) ;
-    ("equal", EQUAL) ;
-    ("infer", INFER) ;
-    ("inhabit", INHABIT) ;
-    ("assume", ASSUME) ;
-    ("define", DEFINE) ;
-    ("end", END) ;
-    ("forall", FORALL) ;
-    ("fun", FUN);
-    ("handle", HANDLE) ;
-    ("let", LET) ;
-    ("in", IN) ;
-    ("nat", NAT) ;
-    ("natrec", NATREC) ;
-    ("refl", REFL) ;
-    ("return", RETURN) ;
-    ("succ", SUCC) ;
-    ("transport", TRANSPORT) ;
-    ("Type", TYPE) ;
-    ("with", WITH) ;
-  ]
-
   let position_of_lex lex =
     Common.Position (Lexing.lexeme_start_p lex, Lexing.lexeme_end_p lex)
 }
 
-let name = ['a'-'z' 'A'-'Z'] ['_' 'a'-'z' 'A'-'Z' '0'-'9' '\'']*
-
-let numeral = ['0'-'9']+
+let name = ['a'-'z' 'A'-'Z' '0'-'9' '\'' '!' '@' '$' '%' '&' '*' '-' '+' '|' '\\'
+            '[' ']' '{' '}' ':' ',' '<' '>' '?' '/' '~' '`' ]+
 
 rule token = parse
   | "(*"                { comment 0 lexbuf }
   | '\n'                { Lexing.new_line lexbuf; token lexbuf }
   | [' ' '\r' '\t']     { token lexbuf }
-  | numeral             { NUMERAL (int_of_string (Lexing.lexeme lexbuf)) }
-  | name                { let s = Lexing.lexeme lexbuf in
-                            try
-                              List.assoc s reserved
-                            with Not_found -> NAME s
-                        }
+  | name                { let s = Lexing.lexeme lexbuf in NAME s }
   | "#context"          { CONTEXT }
-  | "#eval"             { EVAL }
   | "#help"             { HELP }
   | "#quit"             { QUIT }
+  | "#var"              { VAR }
   | '('                 { LPAREN }
   | ')'                 { RPAREN }
-  | '['                 { LBRACK }
-  | ']'                 { RBRACK }
-  | ':'                 { COLON }
-  | "::"                { DCOLON }
-  | ";;"                { SEMISEMI }
-  | ','                 { COMMA }
-  | '|'                 { BAR }
-  | '?'                 { QUESTIONMARK }
-  | "->"                { ARROW }
-  | "=>"                { DARROW }
-  | "="                 { EQ }
   | ":="                { COLONEQ }
-  | "=="                { EQEQ }
-  | "@"                 { AT }
+  | '.'                 { PERIOD }
+  | '^'                 { LAMBDA }
+  | ';'                 { SEMI }
   | eof                 { EOF }
 
 and comment n = parse
@@ -90,16 +51,15 @@ and comment n = parse
     (* Any errors when opening or closing a file are fatal. *)
     Sys_error msg -> Error.fatal ~loc:Common.Nowhere "%s" msg
 
-
   let read_toplevel parser () =
-    let ends_with_semisemi str =
+    let ends_with_semi str =
       let i = ref (String.length str - 1) in
         while !i >= 0 && List.mem str.[!i] [' '; '\n'; '\t'; '\r'] do decr i done ;
-        !i >= 1 && str.[!i - 1] = ';' && str.[!i] = ';'
+        !i >= 0 && str.[!i] = ';'
     in
 
     let rec read_more prompt acc =
-      if ends_with_semisemi acc
+      if ends_with_semi acc
       then acc
       else begin
         print_string prompt ;
@@ -108,7 +68,7 @@ and comment n = parse
       end
     in
 
-    let str = read_more "# " "" in
+    let str = read_more "> " "" in
     let lex = Lexing.from_string (str ^ "\n") in
       parser lex
 }
