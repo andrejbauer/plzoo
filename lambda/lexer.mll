@@ -19,6 +19,8 @@ rule token = parse
   | "#help"             { HELP }
   | "#quit"             { QUIT }
   | "#constant"         { CONSTANT }
+  | "#eager"            { EAGER }
+  | "#lazy"             { LAZY }
   | '('                 { LPAREN }
   | ')'                 { RPAREN }
   | ":="                { COLONEQ }

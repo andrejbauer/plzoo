@@ -11,28 +11,22 @@ let wrapper = ref (Some ["rlwrap"; "ledit"])
 (** The usage message. *)
 let usage = "Usage: lambda [option] ... [file] ..."
 
+let eager = ref false
+
 (** The help text printed when [#help] is used. *)
 let help_text = "Toplevel directives:
-#eval <expr> ;;                evaluate <expr>
-#context ;;                    print current contex    
-#help ;;                       print this help
-#quit ;;                       exit
-
-FIX THIS!
-assume <ident> : <sort> ;;     assume variable <ident> has sort <sort>
-let <indent> := <expr> ;;      define <ident> to be <expr>
-[ <expr> :: <sort> ] ;;        check that <expr> has sort <sort>
-[ <expr> :: ? ] ;;             infer the sort of expression <expr>
-[ ? :: <sort> ] ;;             inhabit sort <sort>
+<expr> ;                      evaluate <expr>
+#lazy ;                       switch to lazy evaluation mode
+#eager ;                      switch to eager evaluation mode
+#constant x ... y ;           declare constants
+#context ;                    print current definitions
+#help ;                       print this help
+#quit ;                       exit
 
 Syntax:
-Type                           the sort of types
-<expr> :: <sort>               the sort of typing judgments
-<expr> == <expr> @ <sort>      the sort of equality judgments
-fun x : e1 => e2               function abstraction
-forall x : e1, e2              dependent product
+^ x ... y . e                  λ-abstraction
 e1 e2                          application
-" ;;
+"
 
 (** A list of files to be loaded and run. *)
 let files = ref []
@@ -89,7 +83,7 @@ let rec exec_cmd interactive ctx (d, loc) =
   match d with
     | Input.Expr e ->
       let e = Desugar.expr ctx.names e in
-      let e = Norm.nf ctx e in
+      let e = Norm.norm ~eager:!eager ctx.decls e in
         if interactive then Format.printf "    = %t@." (Print.expr ctx.names e) ;
         ctx
     | Input.Context ->
@@ -104,11 +98,15 @@ let rec exec_cmd interactive ctx (d, loc) =
              k - 1)
            ctx.names (List.length ctx.names - 1)) ;
       ctx
+    | Input.Eager b ->
+      eager := b ;
+      Format.printf "@[I will evaluate %s.@." (if !eager then "eagerly" else "lazily") ;
+      ctx
     | Input.TopConstant xs ->
       List.fold_left
         (fun ctx x ->
           if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
-          if interactive then Format.printf "%s is now a constant.@." x ;
+          if interactive then Format.printf "%s is a constant.@." x ;
           add_parameter x ctx)
         ctx xs
     | Input.TopDefine (x, e) ->

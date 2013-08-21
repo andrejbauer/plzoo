@@ -10,9 +10,10 @@ let lookup k env =
 
 let extend env = None :: env
 
-(** [norm env e] evaluates expression [e] in environment [env] to a weak head normal form,
-    while [norm ~weak:false env e] evaluates to normal form. *)
-let norm ?(weak=false) =
+(** [norm env e] evaluates expression [e] in environment [env].
+    The optional arguments [~eager] and [~under] tell whether arguments
+    should be evaluated eagerly and whether to evaulate under abstractions. *)
+let norm ?(eager=false) ?(under=false) =
   let rec norm env ((e', loc) as e) =
     match e' with
 
@@ -25,27 +26,20 @@ let norm ?(weak=false) =
         norm env (subst s e')
 
       | Lambda (x, e') -> 
-        if weak
-        then e
-        else 
+        if under
+        then
           let e' = norm (extend env) e' in
             mk_lambda x e'
+        else e
 
       | App (e1, e2) ->
         let (e1', _) as e1 = norm env e1 in
           (match e1' with
             | Lambda (x, e) -> norm env (mk_subst (Dot (e2, idsubst)) e)
             | Var _ | App _ -> 
-              let e2 = (if weak then e2 else norm env e2) in 
+              let e2 = (if eager then norm env e2 else e2) in 
                 App (e1, e2), loc
             | Subst _ ->
               Error.runtime ~loc:(snd e2) "function expected")
   in
     norm
-
-(** [nf ctx e] computes the normal form of expression [e]. *)
-let nf ctx = norm ~weak:false ctx.Context.decls
-
-(** [whnf ctx e] computes the weak head normal form of expression [e]. *)
-let whnf ctx = norm ~weak:true ctx.Context.decls
-

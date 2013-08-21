@@ -10,7 +10,7 @@
 %token <string> NAME
 %token LPAREN RPAREN LAMBDA PERIOD
 %token COLONEQ SEMI
-%token CONTEXT HELP QUIT CONSTANT
+%token CONTEXT HELP QUIT CONSTANT LAZY EAGER
 %token EOF
 
 %start <Input.toplevel list> file
@@ -64,6 +64,10 @@ plain_topdef:
 (* Toplevel directive. *)
 topdirective: mark_position(plain_topdirective) { $1 }
 plain_topdirective:
+  | EAGER
+    { Eager true }
+  | LAZY
+    { Eager false }
   | CONTEXT
     { Context }
   | HELP

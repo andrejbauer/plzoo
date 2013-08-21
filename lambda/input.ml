@@ -15,4 +15,5 @@ and toplevel' =
   | Help
   | Quit
   | Context
+  | Eager of bool
 
