@@ -94,15 +94,15 @@ let rec exec_cmd interactive ctx (d, loc) =
         ctx
     | Input.Context ->
       ignore
-        (List.fold_left
-           (fun k x ->
+        (List.fold_right
+           (fun x k ->
              (match Context.lookup_definition k ctx with
                | None ->
-                 Format.printf "@[%s@]@." x
+                 Format.printf "#constant @[%s@];@." x
                | Some e ->
-                 Format.printf "@[%s = %t@]@." x (Print.expr ctx.names e)) ;
-             k + 1)
-           0 ctx.names) ;
+                 Format.printf "@[%s := %t@];@." x (Print.expr ctx.names e)) ;
+             k - 1)
+           ctx.names (List.length ctx.names - 1)) ;
       ctx
     | Input.TopConstant xs ->
       List.fold_left
