@@ -11,9 +11,9 @@ let lookup k env =
 let extend env = None :: env
 
 (** [norm env e] evaluates expression [e] in environment [env].
-    The optional arguments [~eager] and [~under] tell whether arguments
-    should be evaluated eagerly and whether to evaulate under abstractions. *)
-let norm ?(eager=false) ?(under=false) =
+    The optional arguments [~eager] and [~deep] tell whether arguments
+    should be evaluated eagerly and whether to evaulate deep abstractions. *)
+let norm ?(eager=false) ?(deep=false) =
   let rec norm env ((e', loc) as e) =
     match e' with
 
@@ -26,7 +26,7 @@ let norm ?(eager=false) ?(under=false) =
         norm env (subst s e')
 
       | Lambda (x, e') -> 
-        if under
+        if deep
         then
           let e' = norm (extend env) e' in
             mk_lambda x e'

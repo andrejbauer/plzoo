@@ -13,11 +13,15 @@ let usage = "Usage: lambda [option] ... [file] ..."
 
 let eager = ref false
 
+let deep = ref false
+
 (** The help text printed when [#help] is used. *)
 let help_text = "Toplevel directives:
 <expr> ;                      evaluate <expr>
-#lazy ;                       switch to lazy evaluation mode
-#eager ;                      switch to eager evaluation mode
+#lazy ;                       evaluate lazily (do not evaluate arguments)
+#eager ;                      evaluate eagrly (evaluate arguments immediately)
+#deep ;                       evaluate inside λ-abstraction
+#shallow ;                    do not evaluate inside λ-abstraction
 #constant x ... y ;           declare constants
 #context ;                    print current definitions
 #help ;                       print this help
@@ -83,7 +87,7 @@ let rec exec_cmd interactive ctx (d, loc) =
   match d with
     | Input.Expr e ->
       let e = Desugar.expr ctx.names e in
-      let e = Norm.norm ~eager:!eager ctx.decls e in
+      let e = Norm.norm ~eager:!eager ~deep:!deep ctx.decls e in
         if interactive then Format.printf "    = %t@." (Print.expr ctx.names e) ;
         ctx
     | Input.Context ->
@@ -101,6 +105,10 @@ let rec exec_cmd interactive ctx (d, loc) =
     | Input.Eager b ->
       eager := b ;
       Format.printf "@[I will evaluate %s.@." (if !eager then "eagerly" else "lazily") ;
+      ctx
+    | Input.Deep b ->
+      deep := b ;
+      Format.printf "@[I will evaluate %s.@." (if !deep then "deeply" else "shallowly") ;
       ctx
     | Input.TopConstant xs ->
       List.fold_left

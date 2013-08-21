@@ -21,6 +21,8 @@ rule token = parse
   | "#constant"         { CONSTANT }
   | "#eager"            { EAGER }
   | "#lazy"             { LAZY }
+  | "#deep"             { DEEP }
+  | "#shallow"          { SHALLOW }
   | '('                 { LPAREN }
   | ')'                 { RPAREN }
   | ":="                { COLONEQ }

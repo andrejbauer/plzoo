@@ -16,4 +16,5 @@ and toplevel' =
   | Quit
   | Context
   | Eager of bool
+  | Deep of bool
 

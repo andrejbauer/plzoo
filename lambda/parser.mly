@@ -10,7 +10,7 @@
 %token <string> NAME
 %token LPAREN RPAREN LAMBDA PERIOD
 %token COLONEQ SEMI
-%token CONTEXT HELP QUIT CONSTANT LAZY EAGER
+%token CONTEXT HELP QUIT CONSTANT LAZY EAGER DEEP SHALLOW
 %token EOF
 
 %start <Input.toplevel list> file
@@ -68,6 +68,10 @@ plain_topdirective:
     { Eager true }
   | LAZY
     { Eager false }
+  | DEEP
+    { Deep true }
+  | SHALLOW
+    { Deep false }
   | CONTEXT
     { Context }
   | HELP
