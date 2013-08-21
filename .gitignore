@@ -1,4 +1,5 @@
 *~
 _build
-*.{byte,native}
+*.native
+*.byte
 .DS_Store
