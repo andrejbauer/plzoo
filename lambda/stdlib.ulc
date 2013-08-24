@@ -6,11 +6,6 @@ second := ^ p . p (^x y. y) ;
 
 K := ^ x y . x ;
 
-
-/* Rekurzivne definicije */
-
-fix := ^f . (^x . f (x x)) (^x . f (x x)) ;
-
 /* Pogojni stavki in logika */
 
 true  := ^x y . x ;
@@ -21,7 +16,9 @@ and := ^x y . if x y false ;
 or  := ^x y . if x true y ;
 not := ^x . if x false true ;
 
+/* Rekurzivne definicije */
 
+fix := ^f . (^x . f (x x)) (^x . f (x x)) ;
 
 /* Seznami */
 
@@ -79,12 +76,12 @@ fact := fix (^fact n . if (iszero n) 1 (* n (fact (pred n)))) ;
 
 > := ^m n . >= m (succ n) ;
 
-mu := fix (^mu f n . if (f n) n (mu f (succ n))) ;
+mu := fix (^mu n f . if (f n) n (mu (succ n) f)) 0 ;
 
-/ := ^m n . mu (^k . > (* (succ k) n) m) 0 ;
+/ := ^m n . mu (^k . > (* (succ k) n) m) ;
 
 | := ^m n . == (* m (/ n m)) n ;
 
 all := ^m n f . fix (^all k . if (> k n) true (if (f k) (all (succ k)) false)) m ;
 
-prime := ^n . all 2 (pred n) (^k . not (| k n)) ;
+prime := ^n . all 2 (/ n 2) (^k . not (| k n)) ;
