@@ -102,8 +102,8 @@ struct
     with
       | Failure "lexing: empty token" ->
         Error.syntax ~loc:(Position.position_of_lex lex) "unrecognised symbol"
-(*      | _ ->
-        Error.syntax ~loc:(Position.position_of_lex lex) "general confusion" *)
+      | _ ->
+        Error.syntax ~loc:(Position.position_of_lex lex) "general confusion"
 
   (** Load directives from the given file. *)
   let use_file ctx (filename, interactive) =
