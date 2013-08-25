@@ -2,7 +2,7 @@
 
 module type LANGUAGE =
 sig
-  type toplevel    (* Toplevel entries. *)
+  type toplevel    (* Parsed toplevel entry. *)
   type environment (* Runtime environment. *)
 
   val initial_environment : environment (* The initial environment. *)
@@ -10,13 +10,10 @@ sig
   val prompt : string (* The prompt to show at toplevel. *)
   val more_prompt : string (* The prompt to show when reading some more. *)
 
-  val lexer : unit (* The lexer. *)
-
-  val file_parser : unit -> Lexing.lexbuf -> 'a (* The file parser *)
-  val toplevel_parser : unit -> Lexing.lexbuf -> 'a (* Interactive shell parser *)
+  val file_parser : Lexing.lexbuf -> toplevel list (* The file parser *)
+  val toplevel_parser : Lexing.lexbuf -> toplevel (* Interactive shell parser *)
 
   val name : string (* The name of the language *)
-  val version : string (* The language version *)
   val greeting : string (* The greeting printed by the interactive toplevel. *)
   val options : (Arg.key * Arg.spec * Arg.doc) list (* Language-specific command-line options *)
   val help_directive : string option (* What to type in toplevel to get help. *)
@@ -54,9 +51,9 @@ struct
      " Do not use a command-line wrapper");
     ("-v",
      Arg.Unit (fun () ->
-       print_endline (L.name ^ " " ^ L.version ^ "(" ^ Sys.os_type ^ ")");
+       print_endline (L.name ^ " " ^ "(" ^ Sys.os_type ^ ")");
        exit 0),
-     " Print version information and exit");
+     " Print language information and exit");
     ("-n",
      Arg.Clear interactive_shell,
      " Do not run the interactive toplevel");
@@ -90,28 +87,23 @@ struct
 
   (** Parse input from toplevel, using the given [parser]. *)
   let read_toplevel parser () =
-    let rec read_more prompt acc =
-      if L.read_more acc
-      then begin
-        print_string prompt ;
-        let str = read_line () in
-          read_more L.more_prompt (acc ^ "\n" ^ str)
-      end
-      else acc
-    in
-    let str = read_more L.prompt "" in
-    let lex = Lexing.from_string (str ^ "\n") in
-      parser lex
+    print_string L.prompt ;
+    let str = ref (read_line ()) in
+      while L.read_more !str do
+        print_string L.more_prompt ;
+        str := read_line ()
+      done ;
+      parser (Lexing.from_string (!str ^ "\n"))
 
   (** Parser wrapper that catches syntax-related errors and converts them to errors. *)
   let wrap_syntax_errors parser lex =
     try
-      parser L.lexer lex
+      parser lex
     with
       | Failure "lexing: empty token" ->
         Error.syntax ~loc:(Position.position_of_lex lex) "unrecognised symbol"
-      | _ ->
-        Error.syntax ~loc:(Position.position_of_lex lex) "general confusion"
+(*      | _ ->
+        Error.syntax ~loc:(Position.position_of_lex lex) "general confusion" *)
 
   (** Load directives from the given file. *)
   let use_file ctx (filename, interactive) =

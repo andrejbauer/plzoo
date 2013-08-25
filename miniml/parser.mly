@@ -20,8 +20,11 @@
 %token SEMICOLON2
 %token EOF
 
+%start file
+%type <Syntax.toplevel_cmd list> file
+
 %start toplevel
-%type <Syntax.toplevel_cmd list> toplevel
+%type <Syntax.toplevel_cmd> toplevel
 
 %nonassoc FUN IS
 %nonassoc IF THEN ELSE
@@ -33,14 +36,18 @@
 
 %%
 
-toplevel:
-    EOF                      { [] }
+file:
+  | EOF                      { [] }
   | def EOF                  { [$1] }
   | def SEMICOLON2 EOF       { [$1] }
   | expr EOF                 { [Expr $1] }
   | expr SEMICOLON2 EOF      { [Expr $1] }
-  | def SEMICOLON2 toplevel  { $1 :: $3 }
-  | expr SEMICOLON2 toplevel { (Expr $1) :: $3 }
+  | def SEMICOLON2 file      { $1 :: $3 }
+  | expr SEMICOLON2 file     { (Expr $1) :: $3 }
+
+toplevel:
+  | def SEMICOLON2 EOF       { $1 }
+  | expr SEMICOLON2 EOF      { Expr $1 }
 
 def: LET VAR EQUAL expr { Def ($2, $4) }
 
