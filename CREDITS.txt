@@ -1,0 +1,5 @@
+The following people have contributed to the PL Zoo library, listed
+in alphabetical order:
+
+* Andrej Bauer, University of Ljubljana
+* Matija Pretnar, University of Ljubljana
