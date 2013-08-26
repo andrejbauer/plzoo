@@ -10,10 +10,11 @@ The PL Zoo is open source, see the file `LICENSE.txt` for licensing information.
 
 To compile the PL Zoo you will need:
 
-* The [OCaml](http://www.ocaml.org/) programming language, version 4 or later
-* The [menhir](http://gallium.inria.fr/~fpottier/menhir/) parser generator
+* [OCaml](http://www.ocaml.org/) programming language, version 4 or later,
+* [menhir](http://gallium.inria.fr/~fpottier/menhir/) parser generator.
 
-A good way to get menhir is through the [Ocaml Package Manager](http://opam.ocamlpro.com/).
+A good way to get started with OCaml is to use the [Ocaml Package
+Manager](http://opam.ocamlpro.com/), through which menhir is available.
 
 ## WARNING
 
