@@ -21,10 +21,10 @@
 %token EOF
 
 %start file
-%type <Syntax.toplevel_cmd list> file
+%type <Syntax.toplevel list> file
 
 %start toplevel
-%type <Syntax.toplevel_cmd> toplevel
+%type <Syntax.toplevel> toplevel
 
 %nonassoc IS
 %nonassoc ELSE
@@ -57,8 +57,9 @@ def:
   | LET x = VAR EQUAL e = expr
     { Def (x, e) }
 
-expr:
-  | e = app_expr
+expr: mark_position(plain_expr) { $1 }
+plain_expr:
+  | e = plain_app_expr
     { e }
   | MINUS n = INT
     { Int (-n) }
@@ -77,13 +78,15 @@ expr:
   | FUN x = VAR LPAREN f = VAR COLON t1 = ty RPAREN COLON t2 = ty IS e = expr
     { Fun (x, f, t1, t2, e) }
 
-app_expr:
-  | e = simple_expr
+app_expr: mark_position(plain_app_expr) { $1 }
+plain_app_expr:
+  | e = plain_simple_expr
     { e }
   | e1 = app_expr e2 = simple_expr
     { Apply (e1, e2) }
 
-simple_expr:
+simple_expr: mark_position(plain_simple_expr) { $1 }
+plain_simple_expr:
   | x = VAR
     { Var x }
   | TRUE    
@@ -92,7 +95,7 @@ simple_expr:
     { Bool false }
   | n = INT
     { Int n }
-  | LPAREN e = expr RPAREN	
+  | LPAREN e = plain_expr RPAREN	
     { e }    
 
 ty:
@@ -104,6 +107,10 @@ ty:
     { TArrow (t1, t2) }
   | LPAREN t = ty RPAREN
     { t }
+
+mark_position(X):
+  x = X
+  { x, Zoo.Position ($startpos, $endpos) }
 
 %%
 

@@ -1,5 +1,5 @@
-module MiniML = Toplevel.Make(struct
-  type toplevel = Syntax.toplevel_cmd
+module MiniML = Zoo.Toplevel(struct
+  type toplevel = Syntax.toplevel
 
   (** A context describing the types of globally defined values. *)
   type context = (Syntax.name * Syntax.ty) list
@@ -37,7 +37,7 @@ module MiniML = Toplevel.Make(struct
       let frm = Compile.compile e in
       let v = Machine.run frm env in
         if interactive then
-          print_endline ("- : " ^ (Syntax.string_of_type ty) ^ " = " ^ (Machine.string_of_mvalue v)) ;
+          Format.printf "- : %t = %t@." (Print.ty ty) (Print.mvalue v) ;
         (ctx, env)
     | Syntax.Def (x, e) ->
       (* check the type of [e], compile it, run it, and return a new
@@ -46,7 +46,7 @@ module MiniML = Toplevel.Make(struct
       let frm = Compile.compile e in
       let v = Machine.run frm env in
         if interactive then
-          print_endline (x ^ " : " ^ (Syntax.string_of_type ty) ^ " = " ^ (Machine.string_of_mvalue v)) ;
+          Format.printf "%s : %t = %t@." x (Print.ty ty) (Print.mvalue v) ;
 	((x,ty)::ctx, (x,v)::env)
 
   let read_more str =

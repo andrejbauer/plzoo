@@ -21,14 +21,13 @@
     the first instruction of the first frame from [f].
 *)
 
-
 (** The datatype of variable names. A more efficient implementation
     would use de Bruijn indices but we want to keep things simple. *)
 type name = Syntax.name
 
 (** Machine values. *)
 type mvalue =
-    MInt of int                        (** Integer *)
+  | MInt of int                        (** Integer *)
   | MBool of bool                      (** Boolean value *)
   | MClosure of name * frame * environ (** Closure *)
 
@@ -44,7 +43,7 @@ type mvalue =
 *)
 
 and instr =
-    IMult                           (** multiplication *)
+  | IMult                           (** multiplication *)
   | IAdd                            (** addition *)
   | ISub                            (** subtraction *)
   | IEqual                          (** equality *)
@@ -74,60 +73,58 @@ let error msg = raise (Machine_error msg)
 
 (** Convert a machine value to string *)
 let string_of_mvalue = function
-    MInt k -> string_of_int k
+  | MInt k -> string_of_int k
   | MBool b -> string_of_bool b
   | MClosure _ -> "<fun>" (** Closures cannot be reasonably displayed *)
 
 (** [lookup x envs] scans through the list of environments [envs] and
     returns the first value of variable [x] found. *)
 let lookup x = function
-    env::_ -> (try List.assoc x env with Not_found -> error ("unknown " ^ x))
+  | env::_ -> (try List.assoc x env with Not_found -> error ("unknown " ^ x))
   | _ -> error ("unknown" ^ x)
 
 (** Decompose a stack into top and rest. *)
 let pop = function
-    [] -> error "empty stack"
+  | [] -> error "empty stack"
   | v::s -> (v, s)
 
 (** Pop a boolean value from a stack. *)
 let pop_bool = function
-    MBool b :: s -> (b, s)
+  | MBool b :: s -> (b, s)
   | _ -> error "bool expected"
 
 (** Pop a value and a closure from a stack. *)
 let pop_app = function
-    v :: MClosure (x, f, e) :: s -> (x, f, e, v, s)
+  | v :: MClosure (x, f, e) :: s -> (x, f, e, v, s)
   | _ -> error "value and closure expected"
-
 
 (** Arithmetical operations take their arguments from a stack and put the
     result onto the stack. We use auxiliary functions that do this. *)
 
 (** Multiplication *)
 let mult = function
-    (MInt x) :: (MInt y) :: s -> MInt (y * x) :: s
+  | (MInt x) :: (MInt y) :: s -> MInt (y * x) :: s
   | _ -> error "int and int expected in mult"
 
 (** Addition *)
 let add = function
-    (MInt x) :: (MInt y) :: s -> MInt (y + x) :: s
+  | (MInt x) :: (MInt y) :: s -> MInt (y + x) :: s
   | _ -> error "int and int expected in add"
 
 (** Subtraction *)
 let sub = function
-    (MInt x) :: (MInt y) :: s -> MInt (y - x) :: s
+  | (MInt x) :: (MInt y) :: s -> MInt (y - x) :: s
   | _ -> error "int and int expected in sub"
 
 (** Equality *)
 let equal = function
-    (MInt x) :: (MInt y) :: s -> MBool (y = x) :: s
+  | (MInt x) :: (MInt y) :: s -> MBool (y = x) :: s
   | _ -> error "int and int expected in equal"
 
 (** Less than *)
 let less = function
-    (MInt x) :: (MInt y) :: s -> MBool (y < x) :: s
+  | (MInt x) :: (MInt y) :: s -> MBool (y < x) :: s
   | _ -> error "int and int expected in less"
-
 
 (** [exec instr frms stck envs] executes instruction [instr] in the
     given state [(frms, stck, envs)], where [frms] is a stack of frames,
@@ -166,9 +163,9 @@ let exec instr frms stck envs =
 (** [run frm env] executes the frame [frm] in environment [env]. *)
 let run frm env =
   let rec loop = function
-	([], [v], _) -> v
-      | ((i::is) :: frms, stck, envs) -> loop (exec i (is::frms) stck envs)
-      | ([] :: frms, stck, envs) -> loop (frms, stck, envs)
-      | _ -> error "illegal end of program"
+    | ([], [v], _) -> v
+    | ((i::is) :: frms, stck, envs) -> loop (exec i (is::frms) stck envs)
+    | ([] :: frms, stck, envs) -> loop (frms, stck, envs)
+    | _ -> error "illegal end of program"
   in
     loop ([frm], [], [env])

@@ -1,40 +1,22 @@
-LANGS = \
-	calc \
-	miniml \
-	miniml+error \
-	minihaskell \
-	poly \
-	sub \
-	boa \
-	levy \
-	miniprolog
+OCAMLBUILD=ocamlbuild
 
-ZIP=zip
-WWWDIR=/var/www/andrej.com/plzoo
+LANGS = miniml/miniml
 
-default: src web index.html
+BYTETARGETS = $(LANGS:=.byte)
+NATIVETARGETS = $(LANGS:=.native)
 
-publish: web src
-	rsync -e ssh -r index.html style.css src html www.andrej.com:$(WWWDIR)
+.PHONY: native byte
 
-web:
-	mkdir -p html
-	cat preamble.html > index.html
-	for lang in $(LANGS); do \
-		$(MAKE) -C $$lang web html; \
-		(cat $$lang/web.html >> index.html) \
-	done
-	cat end.html >> index.html
+default: native
 
-src:
-	mkdir -p src
-	for lang in $(LANGS); do \
-		$(MAKE) -C $$lang clean; \
-		$(ZIP) -r src/$$lang.zip $$lang -x \*/.svn/\* ; \
-	done
+native: $(NATIVETARGETS)
 
+byte: $(BYTETARGETS)
+
+$(NATIVETARGETS):
+	$(OCAMLBUILD) -use-menhir -libs unix $@
+
+$(BYTETARGETS):
+	$(OCAMLBUILD) -use-menhir -libs unix $@
 clean:
-	for lang in $(LANGS); do $(MAKE) -C $$lang clean; done
-	/bin/rm -rf html src index.html
-
-.PHONY: src web clean
+	$(OCAMLBUILD) -clean

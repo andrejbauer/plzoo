@@ -1,3 +1,115 @@
+(* This file contains all the common code used by the languages implemented in the PL Zoo.
+   In reality the file should be a library consisting of several modules, but just to keep
+   the build process a bit simpler, we placed everything in here.
+*)
+
+(** Position in source code. For each type in the abstract syntax we define two versions
+    [t] and [t']. The former is the latter with a position tag. For example, [expr = expr'
+    * position] and [expr'] is the type of expressions (without positions). 
+*)
+type position =
+  | Position of Lexing.position * Lexing.position (** delimited position *)
+  | Nowhere (** unknown position *)
+
+(** [nowhere e] is the expression [e] without a source position. It is used when
+    an expression is generated and there is not reasonable position that could be
+    assigned to it. *)
+let nowhere x = (x, Nowhere)
+
+(** Convert a position as presented by [Lexing] to [position]. *)
+let position_of_lex lex =
+  Position (Lexing.lexeme_start_p lex, Lexing.lexeme_end_p lex)
+
+(** Error reporting. *)
+
+(** Exception [Error (loc, err, msg)] indicates an error of type [err] with
+    error message [msg], occurring at position [loc]. *)
+exception Error of (position * string * string)
+
+(** [error loc err_type] raises an error of type [err_type]. The [kfprintf] magic allows
+    one to write [msg] using a format string. *)
+let error ~loc err_type =
+  let k _ =
+    let msg = Format.flush_str_formatter () in
+      raise (Error (loc, err_type, msg))
+  in
+    Format.kfprintf k Format.str_formatter
+
+(** Common error kinds. *)
+let fatal_error ~loc msg = error ~loc "Fatal error" msg
+let syntax_error ~loc msg = error ~loc "Syntax error" msg
+let typing_error ~loc msg = error ~loc "Typing error" msg
+let runtime_error ~loc msg = error ~loc "Runtime error" msg
+let warning_error ~loc msg = error ~loc "Warning" msg
+
+(** Pretty-printing of expressions with the Ocaml [Format] library. *)
+
+(** Print an expression, possibly placing parentheses around it. We always
+    print things at a given "level" [at_level]. If the level exceeds the
+    maximum allowed level [max_level] then the expression should be parenthesized.
+
+    Let us consider an example. When printing nested applications, we should print [App
+    (App (e1, e2), e3)] as ["e1 e2 e3"] and [App(e1, App(e2, e3))] as ["e1 (e2 e3)"]. So
+    if we assign level 1 to applications, then during printing of [App (e1, e2)] we should
+    print [e1] at [max_level] 1 and [e2] at [max_level] 0.
+*)
+let print ?(max_level=9999) ?(at_level=0) ppf =
+  if max_level < at_level then
+    begin
+      Format.fprintf ppf "(@[" ;
+      Format.kfprintf (fun ppf -> Format.fprintf ppf "@])") ppf
+    end
+  else
+    begin
+      Format.fprintf ppf "@[" ;
+      Format.kfprintf (fun ppf -> Format.fprintf ppf "@]") ppf
+    end
+
+(** Print the given source code position. *)
+let print_position loc ppf =
+  match loc with
+  | Nowhere ->
+      Format.fprintf ppf "unknown position"
+  | Position (begin_pos, end_pos) ->
+      let begin_char = begin_pos.Lexing.pos_cnum - begin_pos.Lexing.pos_bol in
+      let end_char = end_pos.Lexing.pos_cnum - begin_pos.Lexing.pos_bol in
+      let begin_line = begin_pos.Lexing.pos_lnum in
+      let filename = begin_pos.Lexing.pos_fname in
+
+      if String.length filename != 0 then
+        Format.fprintf ppf "file %S, line %d, charaters %d-%d" filename begin_line begin_char end_char
+      else
+        Format.fprintf ppf "line %d, characters %d-%d" (begin_line - 1) begin_char end_char
+
+(** Print a sequence of things with the given (optional) separator. *)
+let print_sequence ?(sep="") f lst ppf =
+  let rec seq = function
+    | [] -> print ppf ""
+    | [x] -> print ppf "%t" (f x)
+    | x :: xs -> print ppf "%t%s@ " (f x) sep ; seq xs
+  in
+    seq lst
+
+(** Support for printing of errors at various levels of verbosity. *)
+
+let verbosity = ref 2
+
+(** Print a message at a given location [loc] of message type [msg_type] and
+    verbosity level [v]. *)
+let print_message ?(loc=Nowhere) msg_type v =
+  if v <= !verbosity then
+    begin
+      Format.eprintf "%s at %t:@\n@[" msg_type (print_position loc) ;
+      Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
+    end
+  else
+    Format.ifprintf Format.err_formatter
+
+(** Common message types. *)
+let print_error (loc, err_type, msg) = print_message ~loc err_type 1 "%s" msg
+let print_warning msg = print_message "Warning" 2 msg
+let print_info msg = print_message "Debug" 3 msg
+
 (** Toplevel. *)
 
 module type LANGUAGE =
@@ -22,7 +134,7 @@ sig
   val read_more : string -> bool (* Given the input so far, should we read more in the interactive shell? *)
 end
 
-module Make(L : LANGUAGE) =
+module Toplevel(L : LANGUAGE) =
 struct
 
   (** Should the interactive shell be run? *)
@@ -80,10 +192,10 @@ struct
       terms
     with
       (* Close the file in case of any parsing errors. *)
-      Error.Error err -> close_in fh ; raise (Error.Error err)
+      Error err -> close_in fh ; raise (Error err)
   with
     (* Any errors when opening or closing a file are fatal. *)
-    Sys_error msg -> Error.fatal ~loc:Position.Nowhere "%s" msg
+    Sys_error msg -> fatal_error ~loc:Nowhere "%s" msg
 
   (** Parse input from toplevel, using the given [parser]. *)
   let read_toplevel parser () =
@@ -91,7 +203,7 @@ struct
     let str = ref (read_line ()) in
       while L.read_more !str do
         print_string L.more_prompt ;
-        str := read_line ()
+        str := !str ^ (read_line ()) ^ "\n"
       done ;
       parser (Lexing.from_string (!str ^ "\n"))
 
@@ -101,9 +213,9 @@ struct
       parser lex
     with
       | Failure "lexing: empty token" ->
-        Error.syntax ~loc:(Position.position_of_lex lex) "unrecognised symbol"
+        syntax_error ~loc:(position_of_lex lex) "unrecognised symbol"
       | _ ->
-        Error.syntax ~loc:(Position.position_of_lex lex) "general confusion"
+        syntax_error ~loc:(position_of_lex lex) "general confusion"
 
   (** Load directives from the given file. *)
   let use_file ctx (filename, interactive) =
@@ -128,7 +240,7 @@ struct
               let cmd = read_toplevel (wrap_syntax_errors L.toplevel_parser) () in
                 ctx := L.exec true !ctx cmd
             with
-              | Error.Error err -> Error.print err
+              | Error err -> print_error err
               | Sys.Break -> prerr_endline "Interrupted."
           done
       with End_of_file -> ()
@@ -165,6 +277,5 @@ struct
       let ctx = List.fold_left use_file L.initial_environment !files in
         if !interactive_shell then toplevel ctx
     with
-        Error.Error err -> Error.print err; exit 1
-
+        Error err -> print_error err; exit 1
 end
