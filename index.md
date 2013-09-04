@@ -27,3 +27,9 @@ To build everything type `make`. You can also compile a specific language `X` by
 At the moment the PL Zoo is undergoing a major reorganization. I am porting it to Github
 and consolidating the various programming languages into a more unified library. Please
 stay tuned.
+
+The following languages have been ported to the new toplevel interface:
+
+* `lambda`
+* `miniml`
+* `calc`
