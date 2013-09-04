@@ -117,21 +117,20 @@ sig
   type toplevel    (* Parsed toplevel entry. *)
   type environment (* Runtime environment. *)
 
+  val name : string (* The name of the language *)
+  val options : (Arg.key * Arg.spec * Arg.doc) list (* Language-specific command-line options *)
+  val help_directive : string option (* What to type in toplevel to get help. *)
+
   val initial_environment : environment (* The initial environment. *)
 
   val prompt : string (* The prompt to show at toplevel. *)
   val more_prompt : string (* The prompt to show when reading some more. *)
+  val read_more : string -> bool (* Given the input so far, should we read more in the interactive shell? *)
 
   val file_parser : Lexing.lexbuf -> toplevel list (* The file parser *)
   val toplevel_parser : Lexing.lexbuf -> toplevel (* Interactive shell parser *)
 
-  val name : string (* The name of the language *)
-  val greeting : string (* The greeting printed by the interactive toplevel. *)
-  val options : (Arg.key * Arg.spec * Arg.doc) list (* Language-specific command-line options *)
-  val help_directive : string option (* What to type in toplevel to get help. *)
-
   val exec : bool -> environment -> toplevel -> environment (* Execute a toplevel directive. *)
-  val read_more : string -> bool (* Given the input so far, should we read more in the interactive shell? *)
 end
 
 module Toplevel(L : LANGUAGE) =
@@ -229,10 +228,10 @@ struct
       | "Win32" -> "Ctrl-Z"
       | _ -> "EOF"
     in
-      print_endline L.greeting ;
+      print_endline (L.name ^ " @ programming languages zoo");
       match L.help_directive with
-        | Some h -> print_endline ("[Type " ^ eof ^ " to exit or \"" ^ h ^ "\" for help.]") ;
-        | None -> print_endline ("[Type " ^ eof ^ " to exit.]") ;
+        | Some h -> print_endline ("Type " ^ eof ^ " to exit or \"" ^ h ^ "\" for help.") ;
+        | None -> print_endline ("Type " ^ eof ^ " to exit.") ;
       try
         let ctx = ref ctx in
           while true do
