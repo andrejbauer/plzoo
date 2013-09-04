@@ -1,16 +1,16 @@
 (** Abstract syntax of input files. *)
 
 (** Abstract syntax of expressions as given by the user. *)
-type expr = expr' * Common.position
+type expr = expr' * Zoo.position
 and expr' =
-  | Var of Common.variable
-  | Lambda of Common.variable * expr
+  | Var of string
+  | Lambda of string * expr
   | App of expr * expr
 
-type toplevel = toplevel' * Common.position
+type toplevel = toplevel' * Zoo.position
 and toplevel' =
-  | TopDefine of Common.variable * expr
-  | TopConstant of Common.variable list
+  | TopDefine of string * expr
+  | TopConstant of string list
   | Expr of expr
   | Help
   | Quit

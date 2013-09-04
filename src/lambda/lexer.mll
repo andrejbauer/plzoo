@@ -2,9 +2,6 @@
   (** The lexer. *)
 
   open Parser
-
-  let position_of_lex lex =
-    Common.Position (Lexing.lexeme_start_p lex, Lexing.lexeme_end_p lex)
 }
 
 let name = ['a'-'z' 'A'-'Z' '0'-'9' '\'' '!' '@' '$' '%' '&' '*' '-' '+' '|' '\\'
@@ -36,7 +33,7 @@ and comment n = parse
   | "/*"                { comment (n + 1) lexbuf }
   | '\n'                { Lexing.new_line lexbuf; comment n lexbuf }
   | _                   { comment n lexbuf }
-  | eof                 { Error.syntax ~loc:(position_of_lex lexbuf) "Unterminated comment" }
+  | eof                 { Zoo.syntax_error ~loc:(Zoo.position_of_lex lexbuf) "Unterminated comment" }
 
 {
   let read_file parser fn =
@@ -50,10 +47,10 @@ and comment n = parse
       terms
     with
       (* Close the file in case of any parsing errors. *)
-      Error.Error err -> close_in fh; raise (Error.Error err)
+      (Zoo.Error _) as exc -> close_in fh; raise exc
   with
     (* Any errors when opening or closing a file are fatal. *)
-    Sys_error msg -> Error.fatal ~loc:Common.Nowhere "%s" msg
+    Sys_error msg -> Zoo.fatal_error ~loc:Zoo.Nowhere "%s" msg
 
   let read_toplevel parser () =
     let ends_with_semi str =

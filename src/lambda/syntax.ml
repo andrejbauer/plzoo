@@ -2,11 +2,11 @@
 
 (** Abstract syntax of expressions, where de Bruijn indices are used to represent
     variables. *)
-type term = term' * Common.position
+type term = term' * Zoo.position
 and term' =
   | Var of int
   | Subst of substitution * term
-  | Lambda of Common.variable * term
+  | Lambda of string * term
   | App of term * term
 
 (** Explicit substitutions. *)
@@ -15,10 +15,10 @@ and substitution =
   | Dot of term * substitution
 
 (** Expression constructors wrapped in "nowhere" positions. *)
-let mk_var k = Common.nowhere (Var k)
-let mk_subst s e = Common.nowhere (Subst (s, e))
-let mk_lambda x e = Common.nowhere (Lambda (x, e))
-let mk_app e1 e2 = Common.nowhere (App (e1, e2))
+let mk_var k = (Var k, Zoo.Nowhere)
+let mk_subst s e = (Subst (s, e), Zoo.Nowhere)
+let mk_lambda x e = (Lambda (x, e), Zoo.Nowhere)
+let mk_app e1 e2 = (App (e1, e2), Zoo.Nowhere)
 
 (** The identity substitution. *)
 let idsubst = Shift 0

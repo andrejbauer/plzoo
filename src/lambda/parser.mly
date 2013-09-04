@@ -110,6 +110,6 @@ plain_name:
 
 mark_position(X):
   x = X
-  { x, Common.Position ($startpos, $endpos) }
+  { x, Zoo.Position ($startpos, $endpos) }
 
 %%

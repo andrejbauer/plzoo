@@ -42,9 +42,9 @@ Syntax:
 e1 e2                          application
 "
 
-  (** [exec interactive (ctx, env) cmd] executes the toplevel command [cmd] and
+  (** [exec interactive ctx cmd] executes the toplevel command [cmd] and
        prints the result if in interactive mode. *)
-  let exec _ interactive (ctx, env) d =
+  let exec _ interactive ctx (d,loc) =
     match d with
     | Input.Expr e ->
       let e = Desugar.expr ctx.Context.names e in
@@ -74,16 +74,16 @@ e1 e2                          application
     | Input.TopConstant xs ->
       List.fold_left
         (fun ctx x ->
-          if List.mem x ctx.Context.names then Error.typing ~loc "%s already exists" x ;
+          if List.mem x ctx.Context.names then Zoo.typing_error ~loc "%s already exists" x ;
           if interactive then Format.printf "%s is a constant.@." x ;
-          add_parameter x ctx)
+          Context.add_parameter x ctx)
         ctx xs
     | Input.TopDefine (x, e) ->
-      if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
-      let e = Desugar.expr ctx.names e in
+      if List.mem x ctx.Context.names then Zoo.typing_error ~loc "%s already exists" x ;
+      let e = Desugar.expr ctx.Context.names e in
         if interactive then
           Format.printf "%s is defined.@." x ;
-        add_definition x e ctx
+        Context.add_definition x e ctx
     | Input.Help ->
       print_endline help_text ; ctx
     | Input.Quit -> exit 0
@@ -92,7 +92,7 @@ e1 e2                          application
   let read_more str =
     let i = ref (String.length str - 1) in
       while !i >= 0 && List.mem str.[!i] [' '; '\n'; '\t'; '\r'] do decr i done ;
-      str.[!i]
+      str.[!i] <> ';'
 end) ;;
 
 Lambda.main ()

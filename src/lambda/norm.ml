@@ -40,6 +40,6 @@ let norm ?(eager=false) ?(deep=false) =
               let e2 = (if eager then norm env e2 else e2) in 
                 App (e1, e2), loc
             | Subst _ ->
-              Error.runtime ~loc:(snd e2) "function expected")
+              Zoo.runtime_error ~loc:(snd e2) "function expected")
   in
     norm

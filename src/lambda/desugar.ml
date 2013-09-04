@@ -3,7 +3,7 @@
 (** [index ~loc x xs] finds the location of [x] in the list [xs]. *)
 let index ~loc x =
   let rec index k = function
-    | [] -> Error.typing ~loc "unknown identifier %s" x
+    | [] -> Zoo.typing_error ~loc "unknown identifier %s" x
     | y :: ys -> if x = y then k else index (k + 1) ys
   in
     index 0
