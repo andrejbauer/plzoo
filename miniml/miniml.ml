@@ -21,8 +21,6 @@ module MiniML = Zoo.Toplevel(struct
 
   let name = "miniml"
 
-  let greeting = "miniml"
-
   let options = []
 
   let help_directive = None
