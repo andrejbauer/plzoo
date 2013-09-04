@@ -130,7 +130,7 @@ sig
   val file_parser : (Lexing.lexbuf -> toplevel list) option (* The file parser *)
   val toplevel_parser : Lexing.lexbuf -> toplevel (* Interactive shell parser *)
 
-  val exec : bool -> environment -> toplevel -> environment (* Execute a toplevel directive. *)
+  val exec : (environment -> (string * bool) -> environment) -> bool -> environment -> toplevel -> environment (* Execute a toplevel directive. *)
 end
 
 module Toplevel(L : LANGUAGE) =
@@ -220,11 +220,11 @@ struct
         syntax_error ~loc:(position_of_lex lex) "general confusion"
 
   (** Load directives from the given file. *)
-  let use_file ctx (filename, interactive) =
+  let rec use_file ctx (filename, interactive) =
     match L.file_parser with
     | Some f ->
       let cmds = read_file (wrap_syntax_errors f) filename in
-        List.fold_left (L.exec interactive) ctx cmds
+        List.fold_left (L.exec use_file interactive) ctx cmds
     | None ->
       fatal_error ~loc:Nowhere "Cannot load files, only interactive shell is available"
 
@@ -236,15 +236,15 @@ struct
       | _ -> "EOF"
     in
       print_endline (L.name ^ " @ programming languages zoo");
-      match L.help_directive with
+      (match L.help_directive with
         | Some h -> print_endline ("Type " ^ eof ^ " to exit or \"" ^ h ^ "\" for help.") ;
-        | None -> print_endline ("Type " ^ eof ^ " to exit.") ;
+        | None -> print_endline ("Type " ^ eof ^ " to exit.")) ;
       try
         let ctx = ref ctx in
           while true do
             try
               let cmd = read_toplevel (wrap_syntax_errors L.toplevel_parser) () in
-                ctx := L.exec true !ctx cmd
+                ctx := L.exec use_file true !ctx cmd
             with
               | Error err -> print_error err
               | Sys.Break -> prerr_endline "Interrupted."
