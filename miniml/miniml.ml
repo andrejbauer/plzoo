@@ -28,7 +28,7 @@ module MiniML = Zoo.Toplevel(struct
   (** [exec interactive (ctx, env) cmd] executes the toplevel command [cmd] and returns
       the new context-environment pair and a string representing the result of
       evaluation. *)
-  let exec interactive (ctx, env) = function
+  let exec _ interactive (ctx, env) = function
     | Syntax.Expr e ->
     (* check the type of [e], compile it, and run it. *)
       let ty = Type_check.type_of ctx e in

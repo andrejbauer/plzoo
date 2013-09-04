@@ -11,7 +11,7 @@ module Calc = Zoo.Toplevel(struct
   let file_parser = None
   let toplevel_parser = Parser.toplevel Lexer.lexeme
 
-  let exec interactive () e =
+  let exec _ interactive () e =
     let n = Eval.eval e in
       if interactive then print_endline (string_of_int n)
 end) ;;
