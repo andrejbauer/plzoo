@@ -11,7 +11,7 @@ module Lambda = Zoo.Toplevel(struct
 
   let file_parser = Some (Parser.file Lexer.token)
 
-  let toplevel_parser = Parser.toplevel Lexer.token
+  let toplevel_parser = Parser.commandline Lexer.token
 
   let name = "lambda"
 
@@ -44,12 +44,12 @@ e1 e2                          application
 
   (** [exec interactive (ctx, env) cmd] executes the toplevel command [cmd] and
        prints the result if in interactive mode. *)
-  let exec interactive (ctx, env) d =
+  let exec _ interactive (ctx, env) d =
     match d with
     | Input.Expr e ->
-      let e = Desugar.expr ctx.names e in
-      let e = Norm.norm ~eager:!eager ~deep:!deep ctx.decls e in
-        if interactive then Format.printf "    = %t@." (Print.expr ctx.names e) ;
+      let e = Desugar.expr ctx.Context.names e in
+      let e = Norm.norm ~eager:!eager ~deep:!deep ctx.Context.decls e in
+        if interactive then Format.printf "    = %t@." (Print.expr ctx.Context.names e) ;
         ctx
     | Input.Context ->
       ignore
@@ -59,9 +59,9 @@ e1 e2                          application
                | None ->
                  Format.printf "#constant @[%s@];@." x
                | Some e ->
-                 Format.printf "@[%s := %t@];@." x (Print.expr ctx.names e)) ;
+                 Format.printf "@[%s := %t@];@." x (Print.expr ctx.Context.names e)) ;
              k - 1)
-           ctx.names (List.length ctx.names - 1)) ;
+           ctx.Context.names (List.length ctx.Context.names - 1)) ;
       ctx
     | Input.Eager b ->
       eager := b ;
@@ -74,7 +74,7 @@ e1 e2                          application
     | Input.TopConstant xs ->
       List.fold_left
         (fun ctx x ->
-          if List.mem x ctx.names then Error.typing ~loc "%s already exists" x ;
+          if List.mem x ctx.Context.names then Error.typing ~loc "%s already exists" x ;
           if interactive then Format.printf "%s is a constant.@." x ;
           add_parameter x ctx)
         ctx xs
