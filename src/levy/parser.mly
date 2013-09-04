@@ -6,7 +6,6 @@
 %token TBOOL
 %token TFORGET
 %token TFREE
-%token TARROW
 %token <Syntax.name> VAR
 %token <int> INT
 %token TRUE FALSE
@@ -32,14 +31,15 @@
 %type <Syntax.toplevel> toplevel
 %type <Syntax.toplevel list> file
 
-%nonassoc TO PERIOD
-%nonassoc LET IN
-%nonassoc FUN ARROW REC IS
-%nonassoc IF THEN ELSE
+%nonassoc TO
+%nonassoc IN
+%nonassoc IS
+%right ARROW
+%right TFREE TFORGET
+%nonassoc ELSE
 %nonassoc EQUAL LESS
 %left PLUS MINUS
 %left TIMES
-%right TARROW
 
 %%
 
@@ -50,10 +50,6 @@ file:
     { [Expr e] }
   | e = expr SEMISEMI lst = file
     { Expr e :: lst }
-  | d = def EOF
-    { [d] }
-  | d = def SEMISEMI lst = file
-    { d :: lst }
   | ds = nonempty_list(def) SEMISEMI lst = file
     { ds @ lst }
   | ds = nonempty_list(def) EOF
@@ -112,10 +108,10 @@ boolean:
 
 ty:
   | TINT         	     { VInt }
-  | TBOOL	 	     { VBool }
-  | ty ARROW ty              { CArrow ($1, $3) }
-  | TFORGET ty               { VForget $2 }
-  | TFREE ty                 { CFree $2 }
-  | LPAREN ty RPAREN         { $2 }
+  | TBOOL	 	           { VBool }
+  | ty ARROW ty        { CArrow ($1, $3) }
+  | TFORGET ty         { VForget $2 }
+  | TFREE ty           { CFree $2 }
+  | LPAREN ty RPAREN   { $2 }
 
 %%
