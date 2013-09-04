@@ -42,10 +42,11 @@ and expr =
   | Rec of name * ltype * expr 	  (** recursion [rec x : t is e] *)
 
 (** Toplevel commands *)
-type toplevel_cmd =
+type toplevel =
   | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
   | Use of string      (** load a file [$use "<filename>"] *)
+  | Help               (** print a help message *)
   | Quit               (** exit toplevel [$quit] *)
 
 (** Conversion from a type to a string *)

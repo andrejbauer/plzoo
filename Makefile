@@ -2,6 +2,7 @@ OCAMLBUILD=ocamlbuild
 
 LANGS = calc/calc \
 	lambda/lambda \
+	levy/levy \
 	miniml/miniml
 
 BYTETARGETS = $(LANGS:=.byte)

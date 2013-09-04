@@ -21,15 +21,16 @@
 %token LPAREN RPAREN
 %token LET IN
 %token TO
-%token SEMICOLON2
+%token SEMISEMI
 %token RETURN THUNK FORCE
-%token QUIT
-%token USE
+%token QUIT HELP USE
 %token <string>STRING
 %token EOF
 
 %start toplevel
-%type <Syntax.toplevel_cmd list> toplevel
+%start file
+%type <Syntax.toplevel> toplevel
+%type <Syntax.toplevel list> file
 
 %nonassoc TO PERIOD
 %nonassoc LET IN
@@ -42,30 +43,38 @@
 
 %%
 
+file:
+  | EOF
+    { [] }
+  | e = expr EOF
+    { [Expr e] }
+  | e = expr SEMISEMI lst = file
+    { Expr e :: lst }
+  | d = def EOF
+    { [d] }
+  | d = def SEMISEMI lst = file
+    { d :: lst }
+  | ds = nonempty_list(def) SEMISEMI lst = file
+    { ds @ lst }
+  | ds = nonempty_list(def) EOF
+    { ds }
+
 toplevel:
-  | EOF                      { [] }
-  | lettop                   { $1 }
-  | exprtop                  { $1 }
-  | cmdtop                   { $1 }
+  | d = def SEMISEMI EOF
+    { d }
+  | e = expr SEMISEMI EOF
+    { Expr e }
+  | d = directive SEMISEMI EOF
+    { d }
 
-lettop:
-  | def EOF                  { [$1] }
-  | def lettop               { $1 :: $2 }
-  | def SEMICOLON2 toplevel  { $1 :: $3 }
-
-exprtop:
-  | expr EOF                 { [Expr $1] }
-  | expr SEMICOLON2 toplevel { Expr $1 :: $3 }
-
-cmdtop:
-  | cmd EOF                  { [$1] }
-  | cmd SEMICOLON2 toplevel  { $1 :: $3 }
-
-cmd:
+directive:
   | USE STRING { Use $2 }
+  | HELP       { Help }
   | QUIT       { Quit }
 
-def: LET VAR EQUAL expr { Def ($2, $4) }
+def:
+  | LET VAR EQUAL expr
+    { Def ($2, $4) }
 
 expr:
   | app                 { $1 }

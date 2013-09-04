@@ -4,7 +4,7 @@
 #
 # or interactively from the levy toplevel as
 #
-# levy> $use "example.levy"
+# levy> #use "example.levy" ;;
 
 
 # Basic arithmetic (notice that we do NOT have unary minus):
