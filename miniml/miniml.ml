@@ -15,7 +15,7 @@ module MiniML = Zoo.Toplevel(struct
 
   let more_prompt = "  "
 
-  let file_parser = Parser.file Lexer.token
+  let file_parser = Some (Parser.file Lexer.token)
 
   let toplevel_parser = Parser.toplevel Lexer.token
 

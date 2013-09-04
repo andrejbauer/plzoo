@@ -1,6 +1,8 @@
 OCAMLBUILD=ocamlbuild
 
-LANGS = lambda/lambda miniml/miniml
+LANGS = calc/calc \
+	lambda/lambda \
+	miniml/miniml
 
 BYTETARGETS = $(LANGS:=.byte)
 NATIVETARGETS = $(LANGS:=.native)

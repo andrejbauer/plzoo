@@ -26,15 +26,16 @@
 
 /* Grammar */
 
-toplevel: expression EOF { $1 }
+toplevel: e = expression EOF
+  { e }
 ;
 
 expression:
-  | NUMERAL                           { Numeral $1 }
-  | expression TIMES  expression      { Times ($1, $3) }
-  | expression PLUS   expression      { Plus ($1, $3) }
-  | expression MINUS  expression      { Minus ($1, $3) }
-  | expression DIVIDE expression      { Divide ($1, $3) }
-  | MINUS expression %prec UMINUS     { Negate $2 }
-  | LPAREN expression RPAREN          { $2 }
+  | n = NUMERAL                             { Numeral n }
+  | e1 = expression TIMES  e2 = expression  { Times (e1, e2) }
+  | e1 = expression PLUS   e2 = expression  { Plus (e1, e2) }
+  | e1 = expression MINUS  e2 = expression  { Minus (e1, e2) }
+  | e1 = expression DIVIDE e2 = expression  { Divide (e1, e2) }
+  | MINUS e = expression %prec UMINUS       { Negate e }
+  | LPAREN e = expression RPAREN            { e }
 ;

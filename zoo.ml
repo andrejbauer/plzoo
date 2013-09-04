@@ -127,7 +127,7 @@ sig
   val more_prompt : string (* The prompt to show when reading some more. *)
   val read_more : string -> bool (* Given the input so far, should we read more in the interactive shell? *)
 
-  val file_parser : Lexing.lexbuf -> toplevel list (* The file parser *)
+  val file_parser : (Lexing.lexbuf -> toplevel list) option (* The file parser *)
   val toplevel_parser : Lexing.lexbuf -> toplevel (* Interactive shell parser *)
 
   val exec : bool -> environment -> toplevel -> environment (* Execute a toplevel directive. *)
@@ -143,7 +143,10 @@ struct
   let wrapper = ref (Some ["rlwrap"; "ledit"])
 
   (** The usage message. *)
-  let usage = "Usage: " ^ L.name ^ " [option] ... [file] ..."
+  let usage = 
+    match L.file_parser with
+    | Some _ -> "Usage: " ^ L.name ^ " [option] ... [file] ..."
+    | None   -> "Usage:" ^ L.name ^ " [option] ..."
 
   (** A list of files to be loaded and run. *)
   let files = ref []
@@ -218,8 +221,12 @@ struct
 
   (** Load directives from the given file. *)
   let use_file ctx (filename, interactive) =
-    let cmds = read_file (wrap_syntax_errors L.file_parser) filename in
-      List.fold_left (L.exec interactive) ctx cmds
+    match L.file_parser with
+    | Some f ->
+      let cmds = read_file (wrap_syntax_errors f) filename in
+        List.fold_left (L.exec interactive) ctx cmds
+    | None ->
+      fatal_error ~loc:Nowhere "Cannot load files, only interactive shell is available"
 
   (** Interactive toplevel *)
   let toplevel ctx =
