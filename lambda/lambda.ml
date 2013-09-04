@@ -1,22 +1,32 @@
-(** Toplevel. *)
+module Lambda = Zoo.Toplevel(struct
+  type toplevel = Input.toplevel
 
-open Context
+  type environment = Context.context
 
-(** Should the interactive shell be run? *)
-let interactive_shell = ref true
+  let initial_environment = Context.empty_context
 
-(** The command-line wrappers that we look for. *)
-let wrapper = ref (Some ["rlwrap"; "ledit"])
+  let prompt = "# "
 
-(** The usage message. *)
-let usage = "Usage: lambda [option] ... [file] ..."
+  let more_prompt = "  "
 
-let eager = ref false
+  let file_parser = Parser.file Lexer.token
 
-let deep = ref false
+  let toplevel_parser = Parser.toplevel Lexer.token
 
-(** The help text printed when [#help] is used. *)
-let help_text = "Toplevel directives:
+  let name = "lambda"
+
+  let options = []
+
+  let help_directive = Some "#help;"
+
+  (** Do we evaluate eagerly? *)
+  let eager = ref false
+
+  (** Do we evaluate inside lambda abstraction? *)
+  let deep = ref false
+
+  (** The help text printed when [#help] is used. *)
+  let help_text = "Toplevel directives:
 <expr> ;                      evaluate <expr>
 #lazy ;                       evaluate lazily (do not evaluate arguments)
 #eager ;                      evaluate eagrly (evaluate arguments immediately)
@@ -32,59 +42,10 @@ Syntax:
 e1 e2                          application
 "
 
-(** A list of files to be loaded and run. *)
-let files = ref []
-
-(** Add a file to the list of files to be loaded, and record whether it should
-    be processed in interactive mode. *)
-let add_file interactive filename = (files := (filename, interactive) :: !files)
-
-(** A list of command-line wrappers to look for. *)
-let wrapper = ref (Some ["rlwrap"; "ledit"])
-
-(** Command-line options *)
-let options = Arg.align [
-  ("--wrapper",
-    Arg.String (fun str -> wrapper := Some [str]),
-    "<program> Specify a command-line wrapper to be used (such as rlwrap or ledit)");
-  ("--no-wrapper",
-    Arg.Unit (fun () -> wrapper := None),
-    " Do not use a command-line wrapper");
-  ("-v",
-    Arg.Unit (fun () ->
-      print_endline ("lambda " ^ Version.version ^ "(" ^ Sys.os_type ^ ")");
-      exit 0),
-    " Print version information and exit");
-  ("-V",
-   Arg.Int (fun k -> Print.verbosity := k),
-   "<int> Set verbosity level");
-  ("-n",
-    Arg.Clear interactive_shell,
-    " Do not run the interactive toplevel");
-  ("-l",
-    Arg.String (fun str -> add_file false str),
-    "<file> Load <file> into the initial environment");
-]
-
-(** Treat anonymous arguments as files to be run. *)
-let anonymous str =
-  add_file true str;
-  interactive_shell := false
-
-(** Parser wrapper that reads extra lines on demand. *)
-let parse parser lex =
-  try
-    parser Lexer.token lex
-  with
-  | Parser.Error ->
-      Error.syntax ~loc:(Lexer.position_of_lex lex) ""
-  | Failure "lexing: empty token" ->
-      Error.syntax ~loc:(Lexer.position_of_lex lex) "unrecognised symbol."
-
-(** [exec_cmd ctx d] executes toplevel directive [d] in context [ctx]. It prints the
-    result if in interactive mode, and returns the new context. *)
-let rec exec_cmd interactive ctx (d, loc) =
-  match d with
+  (** [exec interactive (ctx, env) cmd] executes the toplevel command [cmd] and
+       prints the result if in interactive mode. *)
+  let exec interactive (ctx, env) d =
+    match d with
     | Input.Expr e ->
       let e = Desugar.expr ctx.names e in
       let e = Norm.norm ~eager:!eager ~deep:!deep ctx.decls e in
@@ -127,62 +88,11 @@ let rec exec_cmd interactive ctx (d, loc) =
       print_endline help_text ; ctx
     | Input.Quit -> exit 0
 
-(** Load directives from the given file. *)
-and use_file ctx (filename, interactive) =
-  let cmds = Lexer.read_file (parse Parser.file) filename in
-    List.fold_left (exec_cmd interactive) ctx cmds
 
-(** Interactive toplevel *)
-let toplevel ctx =
-  let eof = match Sys.os_type with
-    | "Unix" | "Cygwin" -> "Ctrl-D"
-    | "Win32" -> "Ctrl-Z"
-    | _ -> "EOF"
-  in
-  print_endline ("lambda " ^ Version.version);
-  print_endline ("[Type " ^ eof ^ " to exit or \"#help;\" for help.]");
-  try
-    let ctx = ref ctx in
-    while true do
-      try
-        let cmd = Lexer.read_toplevel (parse Parser.commandline) () in
-        ctx := exec_cmd true !ctx cmd
-      with
-        | Error.Error err -> Print.error err
-        | Sys.Break -> prerr_endline "Interrupted."
-    done
-  with End_of_file -> ()
+  let read_more str =
+    let i = ref (String.length str - 1) in
+      while !i >= 0 && List.mem str.[!i] [' '; '\n'; '\t'; '\r'] do decr i done ;
+      str.[!i]
+end) ;;
 
-(** Main program *)
-let main =
-  Sys.catch_break true;
-  (* Parse the arguments. *)
-  Arg.parse options anonymous usage;
-  (* Attempt to wrap yourself with a line-editing wrapper. *)
-  if !interactive_shell then
-    begin match !wrapper with
-      | None -> ()
-      | Some lst ->
-          let n = Array.length Sys.argv + 2 in
-          let args = Array.make n "" in
-            Array.blit Sys.argv 0 args 1 (n - 2);
-            args.(n - 1) <- "--no-wrapper";
-            List.iter
-              (fun wrapper ->
-                 try
-                   args.(0) <- wrapper;
-                   Unix.execvp wrapper args
-                 with Unix.Unix_error _ -> ())
-              lst
-    end;
-  (* Files were listed in the wrong order, so we reverse them *)
-  files := List.rev !files;
-  (* Set the maximum depth of pretty-printing, after which it prints ellipsis. *)
-  Format.set_max_boxes 42 ;
-  Format.set_ellipsis_text "..." ;
-  try
-    (* Run and load all the specified files. *)
-    let ctx = List.fold_left use_file empty_context !files in
-    if !interactive_shell then toplevel ctx
-  with
-    Error.Error err -> Print.error err; exit 1
+Lambda.main ()

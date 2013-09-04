@@ -1,6 +1,6 @@
 OCAMLBUILD=ocamlbuild
 
-LANGS = miniml/miniml
+LANGS = lambda/lambda miniml/miniml
 
 BYTETARGETS = $(LANGS:=.byte)
 NATIVETARGETS = $(LANGS:=.native)
@@ -13,10 +13,10 @@ native: $(NATIVETARGETS)
 
 byte: $(BYTETARGETS)
 
-$(NATIVETARGETS):
+$(NATIVETARGETS): %.native : %.ml
 	$(OCAMLBUILD) -use-menhir -libs unix $@
 
-$(BYTETARGETS):
+$(BYTETARGETS): %.byte : %.ml
 	$(OCAMLBUILD) -use-menhir -libs unix $@
 clean:
 	$(OCAMLBUILD) -clean
