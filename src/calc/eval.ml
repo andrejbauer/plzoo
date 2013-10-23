@@ -11,5 +11,5 @@ let rec eval = function
   | Times (e1, e2) -> eval e1 * eval e2
   | Divide (e1, e2) ->
       let n2 = eval e2 in
-	if n2 <> 0 then eval e1 / n2 else failwith "Division by zero"
+	if n2 <> 0 then eval e1 / n2 else Zoo.runtime_error ~loc:Zoo.Nowhere "Division by zero"
   | Negate e -> - (eval e)
