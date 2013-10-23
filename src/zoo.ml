@@ -99,8 +99,13 @@ let verbosity = ref 2
 let print_message ?(loc=Nowhere) msg_type v =
   if v <= !verbosity then
     begin
-      Format.eprintf "%s at %t:@\n@[" msg_type (print_position loc) ;
-      Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
+      match loc with
+        | Position _ ->
+          Format.eprintf "%s at %t:@\n@[" msg_type (print_position loc) ;
+          Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
+        | Nowhere ->
+          Format.eprintf "%s:@\n@[" msg_type ;
+          Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
     end
   else
     Format.ifprintf Format.err_formatter
