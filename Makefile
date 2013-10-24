@@ -2,7 +2,7 @@ OCAMLBUILD=ocamlbuild
 
 LANGS = \
 	src/calc/calc \
-	src/calc+var/calc+var \
+	src/calcvar/calcvar \
 	src/lambda/lambda \
 	src/levy/levy \
 	src/miniml/miniml \

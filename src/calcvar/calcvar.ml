@@ -5,7 +5,7 @@ module Calc = Zoo.Toplevel(struct
   (** The toplevel keeps an associative list which maps variables to their names. *)
   type environment = (string * int) list
 
-  let name = "calc+var"
+  let name = "calcvar"
 
   let options = []
   let help_directive = None
@@ -13,7 +13,7 @@ module Calc = Zoo.Toplevel(struct
   (** At the beginning no variables are defined. *)
   let initial_environment = []
 
-  let prompt = "Calc+var> "
+  let prompt = "Calcvar> "
   let more_prompt = "> "
 
   let read_more _ = false
