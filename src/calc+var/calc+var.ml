@@ -13,7 +13,7 @@ module Calc = Zoo.Toplevel(struct
   (** At the beginning no variables are defined. *)
   let initial_environment = []
 
-  let prompt = "> "
+  let prompt = "Calc+var> "
   let more_prompt = "> "
 
   let read_more _ = false
