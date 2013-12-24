@@ -72,6 +72,7 @@ expr:
   | app                 { $1 }
   | arith               { $1 }
   | boolean             { $1 }
+  | LET VAR EQUAL expr IN expr { Let ($2, $4, $6) }
   | IF expr THEN expr ELSE expr	       { If ($2, $4, $6) }
   | FUN VAR LPAREN VAR COLON ty RPAREN COLON ty IS expr { Fun ($2, $4, $6, $9, $11) }
 
