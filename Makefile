@@ -11,7 +11,7 @@ LANGS = \
 	src/sub/sub \
 	src/poly/poly \
 	src/boa/boa \
-	src/miniml+error/minimlerror \
+	src/miniml+error/minimlerror
 
 SRCDIR = src
 

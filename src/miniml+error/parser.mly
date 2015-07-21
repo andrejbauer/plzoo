@@ -24,22 +24,19 @@
 %start toplevel
 %type <Syntax.toplevel_cmd list> toplevel
 
-%nonassoc FUN IS
-%nonassoc IF THEN ELSE
+%nonassoc IS
+%nonassoc ELSE
 %nonassoc EQUAL LESS
 %left PLUS MINUS
 %left TIMES DIVIDE
-%left COLON
 %right TARROW
 
 %%
 
 toplevel:
-    EOF                      { [] }
+  | EOF                      { [] }
   | def EOF                  { [$1] }
-  | def SEMICOLON2 EOF       { [$1] }
   | expr EOF                 { [Expr $1] }
-  | expr SEMICOLON2 EOF      { [Expr $1] }
   | def SEMICOLON2 toplevel  { $1 :: $3 }
   | expr SEMICOLON2 toplevel { (Expr $1) :: $3 }
 

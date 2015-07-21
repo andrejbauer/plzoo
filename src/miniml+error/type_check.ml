@@ -22,7 +22,7 @@ let rec check ctx ty e =
     [ctx]. If [e] does not have a type it raises the [Type_error]
     exception. *)
 and type_of ctx = function
-  | Error -> assert false (* this should not happen as the user has no way of referring to Error *)
+  | Abort -> assert false (* this should not happen as the user has no way of referring to Abort *)
   | Var x ->
       (try List.assoc x ctx with
 	   Not_found -> type_error ("unknown variable " ^ x))
