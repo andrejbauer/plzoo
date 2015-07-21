@@ -29,11 +29,11 @@
 %right COMMA
 %nonassoc LET IN
 %right FUN ARROW
-$right SEMICOLON
+%right SEMICOLON
 %nonassoc IF THEN ELSE
 %left OR
 %left AND
-$nonassoc NOT
+%nonassoc NOT
 %nonassoc EQUAL UNEQUAL LESS
 %nonassoc ASSIGN
 %left PLUS MINUS

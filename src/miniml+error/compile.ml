@@ -7,7 +7,7 @@ open Machine
 let rec compile = function
   | Var x -> [IVar x]
   | Int k -> [IInt k]
-  | Error -> [IErr]
+  | Abort -> [IErr]
   | Bool b -> [IBool b]
   | Times (e1, e2) -> (compile e1) @ (compile e2) @ [IMult]
   | Division (e1, e2) -> (compile e1) @ (compile e2) @ [IDiv]

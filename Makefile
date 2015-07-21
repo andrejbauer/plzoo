@@ -6,6 +6,12 @@ LANGS = \
 	src/lambda/lambda \
 	src/levy/levy \
 	src/miniml/miniml \
+	src/minihaskell/minihaskell \
+	src/miniprolog/miniprolog \
+	src/sub/sub \
+	src/poly/poly \
+	src/boa/boa \
+	src/miniml+error/minimlerror
 
 SRCDIR = src
 

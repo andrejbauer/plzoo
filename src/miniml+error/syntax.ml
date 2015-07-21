@@ -17,13 +17,13 @@ type expr =
   | Times of expr * expr 		(* Product [e1 * e2] *)
   | Plus of expr * expr  		(* Sum [e1 + e2] *)
   | Minus of expr * expr 		(* Difference [e1 - e2] *)
-  | Division of expr * expr             (* Division [e1/e2], may result in [Error] *)
+  | Division of expr * expr             (* Division [e1/e2], may result in [Abort] *)
   | Equal of expr * expr 		(* Integer comparison [e1 = e2] *)
   | Less of expr * expr  		(* Integer comparison [e1 < e2] *)
   | If of expr * expr * expr 		(* Conditional [if e1 then e2 else e3] *)
   | Fun of name * name * ty * ty * expr (* Function [fun f(x:s):t is e] *)
   | Apply of expr * expr 		(* Application [e1 e2] *)
-  | Error                               (* Special value indicating an error *)
+  | Abort                               (* Special value indicating an error *)
 
 (* Toplevel commands *)
 type toplevel_cmd =
@@ -51,7 +51,7 @@ let string_of_expr e =
 	| Int n -> (7, string_of_int n)
 	| Bool b -> (7, string_of_bool b)
 	| Var x -> (7, x)
-	| Error -> (7, "error")
+	| Abort -> (7, "error")
 	| Apply (e1, e2) -> (6, (to_str 5 e1) ^ " " ^ (to_str 6 e2))
 	| Times (e1, e2) -> (5, (to_str 4 e1) ^ " * " ^ (to_str 5 e2))
 	| Division (e1, e2) -> (5, (to_str 4 e1) ^ " / " ^ (to_str 5 e2))
@@ -74,7 +74,7 @@ let string_of_expr e =
     [e1], ..., [en], respectively. *)
 let rec subst s = function
   | (Var x) as e -> (try List.assoc x s with Not_found -> e)
-  | (Int _ | Bool _ | Error) as e -> e
+  | (Int _ | Bool _ | Abort) as e -> e
   | Times (e1, e2) -> Times (subst s e1, subst s e2)
   | Division (e1, e2) -> Division (subst s e1, subst s e2)
   | Plus (e1, e2) -> Plus (subst s e1, subst s e2)
