@@ -31,7 +31,7 @@
 %nonassoc IF THEN ELSE
 %left OR
 %left AND
-$nonassoc NOT
+%nonassoc NOT
 %nonassoc EQUAL LESS
 %left PLUS MINUS
 %left TIMES DIVIDE
