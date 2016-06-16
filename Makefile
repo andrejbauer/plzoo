@@ -30,6 +30,6 @@ $(NATIVETARGETS): %.native : %.ml
 	$(OCAMLBUILD) -use-menhir -libs unix -I $(SRCDIR) $@
 
 $(BYTETARGETS): %.byte : %.ml
-	$(OCAMLBUILD) -use-menhir -libs unix -I (SRCDIR) $@
+	$(OCAMLBUILD) -use-menhir -libs unix -I $(SRCDIR) $@
 clean:
 	$(OCAMLBUILD) -clean
