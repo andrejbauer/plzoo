@@ -1,5 +1,5 @@
 module MiniML = Zoo.Main (struct
-  let name = "miniml"
+  let name = "miniML"
 
   type command = Syntax.command
 
