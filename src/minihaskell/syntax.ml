@@ -5,7 +5,7 @@ type name = string
 
 (** MiniHaskell types. *)
 type htype =
-    TInt (** integer [int] *)
+  | TInt (** integer [int] *)
   | TBool (** booleans [bool] *)
   | TTimes of htype * htype  (** Product [s * t] *)
   | TArrow of htype * htype  (** Function type *)
@@ -13,7 +13,7 @@ type htype =
 
 (** MiniHaskell expressions *)
 type expr =
-    Var of name          (** variable *)
+  | Var of name          (** variable *)
   | Int of int           (** integer constant *)
   | Bool of bool         (** boolean constant *)
   | Times of expr * expr (** product [e1 * e2] *)
@@ -32,13 +32,13 @@ type expr =
   | Rec of name * htype * expr (** recursion [rec x:t is e] *)
   | Nil of htype         (** empty list *)
   | Cons of expr * expr  (** cons list [e1 :: e2] *)
-  | Match of expr * htype * expr * name * name * expr (** list decomposition [match e with [t] -> e1 | x::y -> e2] *)
+  | Match of expr * htype * expr * name * name * expr
+      (** list decomposition [match e with [t] -> e1 | x::y -> e2] *)
 
 (** Toplevel commands *)
 type toplevel_cmd =
-    Expr of expr       (** an expression to be evaluated *)
+  | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
-  | Use of string      (** load a file [$use "<filename>"] *)
   | Quit               (** exit toplevel [$quit] *)
 
 (** Conversion from a type to a string *)

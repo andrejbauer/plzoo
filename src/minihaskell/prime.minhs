@@ -1,53 +1,53 @@
-let not = fun b : bool -> if b then false else true
+let not = fun b : bool => if b then false else true
 ;;
 
-let div = fun m : int -> rec d : int -> int is
-  fun n : int ->  if n < m then 0 else 1 + (d (n-m))
+let div = fun m : int => rec d : int -> int is
+  fun n : int => if n < m then 0 else 1 + (d (n-m))
 ;;
 
-let mod = fun m : int -> fun n : int ->
+let mod = fun m : int => fun n : int =>
   n - m * (div m n)
 ;;
 
-let notmultiple = fun m : int -> fun n : int ->
+let notmultiple = fun m : int => fun n : int =>
   not (n % m = 0)
 ;;
 
 let map = rec map : (int -> int) -> int list -> int list is
-  fun f : (int -> int) ->
-    fun l : int list ->
+  fun f : (int -> int) =>
+    fun l : int list =>
       match l with
-	  [int] -> [int]
-	| x::xs -> (f x)::(map f xs)
+	  [int] => [int]
+	| x::xs => (f x) :: (map f xs)
 ;;
 
 let filter =
   rec filter : (int -> bool) -> int list -> int list is
-    fun p : (int -> bool) ->
-      fun l : int list ->
+    fun p : (int -> bool) =>
+      fun l : int list =>
         match l with
-            [int] -> [int]
-          | x::xs -> if p x then x::(filter p xs) else filter p xs
+            [int] => [int]
+          | x::xs => if p x then x::(filter p xs) else filter p xs
 ;;
 
 let nth = rec nth : int list -> int -> int is
-  fun l : int list -> fun n : int ->
+  fun l : int list => fun n : int =>
     match l with
-	[int] -> 0
-      | x::xs -> if n = 0 then x else nth xs (n-1)
+	[int] => 0
+      | x::xs => if n = 0 then x else nth xs (n-1)
 ;;
 
-let nat = rec nat : int list is 1 :: (map (fun n : int -> n + 1) nat)
+let nat = rec nat : int list is 1 :: (map (fun n : int => n + 1) nat)
 ;;
 
-let nat2 = rec nat2 : int list is 2 :: (map (fun n : int -> n+1) nat2)
+let nat2 = rec nat2 : int list is 2 :: (map (fun n : int => n+1) nat2)
 ;;
 
 let sieve = rec sieve : int list -> int list is
-    fun l : int list ->
+    fun l : int list =>
       match l with
-          [int] -> [int]
-	| n::ns -> n :: (sieve (filter (notmultiple n) ns))
+          [int] => [int]
+	| n::ns => n :: (sieve (filter (notmultiple n) ns))
 ;;
 
 let primes = sieve nat2

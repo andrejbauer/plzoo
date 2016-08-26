@@ -59,7 +59,7 @@ let rec eval1 = function
 *)
 let rec eval n e =
   let rec loop = function
-      Pair (e1, e2) -> Pair (eval (n-1) e1, eval (n-1) e2)
+    | Pair (e1, e2) -> Pair (eval (n-1) e1, eval (n-1) e2)
     | Cons (e1, e2) -> Cons (eval n e1, if n <= 0 then e2 else eval (n-1) e2)
     | e when is_value e -> e
     | e -> loop (eval1 e)

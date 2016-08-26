@@ -1,62 +1,13 @@
-1. DESCRIPTION
+A lazy functional language with following features:
 
-Minihaskell is a simple implementation of a lazy functional
-language. The implementation contains a parser, type-checker, and an
-interpreter. It is part of the PL Zoo, see
-http://math.andrej.com/plzoo/
-
-The language has the following features:
-
-* integers with arithmetical operations *, +, -, /
-
-* booleans with conditional statements and comparison =, < of integers
-
+* integers with arithmetical operations `*`, `+`, `-`, `/`, `%`
+* booleans with conditional statements and comparison `=`, `<` of integers
 * ordered pairs
-
 * lists
-
 * functions
-
 * general recursion (fixpoint operator)
 
-
-2. AUTHOR
-
-The author of the program is Andrej Bauer <Andrej.Bauer@andrej.com>.
-See the file COPYRIGHT.txt for license information.
-
-3. REQUIREMENTS
-
-You need Objective Caml, http://caml.inria.fr/ version 3.10 or higher.
-
-If you have an older version of Objective Caml you can still compile
-the code by hand.
-
-
-4. COMPILATION
-
-To compile the program run the command
-
-    make
-
-For the native code version run
-
-    make native
-
-If you do not have the make utility, run
-
-   ocamlbuild minihaskell.byte
-
-
-5. USAGE
-
-First compile the program. You may then run the interpreter with
-
-    ./minihaskell.byte
-
-If you built the native code version, this would be
-
-    ./minihaskell.native
+#### Examples
 
 The file primes.minhs defines the infinite list of prime numbers. You
 can load it and try it as follows:

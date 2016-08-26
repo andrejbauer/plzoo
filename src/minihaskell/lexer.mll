@@ -13,7 +13,7 @@
 let var = ['_' 'a'-'z' 'A'-'Z'] ['_' 'a'-'z' 'A'-'Z' '0'-'9']*
 
 rule token = parse
-    '#' [^'\n']* '\n' { incr_linenum lexbuf; token lexbuf }
+    "--" [^'\n']* '\n' { incr_linenum lexbuf; token lexbuf }
   | '\n'            { incr_linenum lexbuf; token lexbuf }
   | [' ' '\t']      { token lexbuf }
   | ['0'-'9']+      { INT (int_of_string(lexeme lexbuf)) }
@@ -32,14 +32,12 @@ rule token = parse
   | "snd"           { SND }
   | "then"          { THEN }
   | "true"          { TRUE }
-  | "$use"           { USE }
-  | "$quit"          { QUIT }
+  | ":quit"         { QUIT }
   | "with"          { WITH }
-  | "->"            { ARROW }
+  | "->"            { TARROW }
+  | "=>"            { DARROW }
   | "::"            { CONS }
   | ";;"            { SEMICOLON2 }
-  | '\"' [^'\"']* '\"' { let str = lexeme lexbuf in
-			STRING (String.sub str 1 (String.length str - 2)) }
   | '%'             { MOD }
   | '('             { LPAREN }
   | ')'             { RPAREN }

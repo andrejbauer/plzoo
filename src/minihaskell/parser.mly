@@ -2,11 +2,7 @@
   open Syntax
 %}
 
-%token TINT
-%token TBOOL
-%token TTIMES
-%token TARROW
-%token TLIST
+%token TINT TBOOL TLIST TARROW
 %token <Syntax.name> VAR
 %token <int> INT
 %token TRUE FALSE
@@ -17,7 +13,7 @@
 %token MOD
 %token EQUAL LESS
 %token IF THEN ELSE
-%token FUN ARROW
+%token FUN DARROW
 %token COLON
 %token LPAREN RPAREN
 %token LET
@@ -30,27 +26,23 @@
 %token MATCH WITH ALTERNATIVE
 %token REC IS
 %token QUIT
-%token USE
-%token <string>STRING
 %token EOF
 
-%start toplevel
-%type <Syntax.toplevel_cmd list> toplevel
+%start toplevel file
+%type <Syntax.toplevel_cmd list> file
+%type <Syntax.toplevel_cmd> toplevel
 
 %nonassoc IS
-%right ARROW
+%right DARROW
 %nonassoc ELSE
 %nonassoc EQUAL LESS
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %right CONS
-%right TARROW
-%left TTIMES
-%nonassoc TLIST
 
 %%
 
-toplevel:
+file:
   | EOF                      { [] }
   | lettop                   { $1 }
   | exprtop                  { $1 }
@@ -59,18 +51,22 @@ toplevel:
 lettop:
   | def EOF                  { [$1] }
   | def lettop               { $1 :: $2 }
-  | def SEMICOLON2 toplevel  { $1 :: $3 }
+  | def SEMICOLON2 file      { $1 :: $3 }
 
 exprtop:
   | expr EOF                 { [Expr $1] }
-  | expr SEMICOLON2 toplevel { Expr $1 :: $3 }
+  | expr SEMICOLON2 file     { Expr $1 :: $3 }
 
 cmdtop:
   | cmd EOF                  { [$1] }
-  | cmd SEMICOLON2 toplevel  { $1 :: $3 }
+  | cmd SEMICOLON2 file      { $1 :: $3 }
+
+toplevel:
+  | def EOF    { $1 }
+  | expr EOF   { Expr $1 }
+  | cmd EOF    { $1 }
 
 cmd:
-  | USE STRING { Use $2 }
   | QUIT       { Quit }
 
 def: LET VAR EQUAL expr { Def ($2, $4) }
@@ -82,9 +78,9 @@ expr:
   | boolean             { $1 }
   | expr CONS expr      { Cons ($1, $3) }
   | IF expr THEN expr ELSE expr	{ If ($2, $4, $6) }
-  | FUN VAR COLON ty ARROW expr { Fun ($2, $4, $6) }
+  | FUN VAR COLON ty DARROW expr { Fun ($2, $4, $6) }
   | REC VAR COLON ty IS expr { Rec ($2, $4, $6) }
-  | MATCH expr WITH nil ARROW expr ALTERNATIVE VAR CONS VAR ARROW expr
+  | MATCH expr WITH nil DARROW expr ALTERNATIVE VAR CONS VAR DARROW expr
       { Match ($2, $4, $6, $8, $10, $12) }
 
 app:
@@ -117,11 +113,21 @@ boolean:
   | expr LESS expr  { Less ($1, $3) }
 
 ty:
+  | ty_times                 { $1 }
+  | ty_times TARROW ty       { TArrow ($1, $3) }
+
+ty_times :
+  | ty_list                  { $1 }
+  | ty_times TIMES ty_list   { TTimes ($1, $3) }
+  
+
+ty_list :
+  | ty_simple { $1 }
+  | ty_list TLIST            { TList $1 }
+
+ty_simple :
   | TBOOL	 	     { TBool }
   | TINT         	     { TInt }
-  | ty TIMES ty %prec TTIMES { TTimes ($1, $3) }
-  | ty ARROW ty %prec TARROW { TArrow ($1, $3) }
-  | ty TLIST                 { TList $1 }
   | LPAREN ty RPAREN         { $2 }
 
 %%
