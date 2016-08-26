@@ -1,59 +1,32 @@
-(* This file contains all the common code used by the languages implemented in the PL Zoo.
-   In reality the file should be a library consisting of several modules, but just to keep
-   the build process a bit simpler, we placed everything in here.
-*)
+(* This file contains all the common code used by the languages implemented in the PL Zoo. *)
 
-(** Position in source code. For each type in the abstract syntax we define two versions
-    [t] and [t']. The former is the latter with a position tag. For example, [expr = expr'
-    * position] and [expr'] is the type of expressions (without positions). 
-*)
-type position =
-  | Position of Lexing.position * Lexing.position (** delimited position *)
-  | Nowhere (** unknown position *)
+type location =
+  | Location of Lexing.position * Lexing.position (** delimited location *)
+  | Nowhere (** no location *)
 
-(** [nowhere e] is the expression [e] without a source position. It is used when
-    an expression is generated and there is not reasonable position that could be
-    assigned to it. *)
-let nowhere x = (x, Nowhere)
+type 'a located = { data : 'a ; loc : location }
 
-(** Convert a position as presented by [Lexing] to [position]. *)
-let position_of_lex lex =
-  Position (Lexing.lexeme_start_p lex, Lexing.lexeme_end_p lex)
+let make_location loc1 loc2 = Location (loc1, loc2)
 
-(** Error reporting. *)
+let location_of_lex lex =
+  Location (Lexing.lexeme_start_p lex, Lexing.lexeme_end_p lex)
 
-(** Exception [Error (loc, err, msg)] indicates an error of type [err] with
-    error message [msg], occurring at position [loc]. *)
-exception Error of (position * string * string)
+let locate ?(loc=Nowhere) x = { data = x; loc = loc }
 
-(** [error loc err_type] raises an error of type [err_type]. The [kfprintf] magic allows
+(** Exception [Error (loc, err, msg)] indicates an error of type [err] with error message
+    [msg], occurring at location [loc]. *)
+exception Error of (location * string * string)
+
+(** [error ~loc ~kind] raises an error of the given [kind]. The [kfprintf] magic allows
     one to write [msg] using a format string. *)
-let error ~loc err_type =
+let error ?(kind="Error") ?(loc=Nowhere) =
   let k _ =
     let msg = Format.flush_str_formatter () in
-      raise (Error (loc, err_type, msg))
+      raise (Error (loc, kind, msg))
   in
     Format.kfprintf k Format.str_formatter
 
-(** Common error kinds. *)
-let fatal_error ~loc msg = error ~loc "Fatal error" msg
-let syntax_error ~loc msg = error ~loc "Syntax error" msg
-let typing_error ~loc msg = error ~loc "Typing error" msg
-let runtime_error ~loc msg = error ~loc "Runtime error" msg
-let warning_error ~loc msg = error ~loc "Warning" msg
-
-(** Pretty-printing of expressions with the Ocaml [Format] library. *)
-
-(** Print an expression, possibly placing parentheses around it. We always
-    print things at a given "level" [at_level]. If the level exceeds the
-    maximum allowed level [max_level] then the expression should be parenthesized.
-
-    Let us consider an example. When printing nested applications, we should print [App
-    (App (e1, e2), e3)] as ["e1 e2 e3"] and [App(e1, App(e2, e3))] as ["e1 (e2 e3)"]. So
-    if we assign level 1 to applications, then during printing of [App (e1, e2)] we should
-    print [e1] at [max_level] 1 and [e2] at [max_level] 0.
-*)
-let print ?(max_level=9999) ?(at_level=0) ppf =
+let print_parens ?(max_level=9999) ?(at_level=0) ppf =
   if max_level < at_level then
     begin
       Format.fprintf ppf "(@[" ;
@@ -65,12 +38,11 @@ let print ?(max_level=9999) ?(at_level=0) ppf =
       Format.kfprintf (fun ppf -> Format.fprintf ppf "@]") ppf
     end
 
-(** Print the given source code position. *)
-let print_position loc ppf =
+let print_location loc ppf =
   match loc with
   | Nowhere ->
-      Format.fprintf ppf "unknown position"
-  | Position (begin_pos, end_pos) ->
+      Format.fprintf ppf "unknown location"
+  | Location (begin_pos, end_pos) ->
       let begin_char = begin_pos.Lexing.pos_cnum - begin_pos.Lexing.pos_bol in
       let end_char = end_pos.Lexing.pos_cnum - begin_pos.Lexing.pos_bol in
       let begin_line = begin_pos.Lexing.pos_lnum in
@@ -81,78 +53,41 @@ let print_position loc ppf =
       else
         Format.fprintf ppf "line %d, characters %d-%d" (begin_line - 1) begin_char end_char
 
-(** Print a sequence of things with the given (optional) separator. *)
-let print_sequence ?(sep="") f lst ppf =
-  let rec seq = function
-    | [] -> print ppf ""
-    | [x] -> print ppf "%t" (f x)
-    | x :: xs -> print ppf "%t%s@ " (f x) sep ; seq xs
-  in
-    seq lst
+(** A fatal error reported by the toplevel. *)
+let fatal_error msg = error ~kind:"Fatal error" msg
 
-(** Support for printing of errors at various levels of verbosity. *)
+(** A syntax error reported by the toplevel *)
+let syntax_error ?loc msg = error ~kind:"Syntax error" ?loc msg
 
-let verbosity = ref 2
+(** Print a message at a given location [loc] of message type [msg_type]. *)
+let print_message ?(loc=Nowhere) msg_type =
+  match loc with
+  | Location _ ->
+     Format.eprintf "%s at %t:@\n@[" msg_type (print_location loc) ;
+     Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
+  | Nowhere ->
+     Format.eprintf "%s:@\n@[" msg_type ;
+     Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
 
-(** Print a message at a given location [loc] of message type [msg_type] and
-    verbosity level [v]. *)
-let print_message ?(loc=Nowhere) msg_type v =
-  if v <= !verbosity then
-    begin
-      match loc with
-        | Position _ ->
-          Format.eprintf "%s at %t:@\n@[" msg_type (print_position loc) ;
-          Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
-        | Nowhere ->
-          Format.eprintf "%s:@\n@[" msg_type ;
-          Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
-    end
-  else
-    Format.ifprintf Format.err_formatter
+(** Print the caught error *)
+let print_error (loc, err_type, msg) = print_message ~loc err_type "%s" msg
 
-(** Common message types. *)
-let print_error (loc, err_type, msg) = print_message ~loc err_type 1 "%s" msg
-let print_warning msg = print_message "Warning" 2 msg
-let print_info msg = print_message "Debug" 3 msg
-
-(** Toplevel. *)
+let print_info = Format.printf
 
 module type LANGUAGE =
 sig
-
-  (** Parsed toplevel command. *)
-  type command     
-
-  (** Runtime environment. *)
-  type environment 
-
-  (** The name of the language *)
   val name : string 
-
-  (** Language-specific command-line options *)
+  type command     
+  type environment 
   val options : (Arg.key * Arg.spec * Arg.doc) list 
-
-  (** The text printed when the user asks for help. *)
-  val help_text : string
-
-  (** The initial runtime environment. *)
   val initial_environment : environment 
-
-  (** Given the input so far, should we read more in the interactive shell? *)
   val read_more : string -> bool
-
-  (** The file parser, if any *)
   val file_parser : (Lexing.lexbuf -> command list) option 
-
-  (** Interactive shell parser, if any *)
   val toplevel_parser : (Lexing.lexbuf -> command) option
-
-  (** Execute a toplevel command. *)
   val exec : environment -> command -> environment 
+end
 
-end (* LANGUAGE *)
-
-module Toplevel(L : LANGUAGE) =
+module Main (L : LANGUAGE) =
 struct
 
   (** Should the interactive shell be run? *)
@@ -216,7 +151,7 @@ struct
       Error err -> close_in fh ; raise (Error err)
   with
     (* Any errors when opening or closing a file are fatal. *)
-    Sys_error msg -> fatal_error ~loc:Nowhere "%s" msg
+    Sys_error msg -> fatal_error "%s" msg
 
   (** Parse input from toplevel, using the given [parser]. *)
   let read_toplevel parser () =
@@ -236,9 +171,9 @@ struct
       parser lex
     with
       | Failure "lexing: empty token" ->
-        syntax_error ~loc:(position_of_lex lex) "unrecognised symbol"
+        syntax_error ~loc:(location_of_lex lex) "unrecognised symbol"
       | _ ->
-        syntax_error ~loc:(position_of_lex lex) "general confusion"
+        syntax_error ~loc:(location_of_lex lex) "general confusion"
 
   (** Load directives from the given file. *)
   let use_file ctx (filename, interactive) =
@@ -247,7 +182,7 @@ struct
        let cmds = read_file (wrap_syntax_errors f) filename in
         List.fold_left L.exec ctx cmds
     | None ->
-       fatal_error ~loc:Nowhere "Cannot load files, only interactive shell is available"
+       fatal_error "Cannot load files, only interactive shell is available"
 
   (** Interactive toplevel *)
   let toplevel ctx =
@@ -259,10 +194,10 @@ struct
       let toplevel_parser =
         match L.toplevel_parser with
         | Some p -> p
-        | None -> fatal_error ~loc:Nowhere "I am sorry but this language has no interactive toplevel."
+        | None -> fatal_error "I am sorry but this language has no interactive toplevel."
       in
-      print_endline (L.name ^ " @ programming languages zoo")  ;
-      print_endline ("Type " ^ eof ^ " to exit.") ;
+      Format.printf "%s -- programming languages zoo@\n" L.name ;
+      Format.printf "Type %s to exit@." eof ;
       try
         let ctx = ref ctx in
           while true do
@@ -277,6 +212,7 @@ struct
 
   (** Main program *)
   let main () =
+    (* Intercept Ctrl-C by the user *)
     Sys.catch_break true;
     (* Parse the arguments. *)
     Arg.parse options anonymous usage;
