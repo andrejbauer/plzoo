@@ -1,5 +1,5 @@
-TARGET=minimlerror
-LANG=miniml+error
+TARGET=miniml_error
+LANG=miniml_error
 
 SOURCES = \
 	syntax.ml \
@@ -9,7 +9,7 @@ SOURCES = \
 	compile.ml \
 	lexer.mll \
 	parser.mly \
-	minimlerror.ml
+	miniml_error.ml
 
 OCAMLBUILD=ocamlbuild
 CAML2HTML=caml2html
