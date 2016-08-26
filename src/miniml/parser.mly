@@ -21,10 +21,10 @@
 %token EOF
 
 %start file
-%type <Syntax.toplevel list> file
+%type <Syntax.command list> file
 
 %start toplevel
-%type <Syntax.toplevel> toplevel
+%type <Syntax.command> toplevel
 
 %nonassoc IS
 %nonassoc ELSE
@@ -110,7 +110,7 @@ ty:
 
 mark_position(X):
   x = X
-  { x, Zoo.Position ($startpos, $endpos) }
+  { Zoo.locate ~loc:(Zoo.make_location $startpos $endpos) x }
 
 %%
 

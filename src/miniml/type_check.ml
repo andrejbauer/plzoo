@@ -2,13 +2,15 @@
 
 open Syntax
 
+let typing_error ~loc = Zoo.error ~kind:"Type error" ~loc
+
 (** [check ctx ty e] verifies that expression [e] has type [ty] in
     context [ctx]. If it does, it returns unit, otherwise it raises the
     [Type_error] exception. *)
-let rec check ctx ty e =
+let rec check ctx ty ({Zoo.loc;_} as e) =
   let ty' = type_of ctx e in
     if ty' <> ty then
-      Zoo.typing_error ~loc:(snd e)
+      typing_error ~loc
         "This expression has type %t but is used as if it has type %t"
         (Print.ty ty')
         (Print.ty ty)
@@ -16,11 +18,11 @@ let rec check ctx ty e =
 (** [type_of ctx e] computes the type of expression [e] in context
     [ctx]. If [e] does not have a type it raises the [Type_error]
     exception. *)
-and type_of ctx (e, loc) =
+and type_of ctx {Zoo.data=e; loc} =
   match e with
     | Var x ->
       (try List.assoc x ctx with
-	  Not_found -> Zoo.typing_error ~loc "unknown variable %s" x)
+	  Not_found -> typing_error ~loc "unknown variable %s" x)
     | Int _ -> TInt
     | Bool _ -> TBool
     | Times (e1, e2) -> check ctx TInt e1 ; check ctx TInt e2 ; TInt
@@ -39,6 +41,6 @@ and type_of ctx (e, loc) =
       begin match type_of ctx e1 with
 	  TArrow (ty1, ty2) -> check ctx ty1 e2 ; ty2
 	| ty ->
-	  Zoo.typing_error ~loc
+	  typing_error ~loc
             "this expression is used as a function but its type is %t" (Print.ty ty)
       end

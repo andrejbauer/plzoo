@@ -1,5 +1,7 @@
-module MiniML = Zoo.Toplevel(struct
-  type toplevel = Syntax.toplevel
+module MiniML = Zoo.Main (struct
+  let name = "miniml"
+
+  type command = Syntax.command
 
   (** A context describing the types of globally defined values. *)
   type context = (Syntax.name * Syntax.ty) list
@@ -9,43 +11,33 @@ module MiniML = Zoo.Toplevel(struct
 
   type environment = context * runtime
 
+  let options = []
+
   let initial_environment = ([], [])
-
-  let prompt = "# "
-
-  let more_prompt = "  "
 
   let file_parser = Some (Parser.file Lexer.token)
 
-  let toplevel_parser = Parser.toplevel Lexer.token
+  let toplevel_parser = Some (Parser.toplevel Lexer.token)
 
-  let name = "miniml"
-
-  let options = []
-
-  let help_directive = None
-
-  (** [exec interactive (ctx, env) cmd] executes the toplevel command [cmd] and returns
+  (** [exec (ctx, env) cmd] executes the toplevel command [cmd] and returns
       the new context-environment pair and a string representing the result of
       evaluation. *)
-  let exec _ interactive (ctx, env) = function
+  let exec (ctx, env) = function
     | Syntax.Expr e ->
-    (* check the type of [e], compile it, and run it. *)
+      (* check the type of [e], compile it, and run it. *)
       let ty = Type_check.type_of ctx e in
       let frm = Compile.compile e in
       let v = Machine.run frm env in
-        if interactive then
-          Format.printf "- : %t = %t@." (Print.ty ty) (Print.mvalue v) ;
-        (ctx, env)
+      Zoo.print_info "- : %t = %t@." (Print.ty ty) (Print.mvalue v) ;
+      (ctx, env)
     | Syntax.Def (x, e) ->
       (* check the type of [e], compile it, run it, and return a new
 	 context-environemtn pair with [x] defined as [e]. *)
       let ty = Type_check.type_of ctx e in
       let frm = Compile.compile e in
       let v = Machine.run frm env in
-        if interactive then
-          Format.printf "%s : %t = %t@." x (Print.ty ty) (Print.mvalue v) ;
-	((x,ty)::ctx, (x,v)::env)
+      Zoo.print_info "%s : %t = %t@." x (Print.ty ty) (Print.mvalue v) ;
+      ((x,ty)::ctx, (x,v)::env)
 
   let read_more str =
     let i = ref (String.length str - 1) in

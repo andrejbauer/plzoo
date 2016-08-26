@@ -10,7 +10,7 @@ type ty =
   | TArrow of ty * ty (* Functions *)
 
 (* Expressions *)
-type expr = expr' * Zoo.position
+type expr = expr' Zoo.located
 and expr' =
   | Var of name          		(* Variable *)
   | Int of int           		(* Non-negative integer constant *)
@@ -25,6 +25,6 @@ and expr' =
   | Apply of expr * expr 		(* Application [e1 e2] *)
 
 (* Toplevel commands *)
-type toplevel =
+type command =
   | Expr of expr       (* Expression *)
   | Def of name * expr (* Value definition [let x = e] *)

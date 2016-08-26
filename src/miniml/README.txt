@@ -70,13 +70,13 @@ If you built the native code version, this would be
 Example interaction:
 
     MiniML. Press Ctrl-D to exit.
-    MiniML> 3 + (if 5 < 6 then 10 else 100)
+    MiniML> 3 + (if 5 < 6 then 10 else 100) ;;
     - : int = 13
-    MiniML> let x = 14
+    MiniML> let x = 14 ;;
     x : int = 14
-    MiniML> let fact = fun f (n : int) : int is if n = 0 then 1 else n * f (n-1)
+    MiniML> let fact = fun f (n : int) : int is if n = 0 then 1 else n * f (n-1) ;;
     fact : int -> int = <fun>
-    MiniML> fact 10
+    MiniML> fact 10 ;;
     - : int = 3628800
     MiniML>
     Good bye.
