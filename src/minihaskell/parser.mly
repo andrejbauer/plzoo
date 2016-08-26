@@ -37,10 +37,9 @@
 %start toplevel
 %type <Syntax.toplevel_cmd list> toplevel
 
-%nonassoc REC IS
-%right FUN ARROW
-%nonassoc MATCH WITH
-%nonassoc IF THEN ELSE
+%nonassoc IS
+%right ARROW
+%nonassoc ELSE
 %nonassoc EQUAL LESS
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
@@ -118,10 +117,10 @@ boolean:
   | expr LESS expr  { Less ($1, $3) }
 
 ty:
-    TBOOL	 	     { TBool }
+  | TBOOL	 	     { TBool }
   | TINT         	     { TInt }
-  | ty TIMES ty { TTimes ($1, $3) }
-  | ty ARROW ty { TArrow ($1, $3) }
+  | ty TIMES ty %prec TTIMES { TTimes ($1, $3) }
+  | ty ARROW ty %prec TARROW { TArrow ($1, $3) }
   | ty TLIST                 { TList $1 }
   | LPAREN ty RPAREN         { $2 }
 
