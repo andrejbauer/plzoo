@@ -1,35 +1,33 @@
 OCAMLBUILD=ocamlbuild
 
-LANGS = \
-	src/calc/calc \
-	src/calcvar/calcvar \
-	src/lambda/lambda \
-	src/levy/levy \
-	src/miniml/miniml \
-	src/minihaskell/minihaskell \
-	src/miniprolog/miniprolog \
-	src/sub/sub \
-	src/poly/poly \
-	src/boa/boa \
-	src/miniml+error/minimlerror
+LANGS = calc \
+	calcvar \
+	lambda \
+	miniml \
+	miniml_error \
+	minihaskell \
+	levy \
+	miniprolog \
+	sub \
+	poly \
+	boa
 
 SRCDIR = src
 
-BYTETARGETS = $(LANGS:=.byte)
-NATIVETARGETS = $(LANGS:=.native)
+.PHONY: $(LANGS)
 
-.PHONY: native byte
+default:
+	@echo "To compile all languages run:"
+	@echo "   make all"
+	@echo "To compile a single language run:"
+	@echo "   make <lang>"
+	@echo "where <lang> is one of:"
+	@echo "$(LANGS)"
 
-default: native
+all: $(LANGS)
 
-native: $(NATIVETARGETS)
+$(LANGS): % :
+	$(OCAMLBUILD) -use-menhir -libs unix -I $(SRCDIR) src/$@/$@.native
 
-byte: $(BYTETARGETS)
-
-$(NATIVETARGETS): %.native : %.ml
-	$(OCAMLBUILD) -use-menhir -libs unix -I $(SRCDIR) $@
-
-$(BYTETARGETS): %.byte : %.ml
-	$(OCAMLBUILD) -use-menhir -libs unix -I $(SRCDIR) $@
 clean:
 	$(OCAMLBUILD) -clean
