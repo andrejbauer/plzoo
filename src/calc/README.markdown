@@ -1,12 +1,7 @@
-Calc is an implementation of a simple arithmetical calculator with
-integer constants and the operations
-* addition `+`
-* subtraction `-`
-* negation `-`
-* multiplication `*`
-* division `/`
+A simple arithmetic calculator. It handles addition, subtraction,
+negation, multiplication and division of integers.
 
-Example interaction:
+#### Example interaction
 
     calc -- programming languages zoo
     Type Ctrl-D to exit

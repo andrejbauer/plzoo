@@ -11,14 +11,14 @@ let eval env =
       (try
          List.assoc x env
        with
-         | Not_found -> Zoo.runtime_error ~loc:Zoo.Nowhere "Unknown variable %s" x)
+         | Not_found -> Zoo.error "unknown variable %s" x)
     | Numeral n -> n
     | Plus (e1, e2) -> eval e1 + eval e2
     | Minus (e1, e2) -> eval e1 - eval e2
     | Times (e1, e2) -> eval e1 * eval e2
     | Divide (e1, e2) ->
       let n2 = eval e2 in
-        if n2 <> 0 then eval e1 / n2 else Zoo.runtime_error ~loc:Zoo.Nowhere "Division by zero"
+        if n2 <> 0 then eval e1 / n2 else Zoo.error "division by zero"
     | Negate e -> - (eval e)
   in
     eval

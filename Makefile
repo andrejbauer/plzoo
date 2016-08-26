@@ -1,7 +1,7 @@
 OCAMLBUILD=ocamlbuild
 
 LANGS = calc \
-	calcvar \
+	calc_var \
 	lambda \
 	miniml \
 	miniml_error \
