@@ -119,24 +119,38 @@ let print_info msg = print_message "Debug" 3 msg
 
 module type LANGUAGE =
 sig
-  type toplevel    (* Parsed toplevel entry. *)
-  type environment (* Runtime environment. *)
 
-  val name : string (* The name of the language *)
-  val options : (Arg.key * Arg.spec * Arg.doc) list (* Language-specific command-line options *)
-  val help_directive : string option (* What to type in toplevel to get help. *)
+  (** Parsed toplevel command. *)
+  type command     
 
-  val initial_environment : environment (* The initial environment. *)
+  (** Runtime environment. *)
+  type environment 
 
-  val prompt : string (* The prompt to show at toplevel. *)
-  val more_prompt : string (* The prompt to show when reading some more. *)
-  val read_more : string -> bool (* Given the input so far, should we read more in the interactive shell? *)
+  (** The name of the language *)
+  val name : string 
 
-  val file_parser : (Lexing.lexbuf -> toplevel list) option (* The file parser *)
-  val toplevel_parser : Lexing.lexbuf -> toplevel (* Interactive shell parser *)
+  (** Language-specific command-line options *)
+  val options : (Arg.key * Arg.spec * Arg.doc) list 
 
-  val exec : (environment -> (string * bool) -> environment) -> bool -> environment -> toplevel -> environment (* Execute a toplevel directive. *)
-end
+  (** The text printed when the user asks for help. *)
+  val help_text : string
+
+  (** The initial runtime environment. *)
+  val initial_environment : environment 
+
+  (** Given the input so far, should we read more in the interactive shell? *)
+  val read_more : string -> bool
+
+  (** The file parser, if any *)
+  val file_parser : (Lexing.lexbuf -> command list) option 
+
+  (** Interactive shell parser, if any *)
+  val toplevel_parser : (Lexing.lexbuf -> command) option
+
+  (** Execute a toplevel command. *)
+  val exec : environment -> command -> environment 
+
+end (* LANGUAGE *)
 
 module Toplevel(L : LANGUAGE) =
 struct
@@ -206,10 +220,12 @@ struct
 
   (** Parse input from toplevel, using the given [parser]. *)
   let read_toplevel parser () =
-    print_string L.prompt ;
+    let prompt = L.name ^ "> "
+    and prompt_more = String.make (String.length L.name) ' ' ^ "> " in
+    print_string prompt ;
     let str = ref (read_line ()) in
       while L.read_more !str do
-        print_string L.more_prompt ;
+        print_string prompt_more ;
         str := !str ^ (read_line ()) ^ "\n"
       done ;
       parser (Lexing.from_string (!str ^ "\n"))
@@ -225,13 +241,13 @@ struct
         syntax_error ~loc:(position_of_lex lex) "general confusion"
 
   (** Load directives from the given file. *)
-  let rec use_file ctx (filename, interactive) =
+  let use_file ctx (filename, interactive) =
     match L.file_parser with
     | Some f ->
-      let cmds = read_file (wrap_syntax_errors f) filename in
-        List.fold_left (L.exec use_file interactive) ctx cmds
+       let cmds = read_file (wrap_syntax_errors f) filename in
+        List.fold_left L.exec ctx cmds
     | None ->
-      fatal_error ~loc:Nowhere "Cannot load files, only interactive shell is available"
+       fatal_error ~loc:Nowhere "Cannot load files, only interactive shell is available"
 
   (** Interactive toplevel *)
   let toplevel ctx =
@@ -240,16 +256,19 @@ struct
       | "Win32" -> "Ctrl-Z"
       | _ -> "EOF"
     in
-      print_endline (L.name ^ " @ programming languages zoo");
-      (match L.help_directive with
-        | Some h -> print_endline ("Type " ^ eof ^ " to exit or \"" ^ h ^ "\" for help.") ;
-        | None -> print_endline ("Type " ^ eof ^ " to exit.")) ;
+      let toplevel_parser =
+        match L.toplevel_parser with
+        | Some p -> p
+        | None -> fatal_error ~loc:Nowhere "I am sorry but this language has no interactive toplevel."
+      in
+      print_endline (L.name ^ " @ programming languages zoo")  ;
+      print_endline ("Type " ^ eof ^ " to exit.") ;
       try
         let ctx = ref ctx in
           while true do
             try
-              let cmd = read_toplevel (wrap_syntax_errors L.toplevel_parser) () in
-                ctx := L.exec use_file true !ctx cmd
+              let cmd = read_toplevel (wrap_syntax_errors toplevel_parser) () in
+                ctx := L.exec !ctx cmd
             with
               | Error err -> print_error err
               | Sys.Break -> prerr_endline "Interrupted."
