@@ -1,12 +1,4 @@
-PREAMBLE
-
-The PL Zoo is distributed under the BSD 2-clause licence, included below, except for
-files which contain a specific copyright notice and licencing information. The
-contributors to the PL Zoo are listed in CREDITS.txt.
-
-LICENSE
-
-Copyright (c) 2013, the PL Zoo contributors
+Copyright (c) 2016, Andrej Bauer, Matija Pretnar
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are
