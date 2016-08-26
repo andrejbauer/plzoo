@@ -1,23 +1,17 @@
-module Lambda = Zoo.Toplevel(struct
-  type toplevel = Input.toplevel
+module Lambda = Zoo.Main(struct
+  let name = "lambda"
+
+  type command = Input.toplevel
 
   type environment = Context.context
 
   let initial_environment = Context.empty_context
 
-  let prompt = "# "
-
-  let more_prompt = "  "
-
   let file_parser = Some (Parser.file Lexer.token)
 
-  let toplevel_parser = Parser.commandline Lexer.token
-
-  let name = "lambda"
+  let toplevel_parser = Some (Parser.commandline Lexer.token)
 
   let options = []
-
-  let help_directive = Some "#help;"
 
   (** Do we evaluate eagerly? *)
   let eager = ref false
@@ -44,13 +38,15 @@ e1 e2                          application
 
   (** [exec interactive ctx cmd] executes the toplevel command [cmd] and
        prints the result if in interactive mode. *)
-  let exec _ interactive ctx (d,loc) =
+  let exec ctx {Zoo.data=d;loc} =
     match d with
+
     | Input.Expr e ->
       let e = Desugar.expr ctx.Context.names e in
       let e = Norm.norm ~eager:!eager ~deep:!deep ctx.Context.decls e in
-        if interactive then Format.printf "    = %t@." (Print.expr ctx.Context.names e) ;
+        Format.printf "%t@." (Print.expr ctx.Context.names e) ;
         ctx
+
     | Input.Context ->
       ignore
         (List.fold_right
@@ -63,29 +59,34 @@ e1 e2                          application
              k - 1)
            ctx.Context.names (List.length ctx.Context.names - 1)) ;
       ctx
+
     | Input.Eager b ->
       eager := b ;
       Format.printf "@[I will evaluate %s.@." (if !eager then "eagerly" else "lazily") ;
       ctx
+
     | Input.Deep b ->
       deep := b ;
       Format.printf "@[I will evaluate %s.@." (if !deep then "deeply" else "shallowly") ;
       ctx
+
     | Input.TopConstant xs ->
       List.fold_left
         (fun ctx x ->
-          if List.mem x ctx.Context.names then Zoo.typing_error ~loc "%s already exists" x ;
-          if interactive then Format.printf "%s is a constant.@." x ;
+          if List.mem x ctx.Context.names then Zoo.error ~loc "%s already exists" x ;
+          Format.printf "%s is a constant.@." x ;
           Context.add_parameter x ctx)
         ctx xs
+
     | Input.TopDefine (x, e) ->
-      if List.mem x ctx.Context.names then Zoo.typing_error ~loc "%s already exists" x ;
+      if List.mem x ctx.Context.names then Zoo.error ~loc "%s already exists" x ;
       let e = Desugar.expr ctx.Context.names e in
-        if interactive then
-          Format.printf "%s is defined.@." x ;
+        Format.printf "%s is defined.@." x ;
         Context.add_definition x e ctx
+
     | Input.Help ->
       print_endline help_text ; ctx
+
     | Input.Quit -> exit 0
 
 

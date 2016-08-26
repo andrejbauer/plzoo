@@ -33,7 +33,7 @@ and comment n = parse
   | "/*"                { comment (n + 1) lexbuf }
   | '\n'                { Lexing.new_line lexbuf; comment n lexbuf }
   | _                   { comment n lexbuf }
-  | eof                 { Zoo.syntax_error ~loc:(Zoo.position_of_lex lexbuf) "Unterminated comment" }
+  | eof                 { Zoo.error ~loc:(Zoo.location_of_lex lexbuf) "unterminated comment" }
 
 {
   let read_file parser fn =
@@ -47,10 +47,10 @@ and comment n = parse
       terms
     with
       (* Close the file in case of any parsing errors. *)
-      (Zoo.Error _) as exc -> close_in fh; raise exc
+      exc -> close_in fh; raise exc
   with
     (* Any errors when opening or closing a file are fatal. *)
-    Sys_error msg -> Zoo.fatal_error ~loc:Zoo.Nowhere "%s" msg
+    Sys_error msg -> Zoo.error "system error (%s)" msg
 
   let read_toplevel parser () =
     let ends_with_semi str =

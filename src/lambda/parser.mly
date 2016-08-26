@@ -3,8 +3,13 @@
 
   (* Build nested lambdas *)
   let make_lambda e xs =
-    List.fold_right (fun (x, loc) e -> (Lambda (x, e), loc)) xs e
-
+    let rec fold = function
+      | [] -> e
+      | {Zoo.data=x; loc} :: xs ->
+         let e = fold xs in
+         Zoo.locate ~loc (Lambda (x, e))
+    in
+    fold xs
 %}
 
 %token <string> NAME
@@ -84,7 +89,7 @@ plain_topdirective:
 expr: mark_position(plain_expr) { $1 }
 plain_expr:
   | LAMBDA xs = binders PERIOD e = expr
-    { fst (make_lambda e xs) }
+    { (make_lambda e xs).Zoo.data }
   | e = plain_app_expr
     { e }
 
@@ -110,6 +115,6 @@ plain_name:
 
 mark_position(X):
   x = X
-  { x, Zoo.Position ($startpos, $endpos) }
+  { Zoo.locate ~loc:(Zoo.make_location $startpos $endpos) x }
 
 %%
