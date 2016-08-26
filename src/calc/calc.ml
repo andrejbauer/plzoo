@@ -1,19 +1,24 @@
-module Calc = Zoo.Toplevel(struct
-  type toplevel = Syntax.expression
-  type environment = unit
+module Calc = Zoo.Main(struct
   let name = "calc"
-  let options = []
-  let help_directive = None
-  let initial_environment = ()
-  let prompt = "Calc> "
-  let more_prompt = "> "
-  let read_more _ = false
-  let file_parser = None
-  let toplevel_parser = Parser.toplevel Lexer.lexeme
 
-  let exec _ interactive () e =
+  type command = Syntax.expression
+
+  type environment = unit
+
+  let options = []
+
+  let initial_environment = ()
+
+  let read_more _ = false
+
+  let file_parser = None
+
+  let toplevel_parser = Some (Parser.toplevel Lexer.lexeme)
+
+  let exec () e =
     let n = Eval.eval e in
-      if interactive then print_endline (string_of_int n)
+    Zoo.print_info "%d@." n
+
 end) ;;
 
 Calc.main ()

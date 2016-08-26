@@ -63,16 +63,16 @@ let syntax_error ?loc msg = error ~kind:"Syntax error" ?loc msg
 let print_message ?(loc=Nowhere) msg_type =
   match loc with
   | Location _ ->
-     Format.eprintf "%s at %t:@\n@[" msg_type (print_location loc) ;
-     Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
+     Format.eprintf "%s at %t:@\n" msg_type (print_location loc) ;
+     Format.kfprintf (fun ppf -> Format.fprintf ppf "@.") Format.err_formatter
   | Nowhere ->
-     Format.eprintf "%s:@\n@[" msg_type ;
-     Format.kfprintf (fun ppf -> Format.fprintf ppf "@]@.") Format.err_formatter
+     Format.eprintf "%s: " msg_type ;
+     Format.kfprintf (fun ppf -> Format.fprintf ppf "@.") Format.err_formatter
 
 (** Print the caught error *)
 let print_error (loc, err_type, msg) = print_message ~loc err_type "%s" msg
 
-let print_info = Format.printf
+let print_info msg = Format.kfprintf (fun ppf -> Format.pp_print_flush ppf ()) Format.std_formatter msg
 
 module type LANGUAGE =
 sig

@@ -1,5 +1,4 @@
 %{
-  open Syntax
 %}
 
 /* Lexemes */
@@ -31,11 +30,11 @@ toplevel: e = expression EOF
 ;
 
 expression:
-  | n = NUMERAL                             { Numeral n }
-  | e1 = expression TIMES  e2 = expression  { Times (e1, e2) }
-  | e1 = expression PLUS   e2 = expression  { Plus (e1, e2) }
-  | e1 = expression MINUS  e2 = expression  { Minus (e1, e2) }
-  | e1 = expression DIVIDE e2 = expression  { Divide (e1, e2) }
-  | MINUS e = expression %prec UMINUS       { Negate e }
+  | n = NUMERAL                             { Syntax.Numeral n }
+  | e1 = expression TIMES  e2 = expression  { Syntax.Times (e1, e2) }
+  | e1 = expression PLUS   e2 = expression  { Syntax.Plus (e1, e2) }
+  | e1 = expression MINUS  e2 = expression  { Syntax.Minus (e1, e2) }
+  | e1 = expression DIVIDE e2 = expression  { Syntax.Divide (e1, e2) }
+  | MINUS e = expression %prec UMINUS       { Syntax.Negate e }
   | LPAREN e = expression RPAREN            { e }
 ;
