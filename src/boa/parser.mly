@@ -19,8 +19,8 @@
 %token SEMICOLON2
 %token EOF
 
-%start command file
-%type <Syntax.toplevel_cmd> command
+%start toplevel file
+%type <Syntax.toplevel_cmd> toplevel
 %type <Syntax.toplevel_cmd list> file
 
 %nonassoc IN
@@ -44,10 +44,14 @@
 file:
   | EOF                      { [] }
   | command SEMICOLON2 file  { $1 :: $3 }
+  | command EOF              { [$1] }
+
+toplevel:
+  | command SEMICOLON2? EOF  { $1 }
 
 command:
-  | expr { Expr $1 }
-  | LET VAR EQUAL expr { Def ($2, $4) }
+  | expr                 { Expr $1 }
+  | LET VAR EQUAL expr   { Def ($2, $4) }
 
 expr:
   | non_app             { $1 }

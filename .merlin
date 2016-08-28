@@ -1,5 +1,7 @@
 S src
-S src/*
+S src/boa
+S src/miniml
 B _build/src
-B _build/src/*
+B _build/src/boa
+B _build/src/miniml
 PKG menhirLib

@@ -1,5 +1,9 @@
 OCAMLBUILD=ocamlbuild
 
+# Should we build native or bytecode by default?
+BUILD=native
+# BUILD=byte
+
 LANGS = calc \
 	calc_var \
 	lambda \
@@ -17,17 +21,16 @@ SRCDIR = src
 .PHONY: $(LANGS)
 
 default:
-	@echo "To compile all languages run:"
-	@echo "   make all"
-	@echo "To compile a single language run:"
-	@echo "   make <lang>"
-	@echo "where <lang> is one of:"
-	@echo "$(LANGS)"
+	@echo "To compile all languages run:                 make all"
+	@echo "To compile a single language <lang> run:      make <lang>"
+	@echo "To compile bytecode add BUILD=byte:           make BUILD=byte ..."
+	@echo "Available languages:"
+	@echo "$(sort $(LANGS))"
 
 all: $(LANGS)
 
 $(LANGS): % :
-	$(OCAMLBUILD) -use-menhir -menhir "menhir --explain" -libs unix -I $(SRCDIR) src/$@/$@.native
+	$(OCAMLBUILD) -use-menhir -menhir "menhir --explain" -libs unix -I $(SRCDIR) src/$@/$@.$(BUILD)
 
 clean:
 	$(OCAMLBUILD) -clean
