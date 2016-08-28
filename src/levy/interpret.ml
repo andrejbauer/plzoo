@@ -23,7 +23,8 @@ let rec string_of_runtime = function
   | VFun _ -> "<fun>"
   | VReturn v -> "return " ^ string_of_runtime v
 
-let rec interp env = function
+let rec interp env e =
+  match e.Zoo.data with
   | Var x ->
       (try
 	 List.assoc x env
@@ -73,4 +74,4 @@ let rec interp env = function
       (match interp env e with
 	 | VThunk (env, e) -> interp env e
 	 | _ -> runtime_error "Thunk expected in force")
-  | Rec (x, _, e') as e -> interp ((x, VThunk (env, e)) :: env) e'
+  | Rec (x, _, e') -> interp ((x, VThunk (env, e)) :: env) e'

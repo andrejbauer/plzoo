@@ -22,7 +22,8 @@ and ctype = ltype
 
 type value = expr
 
-and expr =
+and expr = expr' Zoo.located
+and expr' =
   | Var of name            	  (** variable *)
   | Int of int             	  (** integer constant *)
   | Bool of bool           	  (** boolean constant *)
@@ -45,9 +46,6 @@ and expr =
 type toplevel =
   | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
-  | Use of string      (** load a file [$use "<filename>"] *)
-  | Help               (** print a help message *)
-  | Quit               (** exit toplevel [$quit] *)
 
 (** Conversion from a type to a string *)
 let string_of_type ty =
@@ -68,45 +66,25 @@ let string_of_type ty =
 let string_of_expr e =
   let rec to_str n e =
     let (m, str) =
-      match e with
-	| Int n ->           (10, string_of_int n)
-	| Bool b ->          (10, string_of_bool b)
-	| Var x ->           (10, x)
-	| Return e ->        ( 9, "return " ^ (to_str 9 e))
-	| Force e ->         ( 9, "force " ^ (to_str 9 e))
-	| Thunk e ->         ( 9, "thunk " ^ (to_str 9 e))
-	| Apply (e1, e2) ->  ( 9, (to_str 8 e1) ^ " " ^ (to_str 9 e2))
-	| Times (e1, e2) ->  ( 8, (to_str 7 e1) ^ " * " ^ (to_str 8 e2))
-	| Plus (e1, e2) ->   ( 7, (to_str 6 e1) ^ " + " ^ (to_str 7 e2))
-	| Minus (e1, e2) ->  ( 7, (to_str 6 e1) ^ " - " ^ (to_str 7 e2))
-	| Equal (e1, e2) ->  ( 5, (to_str 5 e1) ^ " = " ^ (to_str 5 e2))
-	| Less (e1, e2) ->   ( 5, (to_str 5 e1) ^ " < " ^ (to_str 5 e2))
-	| If (e1, e2, e3) -> ( 4, "if " ^ (to_str 4 e1) ^ " then " ^ (to_str 4 e2) ^ " else " ^ (to_str 4 e3))
-	| Fun (x, ty, e) ->  ( 2, "fun " ^ x ^ " : " ^ (string_of_type ty) ^ " -> " ^ (to_str 0 e))
-	| Rec (x, ty, e) ->  ( 2, "rec " ^ x ^ " : " ^ (string_of_type ty) ^ " is " ^ (to_str 0 e))
-	| Let (x, e1, e2) ->( 1, "let " ^ x ^ " = " ^ to_str 1 e1 ^ " in " ^ to_str 0 e2)
-	| To (e1, x, e2) ->  ( 1, to_str 1 e1 ^ " to " ^ x ^ " . " ^ to_str 0 e2)
+      match e.Zoo.data with
+    | Int n ->           (10, string_of_int n)
+    | Bool b ->          (10, string_of_bool b)
+    | Var x ->           (10, x)
+    | Return e ->        ( 9, "return " ^ (to_str 9 e))
+    | Force e ->         ( 9, "force " ^ (to_str 9 e))
+    | Thunk e ->         ( 9, "thunk " ^ (to_str 9 e))
+    | Apply (e1, e2) ->  ( 9, (to_str 8 e1) ^ " " ^ (to_str 9 e2))
+    | Times (e1, e2) ->  ( 8, (to_str 7 e1) ^ " * " ^ (to_str 8 e2))
+    | Plus (e1, e2) ->   ( 7, (to_str 6 e1) ^ " + " ^ (to_str 7 e2))
+    | Minus (e1, e2) ->  ( 7, (to_str 6 e1) ^ " - " ^ (to_str 7 e2))
+    | Equal (e1, e2) ->  ( 5, (to_str 5 e1) ^ " = " ^ (to_str 5 e2))
+    | Less (e1, e2) ->   ( 5, (to_str 5 e1) ^ " < " ^ (to_str 5 e2))
+    | If (e1, e2, e3) -> ( 4, "if " ^ (to_str 4 e1) ^ " then " ^ (to_str 4 e2) ^ " else " ^ (to_str 4 e3))
+    | Fun (x, ty, e) ->  ( 2, "fun " ^ x ^ " : " ^ (string_of_type ty) ^ " -> " ^ (to_str 0 e))
+    | Rec (x, ty, e) ->  ( 2, "rec " ^ x ^ " : " ^ (string_of_type ty) ^ " is " ^ (to_str 0 e))
+    | Let (x, e1, e2) ->( 1, "let " ^ x ^ " = " ^ to_str 1 e1 ^ " in " ^ to_str 0 e2)
+    | To (e1, x, e2) ->  ( 1, to_str 1 e1 ^ " to " ^ x ^ " . " ^ to_str 0 e2)
     in
       if m > n then str else "(" ^ str ^ ")"
   in
     to_str (-1) e
-
-(** [subst [(x1,e1);...;(xn;en)] e] replaces in [e] free occurrences
-    of variables [x1], ..., [xn] with expressions [e1], ..., [en]. *)
-let rec subst s = function
-  | (Var x) as e -> (try List.assoc x s with Not_found -> e)
-  | (Int _ | Bool _) as e -> e
-  | Times (e1, e2) -> Times (subst s e1, subst s e2)
-  | Plus (e1, e2) -> Plus (subst s e1, subst s e2)
-  | Minus (e1, e2) -> Minus (subst s e1, subst s e2)
-  | Equal (e1, e2) -> Equal (subst s e1, subst s e2)
-  | Less (e1, e2) -> Less (subst s e1, subst s e2)
-  | If (e1, e2, e3) -> If (subst s e1, subst s e2, subst s e3)
-  | Fun (x, ty, e) -> let s' = List.remove_assoc x s in Fun (x, ty, subst s' e)
-  | Let (x, e1, e2) -> Let (x, subst s e1, subst (List.remove_assoc x s) e2)
-  | To (e1, x, e2) -> To (subst s e1, x, subst (List.remove_assoc x s) e2)
-  | Return e -> Return (subst s e)
-  | Force e -> Force (subst s e)
-  | Thunk e -> Thunk (subst s e)
-  | Apply (e1, e2) -> Apply (subst s e1, subst s e2)
-  | Rec (x, ty, e) -> let s' = List.remove_assoc x s in Rec (x, ty, subst s' e)

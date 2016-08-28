@@ -39,13 +39,7 @@ rule token = parse
   | "to"            { TO }
   | "true"          { TRUE }
 
-  | "#help"         { HELP }
-  | "#use"          { USE }
-  | "#quit"         { QUIT }
   | ";;"            { SEMISEMI }
-
-  | '\"' [^'\"']* '\"' { let str = lexeme lexbuf in
-			STRING (String.sub str 1 (String.length str - 2)) }
 
   | '('             { LPAREN }
   | ')'             { RPAREN }
@@ -64,7 +58,7 @@ and comment n = parse
   | "(*"                { comment (n + 1) lexbuf }
   | '\n'                { Lexing.new_line lexbuf; comment n lexbuf }
   | _                   { comment n lexbuf }
-  | eof                 { Zoo.syntax_error ~loc:(Zoo.position_of_lex lexbuf) "Unterminated comment" }
+  | eof                 { Zoo.error ~loc:(Zoo.location_of_lex lexbuf) "Unterminated comment" }
 
 
 {
