@@ -1,72 +1,87 @@
 (** Evaluation of expressions *)
 
-open Syntax
+(** Expressions evaluate to objects which are represented by the type [ob]. *)
+type ob =
+  | Int of int                           (** integer *)
+  | Bool of bool                         (** boolean *)
+  | Func of closure                      (** closure (represents a function) *)
+  | Obj of (Syntax.name * ob ref) list   (** object [{a1=e1, ..., an=en}] *)
+  | With of ob * ob                      (** extended object [ob1 with ob2] *)
 
-(** Exception [Runtime_error] is raised if evaluation gets stuck. *)
-exception Runtime_error of string
+(** A closure [(th, (x, env, e))] represents a function [fun x -> e] in
+    environment [th, env], where [th] is the value of object [this] and [env]
+    is the environment of local definitions accessible by the function. *)
+and closure = ob option * (Syntax.name * env * Syntax.expr)
 
-let runtime msg = raise (Runtime_error msg)
+(** An environment is a list of pairs [(x,ob)], mapping a variable [x] to
+    a value [ob]. *)
+and env = (Syntax.name * ob) list
 
 (** [copy ob] makes a shallow copy of object [ob]. *)
 let rec copy = function
-  | (ObjInt _ | ObjBool _ | ObjFunc _) as u -> u
-  | ObjDict lst -> ObjDict (List.map (fun (x,v) -> (x, ref (!v))) lst)
-  | ObjWith (u,v) -> ObjWith (copy u, copy v)
+  | (Int _ | Bool _ | Func _) as u -> u
+  | Obj lst -> Obj (List.map (fun (x,v) -> (x, ref (!v))) lst)
+  | With (u,v) -> With (copy u, copy v)
 
 (** [attributes ob] returns the list of atributes of object [ob]. *)
 let rec attributes = function
-  | ObjInt _ | ObjBool _ | ObjFunc _ -> []
-  | ObjDict lst -> List.map fst lst
-  | ObjWith (u, v) ->
+  | Int _ | Bool _ | Func _ -> []
+  | Obj lst -> List.map fst lst
+  | With (u, v) ->
       let lst1 = attributes u in
       let lst2 = attributes v in
 	lst1 @ (List.filter (fun x -> not (List.mem x lst1)) lst2)
 
+(** Raised when a getter fails *)
+exception InvalidGet of string
+
+(** Raise when the object does not have the required field *)
+exception InvalidAttr of string
+
 (** [get_int ob] returns [ob] as an integer. *)
 let rec get_int = function
-  | ObjInt k -> k
-  | ObjBool _ | ObjFunc _ | ObjDict _ -> runtime "Not an integer"
-  | ObjWith (u, v) -> (try get_int v with Runtime_error _ -> get_int u)
+  | Int k -> k
+  | Bool _ | Func _ | Obj _ -> raise (InvalidGet "integer")
+  | With (u, v) -> (try get_int v with InvalidGet _ -> get_int u)
 
 (** [get_bool ob] returns [ob] as a boolean. *)
 let rec get_bool = function
-  | ObjBool b -> b
-  | ObjInt _ | ObjFunc _ | ObjDict _ -> runtime "Not an boolean"
-  | ObjWith (u, v) -> (try get_bool v with Runtime_error _ -> get_bool u)
+  | Bool b -> b
+  | Int _ | Func _ | Obj _ -> raise (InvalidGet "boolean")
+  | With (u, v) -> (try get_bool v with InvalidGet _ -> get_bool u)
 
 (** [get_func ob] returns [ob] as a function. *)
 let rec get_func = function
-  | ObjFunc c -> c
-  | ObjInt _ | ObjBool _ | ObjDict _ -> runtime "Not a function"
-  | ObjWith (u, v) -> (try get_func v with Runtime_error _ -> get_func u)
+  | Func c -> c
+  | Int _ | Bool _ | Obj _ -> raise (InvalidGet "function")
+  | With (u, v) -> (try get_func v with InvalidGet _ -> get_func u)
 
 (** [get_attr x ob] returns the value of attribute [x] in object [ob]. *)
 let rec get_attr x = function
-  | ObjInt _ | ObjBool _ | ObjFunc _ -> runtime ("No such attribute " ^ x)
-  | ObjDict d -> (try List.assoc x d with Not_found -> runtime ("No such attribute " ^ x))
-  | ObjWith (u, v) -> (try get_attr x v with Runtime_error _ -> get_attr x u)
+  | Int _ | Bool _ | Func _ -> raise (InvalidAttr x)
+  | Obj d -> (try List.assoc x d with Not_found -> raise (InvalidAttr x))
+  | With (u, v) -> (try get_attr x v with InvalidAttr _ -> get_attr x u)
 
 (** Mapping from arithmetical operations to corresponding Ocaml functions. *)
 let arith = function
-  | Plus ->  ( + )
-  | Minus -> ( - )
-  | Times -> ( * )
-  | Divide -> ( / )
-  | Remainder -> ( mod )
+  | Syntax.Plus ->  ( + )
+  | Syntax.Minus -> ( - )
+  | Syntax.Times -> ( * )
+  | Syntax.Divide -> ( / )
+  | Syntax.Remainder -> ( mod )
 
 (** Mapping from comparisons to corresponding Ocaml functions. *)
 let cmp = function
-  | Equal -> ( = )
-  | Unequal -> ( <> )
-  | Less -> ( < )
-
+  | Syntax.Equal -> ( = )
+  | Syntax.Unequal -> ( <> )
+  | Syntax.Less -> ( < )
 
 (** [string_of_obj ob] converts [ob] to a string. *)
 let rec string_of_obj u =
   let primitives =
-    (try [string_of_int (get_int u)] with Runtime_error _ -> []) @
-    (try [string_of_bool (get_bool u)] with Runtime_error _ -> []) @
-    (try ignore (get_func u); ["<fun>"] with Runtime_error _ -> [])
+    (try [string_of_int (get_int u)] with InvalidGet _ -> []) @
+    (try [string_of_bool (get_bool u)] with InvalidGet _ -> []) @
+    (try ignore (get_func u); ["<fun>"] with InvalidGet _ -> [])
   in
     String.concat " with " (
       primitives @
@@ -77,85 +92,92 @@ let rec string_of_obj u =
 		  (List.map (fun x -> x ^ " = " ^ string_of_obj !(get_attr x u)) lst)
 	       ) ^ "}"]))
 
-(** [eval th env e] evaluates expression [e] in environment [env] with object
-    this set to [th]. It returns a value of type [ob]. *)
-let rec eval th env = function
+(** [eval env e] evaluates expression [e] in environment [env].
+    It returns a value of type [ob]. *)
+let eval env e = 
+  let rec eval th env = function
 
-  | Var x ->
-      (try List.assoc x env with Not_found -> runtime ("No such variable " ^ x))
+    | Syntax.Var x ->
+       (try List.assoc x env with Not_found -> Zoo.error "no such variable %s" x)
 
-  | Int k -> ObjInt k
+    | Syntax.Int k -> Int k
 
-  | Bool b -> ObjBool b
+    | Syntax.Bool b -> Bool b
 
-  | ArithOp (op, e1, e2) -> 
-      let v1 = eval th env e1 in
-      let v2 = eval th env e2 in
-	ObjInt (arith op (get_int v1) (get_int v2))
+    | Syntax.ArithOp (op, e1, e2) -> 
+       let v1 = eval th env e1 in
+       let v2 = eval th env e2 in
+       Int (arith op (get_int v1) (get_int v2))
 
-  | Not e ->
-      let v = eval th env e in
-	ObjBool (not (get_bool v))
+    | Syntax.Not e ->
+       let v = eval th env e in
+       Bool (not (get_bool v))
 
-  | CmpOp (op, e1, e2) -> 
-      let v1 = eval th env e1 in
-      let v2 = eval th env e2 in
-	ObjBool (cmp op (get_int v1) (get_int v2))
+    | Syntax.CmpOp (op, e1, e2) -> 
+       let v1 = eval th env e1 in
+       let v2 = eval th env e2 in
+       Bool (cmp op (get_int v1) (get_int v2))
 
-  | BoolOp (And, e1, e2) ->
-      ObjBool (get_bool (eval th env e1) && get_bool (eval th env e2))
+    | Syntax.BoolOp (Syntax.And, e1, e2) ->
+       Bool (get_bool (eval th env e1) && get_bool (eval th env e2))
 
-  | BoolOp (Or, e1, e2) ->
-      ObjBool (get_bool (eval th env e1) || get_bool (eval th env e2))
+    | Syntax.BoolOp (Syntax.Or, e1, e2) ->
+       Bool (get_bool (eval th env e1) || get_bool (eval th env e2))
 
-  | If (e1, e2, e3) ->
-      if get_bool (eval th env e1) then
-	eval th env e2
-      else
-	eval th env e3
+    | Syntax.If (e1, e2, e3) ->
+       if get_bool (eval th env e1) then
+	 eval th env e2
+       else
+	 eval th env e3
 
-  | Skip -> ObjDict []
+    | Syntax.Skip -> Obj []
 
-  | Seq (e1, e2) ->
-      ignore (eval th env e1) ; eval th env e2
+    | Syntax.Seq (e1, e2) ->
+       ignore (eval th env e1) ; eval th env e2
 
-  | Let (x, e1, e2) ->
-      let v = eval th env e1 in
-	eval th ((x,v)::env) e2
+    | Syntax.Let (x, e1, e2) ->
+       let v = eval th env e1 in
+       eval th ((x,v)::env) e2
 
-  | App (e1, e2) ->
-      let v1 = eval th env e1 in
-      let v2 = eval th env e2 in
-      let th', (x, env', e) = get_func v1 in
-	eval th' ((x,v2)::env') e
+    | Syntax.App (e1, e2) ->
+       let v1 = eval th env e1 in
+       let v2 = eval th env e2 in
+       let th', (x, env', e) = get_func v1 in
+       eval th' ((x,v2)::env') e
 
-  | Fun (x, e) -> ObjFunc (th, (x, env, e))
+    | Syntax.Fun (x, e) -> Func (th, (x, env, e))
 
-  | This ->
-      (match th with
-	 | Some v -> v
-	 | None -> runtime "No this here")
+    | Syntax.This ->
+       (match th with
+	| Some v -> v
+	| None -> Zoo.error "invalid use of 'this'")
 
-  | Object lst ->
-      ObjDict (List.map (fun (x,e) -> (x, ref (eval th env e))) lst)
+    | Syntax.Object lst ->
+       Obj (List.map (fun (x,e) -> (x, ref (eval th env e))) lst)
 
-  | Copy e -> copy (eval th env e)
+    | Syntax.Copy e -> copy (eval th env e)
 
-  | With (e1, e2) ->
-      let v1 = eval th env e1 in
-      let v2 = eval th env e2 in
-	ObjWith (v1, v2)
+    | Syntax.With (e1, e2) ->
+       let v1 = eval th env e1 in
+       let v2 = eval th env e2 in
+       With (v1, v2)
 
-  | Project (e, x) ->
-      let u = eval th env e in
-      let v = !(get_attr x u) in
-	(try
-	   (* Ce je [e.x] funkcija, ji nastavimo vrednost this na [e]. *)
+    | Syntax.Project (e, x) ->
+       let u = eval th env e in
+       let v = !(get_attr x u) in
+       (try
+	   (* If [e.x] is a function, we set the value of [this] to [e] *)
 	   let (_, c) = get_func v in
-	     ObjWith (v, ObjFunc (Some u, c))
-	 with Runtime_error _ -> v)
+	   With (v, Func (Some u, c))
+	 with InvalidGet _ -> v)
 
-  | Assign (e1, x, e2) ->
-      let v1 = eval th env e1 in
-      let v2 = eval th env e2 in
-	(get_attr x v1) := v2; v2
+    | Syntax.Assign (e1, x, e2) ->
+       let v1 = eval th env e1 in
+       let v2 = eval th env e2 in
+       (get_attr x v1) := v2; v2
+  in
+  try
+    eval None env e
+  with
+  | InvalidGet t -> Zoo.error "expected a %s" t
+  | InvalidAttr x -> Zoo.error "no such attribute %s" x

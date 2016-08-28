@@ -32,14 +32,10 @@ rule token = parse
   | "this"          { THIS }
   | "true"          { TRUE }
   | "with"          { WITH }
-  | "$use"          { USE }
-  | "$quit"         { QUIT }
   | "->"            { ARROW }
   | ":="            { ASSIGN }
   | ";"             { SEMICOLON }
   | ";;"            { SEMICOLON2 }
-  | '\"' [^'\"']* '\"' { let str = lexeme lexbuf in
-			STRING (String.sub str 1 (String.length str - 2)) }
   | '('             { LPAREN }
   | ')'             { RPAREN }
   | '{'             { LBRACE }

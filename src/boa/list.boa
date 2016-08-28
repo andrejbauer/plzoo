@@ -1,6 +1,6 @@
 # Recursive definitions
 
-let rec = fun f -> { self = fun x -> f this.self x }.self
+let rec = fun f -> { self = fun x -> f this.self x }.self ;;
 
 # A list is an object with a field empty, and a non-empty list must also have
 # fields head and tail
@@ -27,12 +27,12 @@ let list = {
        this.nil {}
      else
        this.cons (f this.head) (this.tail.map f)
-}
+} ;;
 
 # Examples
 
-let a = list.cons 1 (list.cons 2 (list.cons 3 (list.nil {})))
+let a = list.cons 1 (list.cons 2 (list.cons 3 (list.nil {}))) ;;
 
-let x = a.get 2
+let x = a.get 2 ;;
 
-let b = a.map (fun x -> 100 + x)
+let b = a.map (fun x -> 100 + x) ;;

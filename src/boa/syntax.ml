@@ -34,27 +34,7 @@ type expr =
   | Project of expr * name           (** attribute projection [e.x] *)
   | Assign of expr * name * expr     (** set the value of an attribute [e1.x := e2] *)
 
-
-(** Expressions evaluate to objects which are represented by the type [ob]. *)
-type ob =
-  | ObjInt of int                    (** integer *)
-  | ObjBool of bool                  (** boolean *)
-  | ObjFunc of closure               (** closure (represents a function) *)
-  | ObjDict of (name * ob ref) list  (** object [{a1=e1, ..., an=en}] *)
-  | ObjWith of ob * ob               (** extended object [ob1 with ob2] *)
-
-(** A closure [(th, (x, env, e))] represents a function [fun x -> e] in
-    environment [th, env], where [th] is the value of object [this] and [env]
-    is the environment of local definitions accessible by the function. *)
-and closure = ob option * (name * env * expr)
-
-(** An environment is a list of pairs [(x,ob)], mapping a variable [x] to
-    a value [ob]. *)
-and env = (name * ob) list
-
 (** Toplevel commands *)
 type toplevel_cmd =
-    Expr of expr (** Expressions *)
+  | Expr of expr (** Expression to be evaluated *)
   | Def of name * expr (** Global definition [let x = e] *)
-  | Use of string (** Include file [$use "<filename>"] *)
-  | Quit (** Exit toplevel [$quit] *)
