@@ -37,14 +37,13 @@ let rec renumber_atom n (c,ts) = (c, List.map (renumber_term n) ts)
     the current proof search. *)
 let rec display_solution ch env =
   match string_of_env env, ch with
-    | "Yes", _ -> print_endline "Yes"
-    | answer, [] -> print_endline answer
+    | "Yes", _ -> Zoo.print_info "Yes@."
+    | answer, [] -> Zoo.print_info "%s@." answer
     | answer, ch -> begin
-	print_string (answer ^ "\nmore? (y/n) [y] ") ;
-	flush stdout ;
-	match String.lowercase (read_line ()) with
-	  | "y" | "yes" | "" -> continue_search ch
-	  | _ -> raise NoSolution
+      	Zoo.print_info "%s@.more? (y/n) [y]@?" answer;
+      	match String.lowercase (read_line ()) with
+      	  | "y" | "yes" | "" -> continue_search ch
+      	  | _ -> raise NoSolution
       end
 
 (** [continue_search ch] looks for other answers. It accepts a list of
@@ -106,4 +105,4 @@ and solve ch asrl env c n =
 let solve_toplevel c =
   try
     solve [] !base [] c 1
-  with NoSolution -> print_endline "No"
+  with NoSolution -> Zoo.print_info "No@."
