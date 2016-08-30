@@ -40,8 +40,6 @@ type expr =
 type toplevel_cmd =
   | Expr of expr       (* an expression to be evaluated *)
   | Def of name * expr (* toplevel definition [let x = e] *)
-  | Use of string      (* load a file [$use "<filename"] *)
-  | Quit               (* exit toplevel [$quit] *)
 
 (** [rename t] renames parameters in type [t] so that they count from
     [0] up. This is useful for pretty printing. *)

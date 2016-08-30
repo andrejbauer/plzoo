@@ -1,6 +1,3 @@
-# Osnovne operacije na seznamih.
-
-# Range
 let range = rec range is
   fun m -> fun n ->
     if n < m then [] else m :: (range (m+1) n)
@@ -12,7 +9,6 @@ let map = rec map is
         [] -> []
       | x::xs -> (f x)::(map f xs)
 
-# Stakni dva seznama
 let append = rec append is
   fun lst1 ->
     fun lst2 ->
@@ -32,7 +28,6 @@ let fold_left =
 
 # fold_right g (x1::x2::...::xn) y = g (x1 (g (x2 (.... (g xn y) ...))))
 
-# flatten (ena stopnja)
 let flatten = rec flatten is
     fun lsts ->
       match lsts with
@@ -40,7 +35,6 @@ let flatten = rec flatten is
 	| l :: ls -> append l (flatten ls)
 ;;
 
-# zip2 l1 l2 preplete seznama l1 in l2
 let zip2 = rec zip2 is
     fun l1 -> fun l2 ->
       match l1 with

@@ -34,8 +34,10 @@
 %token <string>STRING
 %token EOF
 
+%start file
 %start toplevel
-%type <Syntax.toplevel_cmd list> toplevel
+%type <Syntax.toplevel_cmd list> file
+%type <Syntax.toplevel_cmd> toplevel
 
 %nonassoc REC IS
 %right FUN ARROW
@@ -51,28 +53,23 @@
 
 %%
 
-toplevel:
+file:
   | EOF                      { [] }
   | lettop                   { $1 }
   | exprtop                  { $1 }
-  | cmdtop                   { $1 }
 
 lettop:
   | def EOF                  { [$1] }
   | def lettop               { $1 :: $2 }
-  | def SEMICOLON2 toplevel  { $1 :: $3 }
+  | def SEMICOLON2 file      { $1 :: $3 }
 
 exprtop:
   | expr EOF                 { [Expr $1] }
-  | expr SEMICOLON2 toplevel { Expr $1 :: $3 }
+  | expr SEMICOLON2 file     { Expr $1 :: $3 }
 
-cmdtop:
-  | cmd EOF                  { [$1] }
-  | cmd SEMICOLON2 toplevel  { $1 :: $3 }
-
-cmd:
-  | USE STRING { Use $2 }
-  | QUIT       { Quit }
+toplevel:
+  | expr EOF                 { Expr $1 }
+  | def EOF                  { $1 }
 
 def: LET VAR EQUAL expr { Def ($2, $4) }
 
