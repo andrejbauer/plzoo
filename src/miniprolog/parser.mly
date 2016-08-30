@@ -10,37 +10,18 @@
 %token PERIOD
 %token LPAREN RPAREN
 %token GOAL
-%token QUIT
-%token SEMICOLON2
-%token USE
-%token <string>STRING
 %token EOF
 
-%start toplevel
-%type <Syntax.toplevel_cmd list> toplevel
-
-%right SEMICOLON2
-%nonassoc PERIOD GOAL IMPLIED
-%right COMMA
+%start file
+%start expr
+%type <Syntax.toplevel_cmd list> file
+%type <Syntax.toplevel_cmd> expr
 
 %%
 
-toplevel:
+file:
   | EOF                      { [] }
-  | exprtop                  { $1 }
-  | cmdtop                   { $1 }
-
-exprtop:
-  | expr EOF                 { [$1] }
-  | expr toplevel            { $1 :: $2 }
-
-cmdtop:
-  | cmd EOF                  { [$1] }
-  | cmd toplevel             { $1 :: $2 }
-
-cmd:
-  | USE STRING { Use $2 }
-  | QUIT       { Quit }
+  | expr file                { $1 :: $2 }
 
 expr:
   | goal      { $1 }

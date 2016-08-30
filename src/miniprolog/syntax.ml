@@ -41,8 +41,6 @@ type database = assertion list
 type toplevel_cmd =
   | Assert of assertion  (** Assertion [a :- b_1, ..., b_n.] or [a.] *)
   | Goal of clause       (** Query [?- a] *)
-  | Quit                 (** The [$quit] command. *)
-  | Use of string        (** The [$use "filename"] command. *)
       
 (** [lookup env x] returns the value of variable instance [x] in
     environment [env]. It returns [Var x] if the variable does not occur

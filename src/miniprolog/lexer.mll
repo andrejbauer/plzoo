@@ -18,14 +18,9 @@ rule token = parse
     '#' [^'\n']* '\n' { incr_linenum lexbuf; token lexbuf }
   | '\n'            { incr_linenum lexbuf; token lexbuf }
   | [' ' '\t']      { token lexbuf }
-  | "$use"          { USE }
-  | "$quit"         { QUIT }
   | "?-"            { GOAL }
   | ":-"            { FROM }
-  | ";;"            { SEMICOLON2 }
   | "true"          { TRUE }
-  | '\"' [^'\"']* '\"' { let str = lexeme lexbuf in
-			STRING (String.sub str 1 (String.length str - 2)) }
   | '('             { LPAREN }
   | ')'             { RPAREN }
   | ','             { COMMA }
