@@ -18,11 +18,14 @@
 %token COLON
 %token LPAREN RPAREN
 %token LET
-%token SEMICOLON2
+%token SEMISEMI
 %token EOF
 
+%start file
+%type <Syntax.command list> file
+
 %start toplevel
-%type <Syntax.toplevel_cmd list> toplevel
+%type <Syntax.command> toplevel
 
 %nonassoc IS
 %nonassoc ELSE
@@ -33,50 +36,83 @@
 
 %%
 
+file:
+  | EOF
+    { [] }
+  | e = expr EOF
+    { [Expr e] }
+  | e = expr SEMISEMI lst = file
+    { Expr e :: lst }
+  | ds = nonempty_list(def) SEMISEMI lst = file
+    { ds @ lst }
+  | ds = nonempty_list(def) EOF
+    { ds }
+
 toplevel:
-  | EOF                      { [] }
-  | def EOF                  { [$1] }
-  | expr EOF                 { [Expr $1] }
-  | def SEMICOLON2 toplevel  { $1 :: $3 }
-  | expr SEMICOLON2 toplevel { (Expr $1) :: $3 }
+  | d = def SEMISEMI
+    { d }
+  | e = expr SEMISEMI
+    { Expr e }
 
-def: LET VAR EQUAL expr { Def ($2, $4) }
+def:
+  | LET x = VAR EQUAL e = expr
+    { Def (x, e) }
 
-expr:
-    non_app             { $1 }
-  | app                 { $1 }
-  | arith               { $1 }
-  | boolean             { $1 }
-  | IF expr THEN expr ELSE expr	{ If ($2, $4, $6) }
-  | FUN VAR LPAREN VAR COLON ty RPAREN COLON ty IS expr { Fun ($2, $4, $6, $9, $11) }
+expr: mark_position(plain_expr) { $1 }
+plain_expr:
+  | e = plain_app_expr
+    { e }
+  | MINUS n = INT
+    { Int (-n) }
+  | e1 = expr PLUS e2 = expr  
+    { Plus (e1, e2) }
+  | e1 = expr MINUS e2 = expr
+    { Minus (e1, e2) }
+  | e1 = expr TIMES e2 = expr
+    { Times (e1, e2) }
+  | e1 = expr DIVIDE e2 = expr
+    { Division (e1, e2) }
+  | e1 = expr EQUAL e2 = expr
+    { Equal (e1, e2) }
+  | e1 = expr LESS e2 = expr
+    { Less (e1, e2) }
+  | IF e1 = expr THEN e2 = expr ELSE e3 = expr
+    { If (e1, e2, e3) }
+  | FUN x = VAR LPAREN f = VAR COLON t1 = ty RPAREN COLON t2 = ty IS e = expr
+    { Fun (x, f, t1, t2, e) }
 
-app:
-    app non_app         { Apply ($1, $2) }
-  | non_app non_app     { Apply ($1, $2) }
+app_expr: mark_position(plain_app_expr) { $1 }
+plain_app_expr:
+  | e = plain_simple_expr
+    { e }
+  | e1 = app_expr e2 = simple_expr
+    { Apply (e1, e2) }
 
-non_app:
-    VAR		        	  { Var $1 }
-  | TRUE                	  { Bool true }
-  | FALSE               	  { Bool false }
-  | INT		                  { Int $1 }
-  | LPAREN expr RPAREN		  { $2 }    
-
-arith:
-  | MINUS INT           { Int (-$2) }
-  | expr PLUS expr	{ Plus ($1, $3) }
-  | expr MINUS expr	{ Minus ($1, $3) }
-  | expr TIMES expr	{ Times ($1, $3) }
-  | expr DIVIDE expr	{ Division ($1, $3) }
-
-boolean:
-  | expr EQUAL expr { Equal ($1, $3) }
-  | expr LESS expr  { Less ($1, $3) }
+simple_expr: mark_position(plain_simple_expr) { $1 }
+plain_simple_expr:
+  | x = VAR
+    { Var x }
+  | TRUE    
+    { Bool true }
+  | FALSE
+    { Bool false }
+  | n = INT
+    { Int n }
+  | LPAREN e = plain_expr RPAREN  
+    { e }    
 
 ty:
-    TBOOL	 { TBool }
-  | TINT         { TInt }
-  | ty TARROW ty { TArrow ($1, $3) }
-  | LPAREN ty RPAREN { $2 }
+  | TBOOL
+    { TBool }
+  | TINT
+    { TInt }
+  | t1 = ty TARROW t2 = ty
+    { TArrow (t1, t2) }
+  | LPAREN t = ty RPAREN
+    { t }
+
+mark_position(X):
+  x = X
+  { Zoo.locate ~loc:(Zoo.make_location $startpos $endpos) x }
 
 %%
-
