@@ -15,54 +15,44 @@
 %token FUN IS
 %token LPAREN RPAREN
 %token LET IN
-%token QUIT
 %token SEMICOLON2
-%token USE
-%token <string>STRING
 %token EOF
 
 %start toplevel
-%type <Syntax.toplevel_cmd list> toplevel
+%start file
+%type <Syntax.toplevel_cmd> toplevel
+%type <Syntax.toplevel_cmd list> file
 
-%right SEMICOLON2
-%right COMMA
-%nonassoc LET IN
-%right FUN IS
-%nonassoc IF THEN ELSE
+%nonassoc IN
+%right IS
+%nonassoc ELSE
 %left OR
 %left AND
 %nonassoc NOT
 %nonassoc EQUAL LESS
 %left PLUS MINUS
 %left TIMES DIVIDE
-%left PERIOD
 %right TARROW
 
 %%
 
-toplevel:
+file:
   | EOF                      { [] }
-  | exprtop                  { $1 }
-  | deftop                   { $1 }
-  | cmdtop                   { $1 }
+  | filedef                  { $1 }
+  | fileexpr                 { $1 }
 
-deftop:
+filedef:
   | def EOF                  { [$1] }
-  | def SEMICOLON2 toplevel  { $1 :: $3 }
-  | def deftop               { $1 :: $2 }
-  | def cmdtop               { $1 :: $2 }
+  | def SEMICOLON2 file      { $1 :: $3 }
+  | def filedef              { $1 :: $2 }
 
-exprtop:
+fileexpr:
   | expr EOF                 { [Expr $1] }
-  | expr SEMICOLON2 toplevel { Expr $1 :: $3 }
+  | expr SEMICOLON2 file     { Expr $1 :: $3 }
 
-cmdtop:
-  | cmd EOF                  { [$1] }
-  | cmd SEMICOLON2 toplevel  { $1 :: $3 }
-
-cmd:
-  | USE STRING { Use $2 }
-  | QUIT       { Quit }
+toplevel:
+  | expr EOF                 { Expr $1 }
+  | def EOF                  { $1 }
 
 def:
   | LET VAR EQUAL expr { Def ($2, $4) }

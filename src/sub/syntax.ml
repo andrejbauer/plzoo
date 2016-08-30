@@ -42,8 +42,6 @@ and environment = (name * expr) list
 type toplevel_cmd =
   | Expr of expr (** an expression to be evaluated *)
   | Def of name * expr (** Global definition [let x = e] *)
-  | Use of string (** load a file [$use "<filename>"] *)
-  | Quit (** exit toplevel [$quit] *)
 
 (** [string_of_type ty] converts type [ty] to a string. *)
 let string_of_type ty =
