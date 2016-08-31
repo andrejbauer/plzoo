@@ -5,7 +5,8 @@ type name = string
 
 (** Levy types are separated into value types and computation types, but
     it is convenient to have a single datatype for all of them. *)
-type ltype =
+type ltype = ltype' Zoo.located
+and ltype' =
   | VInt                     (** integer [int] *)
   | VBool                    (** booleans [bool] *)
   | VForget of ctype         (** thunked type [U t] *)
@@ -51,7 +52,7 @@ type toplevel =
 let string_of_type ty =
   let rec to_str n ty =
     let (m, str) =
-      match ty with
+      match ty.Zoo.data with
 	| VInt -> (3, "int")
 	| VBool -> (3, "bool")
 	| VForget ty -> (2, "U " ^ to_str 1 ty)

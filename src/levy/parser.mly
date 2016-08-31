@@ -29,16 +29,6 @@
 %type <Syntax.toplevel> toplevel
 %type <Syntax.toplevel list> file
 
-%nonassoc TO
-%nonassoc IN
-%nonassoc IS
-%right ARROW
-%right TFREE TFORGET
-%nonassoc ELSE
-%nonassoc EQUAL LESS
-%left PLUS MINUS
-%left TIMES
-
 %%
 
 file:
@@ -65,50 +55,62 @@ def:
 
 expr: mark_position(plain_expr) { $1 }
 plain_expr:
-  | plain_app                 { $1 }
-  | plain_arith               { $1 }
-  | plain_boolean             { $1 }
+  | plain_boolean               { $1 }
   | LET VAR EQUAL expr IN expr  { Let ($2, $4, $6) }
   | expr TO VAR IN expr         { To ($1, $3, $5) }
-  | IF expr THEN expr ELSE expr	{ If ($2, $4, $6) }
-  | FUN VAR COLON ty ARROW expr { Fun ($2, $4, $6) }
+  | IF expr THEN expr ELSE expr { If ($2, $4, $6) }
+  | FUN VAR COLON ty IS expr { Fun ($2, $4, $6) }
   | REC VAR COLON ty IS expr    { Rec ($2, $4, $6) }
   
-app: mark_position(plain_app) { $1 }
-plain_app:
-  | plain_non_app      { $1 }
-  | FORCE non_app      { Force $2 }
-  | RETURN non_app     { Return $2 }
-  | THUNK non_app      { Thunk $2 }
-  | app non_app        { Apply ($1, $2) }
-
-non_app: mark_position(plain_non_app) { $1 }
-plain_non_app:
-  | VAR		        	  { Var $1 }
-  | TRUE                	  { Bool true }
-  | FALSE               	  { Bool false }
-  | INT		                  { Int $1 }
-  | LPAREN plain_expr RPAREN		  { $2 }    
+(* boolean: mark_position(plain_boolean) { $1 } *)
+plain_boolean:
+  | plain_arith         { $1 }
+  | arith EQUAL arith   { Equal ($1, $3) }
+  | arith LESS arith    { Less ($1, $3) }
 
 arith: mark_position(plain_arith) { $1 }
 plain_arith:
-  | MINUS INT           { Int (-$2) }
-  | expr PLUS expr	{ Plus ($1, $3) }
-  | expr MINUS expr	{ Minus ($1, $3) }
-  | expr TIMES expr	{ Times ($1, $3) }
+  | plain_factor        { $1 }
+  | arith PLUS factor   { Plus ($1, $3) }
+  | arith MINUS factor  { Minus ($1, $3) }
 
-boolean: mark_position(plain_boolean) { $1 }
-plain_boolean:
-  | expr EQUAL expr { Equal ($1, $3) }
-  | expr LESS expr  { Less ($1, $3) }
+factor: mark_position(plain_factor) { $1 }
+plain_factor:
+  | plain_app           { $1 }
+  | factor TIMES app    { Times ($1, $3) }
 
-ty:
-  | TINT         	     { VInt }
-  | TBOOL	 	           { VBool }
-  | ty ARROW ty        { CArrow ($1, $3) }
-  | TFORGET ty         { VForget $2 }
-  | TFREE ty           { CFree $2 }
-  | LPAREN ty RPAREN   { $2 }
+app: mark_position(plain_app) { $1 }
+plain_app:
+  | plain_simple      { $1 }
+  | FORCE simple      { Force $2 }
+  | RETURN simple     { Return $2 }
+  | THUNK simple      { Thunk $2 }
+  | app simple        { Apply ($1, $2) }
+
+simple: mark_position(plain_simple) { $1 }
+plain_simple:
+  | VAR                       { Var $1 }
+  | INT                       { Int $1 }
+  | TRUE                      { Bool true }
+  | FALSE                     { Bool false }
+  | LPAREN plain_expr RPAREN  { $2 }    
+
+ty: mark_position(plain_ty)   { $1 }
+plain_ty:
+  | plain_app_ty              { $1 }
+  | app_ty ARROW ty           { CArrow ($1, $3) }
+
+app_ty: mark_position(plain_app_ty) { $1 }
+plain_app_ty:
+  | plain_simple_ty           { $1 }
+  | TFORGET simple_ty         { VForget $2 }
+  | TFREE simple_ty           { CFree $2 }
+
+simple_ty: mark_position(plain_simple_ty) { $1 }
+plain_simple_ty:
+  | TINT                     { VInt }
+  | TBOOL                    { VBool }
+  | LPAREN plain_ty RPAREN   { $2 }
 
 mark_position(X):
   x = X

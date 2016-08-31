@@ -16,7 +16,7 @@ rule token = parse
   | "(*"            { comment 0 lexbuf }
   | '\n'            { incr_linenum lexbuf; token lexbuf }
   | [' ' '\t']      { token lexbuf }
-  | ['0'-'9']+      { INT (int_of_string(lexeme lexbuf)) }
+  | '-'? ['0'-'9']+ { INT (int_of_string(lexeme lexbuf)) }
 
   | 'U'             { TFORGET }
   | 'F'             { TFREE }
