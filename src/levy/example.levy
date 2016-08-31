@@ -2,16 +2,12 @@
   This example file can be run with levy as
 
   ./levy.byte example.levy
-
-  or interactively from the levy toplevel as
-
-  levy> #use "example.levy" ;;
 *)
 
 (* Basic arithmetic (notice that we do NOT have unary minus): *)
-2 + 2 ;;
-2 * 3 ;;
-2 - 4 ;;
+return (2 + 2) ;;
+return (2 * 3) ;;
+return (2 - 4) ;;
 
 (* Conditional statement *)
 
@@ -20,23 +16,23 @@ if 2 = 2 then return 1 else return 5 ;;
 
 (* Functions are written like in MiniHaskell, they map from values to computations *)
 
-fun n : int -> return (n + 3) ;;
+fun n : int => return (n + 3) ;;
 
-fun n : int -> if n < 0 then return (0 - n) else return n ;;
+fun n : int => if n < 0 then return (0 - n) else return n ;;
 
 (* The syntax for fixpoint is like in MiniHaskell. The factorial function: *)
 
-rec f : int -> F int is fun n : int ->
+rec f : int -> F int is fun n : int =>
   if n = 0 then
     return 1
   else
-    ((force f) (n - 1) to m in return (n * m)) ;;
+    (do m <- (force f) (n - 1) in return (n * m)) ;;
 
 (* Features specific to call-by-push-value *)
 
 return 42 ;;
 
-thunk (if 3 < 5 then return 1 else return 2) ;;
+let x = thunk (if 3 < 5 then return 1 else return 2) ;;
 
 force (thunk (if 3 < 5 then return 1 else return 2)) ;;
 
@@ -46,13 +42,7 @@ let x = 3 + 5 in return (x * x) ;;
 
 (* sequencing *)
 
-return (3 + 5) to x in  return (x * x) ;;
-
-(* The above would be written in Haskell's do notation as
-
-    do x <- return (3 + 5)
-       return (x * x)
-*)
+do x <- return (3 + 5) in return (x * x) ;;
 
 (* For convenience we have top-level definitions of values *)
 
@@ -64,11 +54,11 @@ let c = thunk (return b) ;;
 
 (* Here is how we can actually globally define the factorial function and use it. *)
 
-let fact = thunk (rec f : int -> F int is fun n : int ->
-                    if n = 0 then
+let fact = thunk (rec f : int -> F int is fun k : int =>
+                    if k = 0 then
                       return 1
                     else
-                      ((force f) (n - 1) to m in return (n * m))) ;;
+                      (do m <- (force f) (k - 1) in return (k * m))) ;;
 
 (* Usage: *)
 

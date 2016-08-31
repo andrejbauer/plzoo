@@ -6,6 +6,7 @@
 %token TBOOL
 %token TFORGET
 %token TFREE
+%token TARROW
 %token <Syntax.name> VAR
 %token <int> INT
 %token TRUE FALSE
@@ -14,12 +15,12 @@
 %token TIMES
 %token EQUAL LESS
 %token IF THEN ELSE
-%token FUN ARROW
+%token FUN DARROW
 %token REC IS
 %token COLON
 %token LPAREN RPAREN
+%token DO ASSIGN
 %token LET IN
-%token TO
 %token SEMISEMI
 %token RETURN THUNK FORCE
 %token EOF
@@ -44,23 +45,23 @@ file:
     { ds }
 
 toplevel:
-  | d = def SEMISEMI EOF
+  | d = def EOF
     { d }
-  | e = expr SEMISEMI EOF
+  | e = expr EOF
     { Expr e }
 
 def:
   | LET VAR EQUAL expr
     { Def ($2, $4) }
 
-expr: mark_position(plain_expr) { $1 }
+expr: mark_position(plain_expr)  { $1 }
 plain_expr:
-  | plain_boolean               { $1 }
-  | LET VAR EQUAL expr IN expr  { Let ($2, $4, $6) }
-  | expr TO VAR IN expr         { To ($1, $3, $5) }
-  | IF expr THEN expr ELSE expr { If ($2, $4, $6) }
-  | FUN VAR COLON ty IS expr { Fun ($2, $4, $6) }
-  | REC VAR COLON ty IS expr    { Rec ($2, $4, $6) }
+  | plain_boolean                { $1 }
+  | LET VAR EQUAL expr IN expr   { Let ($2, $4, $6) }
+  | DO VAR ASSIGN expr IN expr   { Do ($2, $4, $6) }
+  | IF expr THEN expr ELSE expr  { If ($2, $4, $6) }
+  | FUN VAR COLON ty DARROW expr { Fun ($2, $4, $6) }
+  | REC VAR COLON ty IS expr     { Rec ($2, $4, $6) }
   
 (* boolean: mark_position(plain_boolean) { $1 } *)
 plain_boolean:
@@ -98,7 +99,7 @@ plain_simple:
 ty: mark_position(plain_ty)   { $1 }
 plain_ty:
   | plain_app_ty              { $1 }
-  | app_ty ARROW ty           { CArrow ($1, $3) }
+  | app_ty TARROW ty          { CArrow ($1, $3) }
 
 app_ty: mark_position(plain_app_ty) { $1 }
 plain_app_ty:

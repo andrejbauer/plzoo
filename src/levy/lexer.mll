@@ -20,10 +20,11 @@ rule token = parse
 
   | 'U'             { TFORGET }
   | 'F'             { TFREE }
-  | "->"            { ARROW }
+  | "->"            { TARROW }
   | "bool"          { TBOOL }
   | "int"           { TINT }
 
+  | "do"            { DO }
   | "else"          { ELSE }
   | "false"         { FALSE }
   | "force"         { FORCE }
@@ -36,7 +37,6 @@ rule token = parse
   | "return"        { RETURN }
   | "then"          { THEN }
   | "thunk"         { THUNK }
-  | "to"            { TO }
   | "true"          { TRUE }
 
   | ";;"            { SEMISEMI }
@@ -49,6 +49,8 @@ rule token = parse
   | ':'             { COLON }
   | '<'             { LESS }
   | '='             { EQUAL }
+  | "=>"            { DARROW }
+  | "<-"            { ASSIGN }
 
   | var             { VAR (lexeme lexbuf) }
   | eof             { EOF }

@@ -9,7 +9,7 @@ and value =
   | VFun of environment * Syntax.name * Syntax.expr
   | VReturn of value
 
-let runtime_error ~loc msg = Zoo.error ~loc msg
+let runtime_error ~loc msg = Zoo.error ~kind:"Runtime error" ~loc msg
 
 let rec print_value v ppf =
   match v with
@@ -32,16 +32,16 @@ let rec comp env e =
 
   | Syntax.Apply (e1, e2) ->
       (match comp env e1 with
-	 | VFun (env, x, e) -> 
+	 | VFun (env', x, e) -> 
             let v2 = expr env e2 in
-            comp ((x,v2)::env) e
+            comp ((x,v2)::env') e
 	 | _ -> runtime_error ~loc:(e1.Zoo.loc) "function expected")
 
   | Syntax.Let (x, e1, e2) ->
-      let v = comp env e1 in
+      let v = expr env e1 in
       comp ((x,v)::env) e2
 
-  | Syntax.To (e1, x, e2) ->
+  | Syntax.Do (x, e1, e2) ->
       (match comp env e1 with
          | VReturn v -> comp ((x,v)::env) e2
          | _ -> runtime_error ~loc:(e1.Zoo.loc) "return expected")
@@ -107,7 +107,7 @@ and expr env {Zoo.data=e; loc} =
 
   | Syntax.Force _
   | Syntax.Return _
-  | Syntax.To _
+  | Syntax.Do _
   | Syntax.Let _
   | Syntax.If _
   | Syntax.Fun _

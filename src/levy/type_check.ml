@@ -112,7 +112,7 @@ and vtype_of ctx {Zoo.data=e; loc} =
   | Syntax.If _
   | Syntax.Fun _
   | Syntax.Apply _
-  | Syntax.To _
+  | Syntax.Do _
   | Syntax.Let _
   | Syntax.Return _
   | Syntax.Force _
@@ -144,7 +144,7 @@ and ctype_of ctx {Zoo.data=e; loc} =
                     "this expression is used as a function but its type is %t"
                     (print_ctype ty))
 
-  | Syntax.To (e1, x, e2) ->
+  | Syntax.Do (x, e1, e2) ->
      (match ctype_of ctx e1 with
       | CFree ty1 -> ctype_of ((x,ty1)::ctx) e2
       | ty -> type_error ~loc:(e1.Zoo.loc)
