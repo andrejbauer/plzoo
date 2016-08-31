@@ -2,11 +2,6 @@
   open Syntax
 %}
 
-%token TINT
-%token TBOOL
-%token TTIMES
-%token TARROW
-%token TLIST
 %token <Syntax.name> VAR
 %token <int> INT
 %token TRUE FALSE
@@ -18,7 +13,6 @@
 %token EQUAL LESS
 %token IF THEN ELSE
 %token FUN ARROW
-%token COLON
 %token LPAREN RPAREN
 %token LET
 %token SEMICOLON2
@@ -29,9 +23,6 @@
 %token CONS
 %token MATCH WITH ALTERNATIVE
 %token REC IS
-%token QUIT
-%token USE
-%token <string>STRING
 %token EOF
 
 %start file
@@ -39,17 +30,13 @@
 %type <Syntax.toplevel_cmd list> file
 %type <Syntax.toplevel_cmd> toplevel
 
-%nonassoc REC IS
-%right FUN ARROW
-%nonassoc MATCH WITH
-%nonassoc IF THEN ELSE
+%nonassoc IS
+%right ARROW
+%nonassoc ELSE
 %nonassoc EQUAL LESS
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %right CONS
-%right TARROW
-%left TTIMES
-%nonassoc TLIST
 
 %%
 
@@ -113,13 +100,5 @@ nil: LBRACK RBRACK      { () }
 boolean:
   | expr EQUAL expr { Equal ($1, $3) }
   | expr LESS expr  { Less ($1, $3) }
-
-ty:
-    TBOOL	 	     { TBool }
-  | TINT         	     { TInt }
-  | ty TIMES ty { TTimes ($1, $3) }
-  | ty ARROW ty { TArrow ($1, $3) }
-  | ty TLIST                 { TList $1 }
-  | LPAREN ty RPAREN         { $2 }
 
 %%

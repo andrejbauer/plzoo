@@ -17,29 +17,22 @@ rule token = parse
   | '\n'            { incr_linenum lexbuf; token lexbuf }
   | [' ' '\t']      { token lexbuf }
   | ['0'-'9']+      { INT (int_of_string(lexeme lexbuf)) }
-  | "bool"          { TBOOL }
   | "else"          { ELSE }
   | "false"         { FALSE }
   | "fst"           { FST }
   | "fun"           { FUN }
   | "if"            { IF }
-  | "int"           { TINT }
   | "is"            { IS }
   | "let"           { LET }  
-  | "list"          { TLIST }
   | "match"         { MATCH }
   | "rec"           { REC }
   | "snd"           { SND }
   | "then"          { THEN }
   | "true"          { TRUE }
-  | "$use"           { USE }
-  | "$quit"          { QUIT }
   | "with"          { WITH }
   | "->"            { ARROW }
   | "::"            { CONS }
   | ";;"            { SEMICOLON2 }
-  | '\"' [^'\"']* '\"' { let str = lexeme lexbuf in
-			STRING (String.sub str 1 (String.length str - 2)) }
   | '%'             { MOD }
   | '('             { LPAREN }
   | ')'             { RPAREN }
@@ -48,7 +41,6 @@ rule token = parse
   | ','             { COMMA }
   | '-'             { MINUS }
   | '/'             { DIVIDE }
-  | ':'             { COLON }
   | '<'             { LESS }
   | '='             { EQUAL }
   | '['             { LBRACK }
