@@ -70,13 +70,10 @@ e1 e2                          application
       Format.printf "@[I will evaluate %s.@." (if !deep then "deeply" else "shallowly") ;
       ctx
 
-    | Input.TopConstant xs ->
-      List.fold_left
-        (fun ctx x ->
-          if List.mem x ctx.Context.names then Zoo.error ~loc "%s already exists" x ;
-          Format.printf "%s is a constant.@." x ;
-          Context.add_parameter x ctx)
-        ctx xs
+    | Input.TopConstant x ->
+       if List.mem x ctx.Context.names then Zoo.error ~loc "%s already exists" x ;
+       Format.printf "%s is a constant.@." x ;
+       Context.add_parameter x ctx
 
     | Input.TopDefine (x, e) ->
       if List.mem x ctx.Context.names then Zoo.error ~loc "%s already exists" x ;
@@ -89,11 +86,7 @@ e1 e2                          application
 
     | Input.Quit -> exit 0
 
-
-  let read_more str =
-    let i = ref (String.length str - 1) in
-      while !i >= 0 && List.mem str.[!i] [' '; '\n'; '\t'; '\r'] do decr i done ;
-      str.[!i] <> ';'
+  let read_more _ = false
 end) ;;
 
 Lambda.main ()

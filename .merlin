@@ -2,8 +2,10 @@ S src
 S src/boa
 S src/miniml
 S src/levy
+S src/lambda
 B _build/src
 B _build/src/boa
 B _build/src/miniml
 B _build/src/levy
+B _build/src/lambda
 PKG menhirLib

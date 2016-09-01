@@ -2,11 +2,11 @@ pair := ^ a b . ^p . p a b ;
 first := ^ p . p (^x y . x) ;
 second := ^ p . p (^x y. y) ;
 
-/* The constant function */
+-- The constant function
 
 K := ^ x y . x ;
 
-/* Booleans */
+-- Booleans
 
 true  := ^x y . x ;
 false := ^x y . y ;
@@ -16,13 +16,13 @@ and := ^x y . if x y false ;
 or  := ^x y . if x true y ;
 not := ^x . if x false true ;
 
-/* Recursive definitions */
+-- Recursive definitions
 
 fix := ^f . (^x . f (x x)) (^x . f (x x)) ;
 
-/* Lists */
+-- Lists
 
-#constant error ;
+:constant error
 
 nil := ^x f . x ;
 
@@ -38,7 +38,7 @@ map := fix (^map f l . match l nil (^x xs. cons (f x) (map f xs))) ;
 
 fold := fix (^fold x f l. match l x (^y ys . f y (fold x f ys))) ;
 
-/* Numbers */
+-- Numbers
 
 0  := ^f x . x ;
 1  := ^f x . f x ;

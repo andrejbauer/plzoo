@@ -28,29 +28,20 @@
 (* If you're going to "optimize" this, please make sure we don't require;; at the
    end of the file. *)
 file:
-  | lst = file_topdef
-    { lst }
-  | e = topexpr EOF
-     { [e] }
-  | e = topexpr SEMI lst = file
-     { e :: lst }
-  | dir = topdirective EOF
-     { [dir] }
-  | dir = topdirective SEMI lst = file
-     { dir :: lst }
-
-file_topdef:
-  | EOF
-     { [] }
-  | def = topdef SEMI lst = file
-     { def :: lst }
+  | EOF                          { [] }
+  | e=topdef EOF                 { [e] }
+  | e=topdef SEMI es=file        { e :: es }
+  | e=topexpr EOF                { [e] }
+  | e=topexpr SEMI es=file       { e :: es }
+  | e=topdirective es=file       { e :: es }
+  | e=topdirective SEMI es=file  { e :: es }
 
 commandline:
-  | def = topdef SEMI
+  | def = topdef EOF
     { def }
-  | e = topexpr SEMI
+  | e = topexpr EOF
     { e }
-  | dir = topdirective SEMI
+  | dir = topdirective EOF
     { dir }
 
 topexpr: mark_position(plain_topexpr) { $1 }
@@ -61,14 +52,14 @@ plain_topexpr:
 (* Things that can be defined on toplevel. *)
 topdef: mark_position(plain_topdef) { $1 }
 plain_topdef:
-  | CONSTANT xs = nonempty_list(NAME)
-    { TopConstant xs }
   | x = NAME COLONEQ e = expr
     { TopDefine (x, e) }
 
 (* Toplevel directive. *)
 topdirective: mark_position(plain_topdirective) { $1 }
 plain_topdirective:
+  | CONSTANT x=NAME
+    { TopConstant x }
   | EAGER
     { Eager true }
   | LAZY

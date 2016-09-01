@@ -10,7 +10,7 @@ and expr' =
 type toplevel = toplevel' Zoo.located
 and toplevel' =
   | TopDefine of string * expr
-  | TopConstant of string list
+  | TopConstant of string
   | Expr of expr
   | Help
   | Quit

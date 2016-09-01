@@ -1,8 +1,5 @@
 (** Normalization of expressions. *)
 
-open Syntax
-open Context
-
 let lookup k env =
   match List.nth env k with
     | Some e -> Some (Syntax.shift (k+1) e)
@@ -17,29 +14,29 @@ let norm ?(eager=false) ?(deep=false) =
   let rec norm env ({Zoo.data=e'; loc} as e) =
     match e' with
 
-      | Var k ->
+      | Syntax.Var k ->
         (match lookup k env with
           | None -> e
           | Some e -> norm env e)
 
-      | Subst (s, e') ->
-        norm env (subst s e')
+      | Syntax.Subst (s, e') ->
+        norm env (Syntax.subst s e')
 
-      | Lambda (x, e') -> 
+      | Syntax.Lambda (x, e') -> 
         if deep
         then
           let e' = norm (extend env) e' in
-            mk_lambda x e'
+            Syntax.mk_lambda x e'
         else e
 
-      | App (e1, e2) ->
-        let {Zoo.data=e1'} as e1 = norm env e1 in
+      | Syntax.App (e1, e2) ->
+         let e2 = (if eager then norm env e2 else e2) in 
+         let {Zoo.data=e1'} as e1 = norm env e1 in
           (match e1' with
-            | Lambda (x, e) -> norm env (mk_subst (Dot (e2, idsubst)) e)
-            | Var _ | App _ -> 
-              let e2 = (if eager then norm env e2 else e2) in 
-                Zoo.locate ~loc (App (e1, e2))
-            | Subst _ ->
-              Zoo.error ~loc:(e2.Zoo.loc) "function expected")
+            | Syntax.Lambda (x, e) -> 
+               norm env (Syntax.mk_subst (Syntax.Dot (e2, Syntax.idsubst)) e)
+            | Syntax.Var _ | Syntax.App _ -> Zoo.locate ~loc (Syntax.App (e1, e2))
+            | Syntax.Subst _ ->
+               Zoo.error ~loc:(e1.Zoo.loc) "function expected")
   in
     norm
