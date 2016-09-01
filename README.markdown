@@ -61,7 +61,7 @@ can be executed. You can:
 
 1. Run the toplevel with `./lang.native`
 2. Run files non-interactively with `./lang.native <file> <file> ...`
-3. Load files and enter the toplevel `.lang.native -l <file> -l <file> ...`
+3. Load files and enter the toplevel `./lang.native -l <file> -l <file> ...`
 
 ## Contributing
 
