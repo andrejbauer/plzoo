@@ -68,6 +68,10 @@ header h2 {
   color: #666;
 }
 
+section#downloads {
+  text-align: right;
+}
+
 #downloads .btn {
   display: inline-block;
   text-align: center;
