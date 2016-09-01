@@ -1,1 +1,6 @@
 _site
+*~
+_build
+*.native
+*.byte
+.DS_Store

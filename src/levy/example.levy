@@ -1,0 +1,65 @@
+(*
+  This example file can be run with levy as
+
+  ./levy.byte example.levy
+*)
+
+(* Basic arithmetic (notice that we do NOT have unary minus): *)
+return (2 + 2) ;;
+return (2 * 3) ;;
+return (2 - 4) ;;
+
+(* Conditional statement *)
+
+if 5 < 3 then return 1 else return 5 ;;
+if 2 = 2 then return 1 else return 5 ;;
+
+(* Functions are written like in MiniHaskell, they map from values to computations *)
+
+fun n : int => return (n + 3) ;;
+
+fun n : int => if n < 0 then return (0 - n) else return n ;;
+
+(* The syntax for fixpoint is like in MiniHaskell. The factorial function: *)
+
+rec f : int -> F int is fun n : int =>
+  if n = 0 then
+    return 1
+  else
+    (do m <- (force f) (n - 1) in return (n * m)) ;;
+
+(* Features specific to call-by-push-value *)
+
+return 42 ;;
+
+let x = thunk (if 3 < 5 then return 1 else return 2) ;;
+
+force (thunk (if 3 < 5 then return 1 else return 2)) ;;
+
+(* let binding is written like this, where Paul Levy uses "be" in place of "=" *)
+
+let x = 3 + 5 in return (x * x) ;;
+
+(* sequencing *)
+
+do x <- return (3 + 5) in return (x * x) ;;
+
+(* For convenience we have top-level definitions of values *)
+
+let a = 5 ;;
+
+let b = 10 + a ;;
+
+let c = thunk (return b) ;;
+
+(* Here is how we can actually globally define the factorial function and use it. *)
+
+let fact = thunk (rec f : int -> F int is fun k : int =>
+                    if k = 0 then
+                      return 1
+                    else
+                      (do m <- (force f) (k - 1) in return (k * m))) ;;
+
+(* Usage: *)
+
+(force fact) 7 ;; (* yes, we need to write "force fact" all the time *)
