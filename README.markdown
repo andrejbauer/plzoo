@@ -5,6 +5,27 @@ of miniature programming languages which demonstrates various techniques used in
 implementation of programming languages. It is a good starting point for those who would
 like to implement their own programming language, or just learn how it is done.
 
+The languages demonstrate various aspects of implementation, such as:
+
+* source code parsing (using a parser generator)
+* pretty-printing of error messages and results
+* how to report source-code positions
+* interactive toplevel shell
+* non-interactive file processing
+* typed and untyped languages
+* eager and lazy evaluation strategies
+* subtyping, parametric polymorphism, and other kinds of type systems
+* type checking and type inference
+* functional, declarative, object-oriented, and procedural languages
+* recursive definitions
+* exceptions
+* compilation to an assembly-like language
+* abstract machine
+* interpreter
+* unification
+
+## Licensing
+
 The PL Zoo is open source, see the file `LICENSE.markdown` for licensing information.
 
 ## Prerequisites
@@ -77,9 +98,9 @@ If you would like to contribute to the project, please contact us through GitHub
 * If you have an idea for a new language, discuss it in an issue, or just go ahead if you
   can't wait.
 
-We kindly ask that contributions to the repository follow a certain pattern. For example,
-all the main programs are generated with the `Zoo.Main` functor found in `src/zoo.ml`. It
-takes care of a number of things, such as command-line wrappers, standard command-line
-options, loading of files, and running an interactive shell. It is best if you start by
-copying one fo the existing languages and adapt it to your language.
+We kindly ask that contributions to the repository follow the established pattern. For
+example, all the main programs are generated with the `Zoo.Main` functor found in
+`src/zoo.ml`. It takes care of a number of things, such as command-line wrappers, standard
+command-line options, loading of files, and running an interactive shell. It is best if
+you start by copying one fo the existing languages and adapt it to your language.
 
