@@ -1,0 +1,117 @@
+# Basic arithmetic
+
+2 + 2 ;; # addition
+2 * 3 ;; # multiplication
+8 / 2 ;; # division
+5 % 2 ;; # remained
+
+# Booleans
+
+2 < 4 ;;
+
+(if 2 < 4 then 10 else 100) + 2 ;;
+
+# Functions
+
+(fun x -> x * x + x + 1) ;;
+
+(fun x -> x * x + x + 1) 7 ;;
+
+let f = fun x -> x * x + x + 1 ;;
+
+f 7 ;;
+
+# Doing nothing
+
+skip ;;
+
+# Objects
+
+{x = 7, y = 8} ;;
+
+let p = {x = 7, y = 8} ;;
+
+p.x ;; # field access
+
+p.x := 10 ;; # field mutation
+
+p ;;
+
+let unit = {} ;; # empty object
+
+# Combining objects: "x with y" is x overriden with fields from y.
+
+{a=3} with {b=4} ;;
+
+{a=3} with {a=4, b=5} ;;
+
+{a=3, c=4} with {a=5, b=6} ;;
+
+# we can combine anything
+
+3 with false ;;
+
+3 with 5 ;;
+
+{x=7,y=8} with 42 ;;
+
+({x=7,y=8} with 42) + 10 ;;
+
+if (7 with false) then 10 else 20 ;;
+
+# shallow copy
+
+let cow = {horn = 7, tail = {a=5, b=6}} ;;
+
+let bull = copy cow ;;
+
+bull.horn := 8 ;; # changes only bull
+
+bull ;;
+cow ;;
+
+bull.tail.a := 100 ;; # changes both bull and cow
+bull ;;
+cow ;;
+
+# Recursive definitions can be implemented using objects.
+# We define the operator rec which calculates the fixed point of the
+# given function.
+
+let rec = fun f -> { self = fun x -> f this.self x }.self ;;
+
+# A list is an object with a field empty, and a non-empty list must also have
+# fields head and tail. We define a prototype objects for lists. Actual lists
+# are obtained by extending this object.
+
+let list = {
+  isEmpty = fun _ -> this.empty,
+  getHead = fun _ -> this.head,
+  getTail = fun _ -> this.tail,
+  
+  # constructors
+  nil =  fun _ -> this with { empty = true },
+  cons = fun x -> fun xs -> this with { empty = false, head = x, tail = xs },
+
+  iterator = (fun _ ->
+    { elements = this,
+      hasNext = (fun _ -> not this.elements.empty),
+      next = (fun _ -> let x = this.elements.head in this.elements := this.elements.tail; x)
+    }),
+
+   get = fun n -> if n = 0 then this.head else this.tail.get (n-1),
+
+   map = fun f ->
+     if this.empty then
+       this.nil {}
+     else
+       this.cons (f this.head) (this.tail.map f)
+} ;;
+
+# Examples of lists
+
+let a = list.cons 1 (list.cons 2 (list.cons 3 (list.nil {}))) ;;
+
+let x = a.get 2 ;;
+
+let b = a.map (fun x -> 100 + x) ;;
