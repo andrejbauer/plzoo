@@ -29,7 +29,7 @@ The languages demonstrate various aspects of implementation, such as:
 
 ## Licensing
 
-The PL Zoo is open source, see the file `LICENSE.markdown` for licensing information.
+The PL Zoo is released under the permissive open source [BSD 2-clause license](LICENSE.html).
 
 ## Prerequisites
 
@@ -42,6 +42,11 @@ A good way to get started with OCaml is to use the OCaml pagackage manager
 [OPAM](http://opam.ocaml.org/), through which menhir is available. Both OCaml and OPAM are
 available through package managers on Linux and OS X, see instruction on the [OPAM web
 site](http://opam.ocaml.org/doc/Install.html).
+
+### Learning OCaml
+
+If you are not familiar with OCaml yet, we highly recommend that you look at the
+[excellent resources for learning OCaml](https://ocaml.org/learn/).
 
 ### Recommended: `ledit` or `rlwrap`
 
@@ -76,34 +81,48 @@ There is `make clean` if you want ot clean up.
 
 ## Usage
 
-The languages are not really meant to be used. Rather, you should read the source code,
-which is decorated with ample comments, and study it. Also, each language `lang` has its
+The languages are not really meant to be used. Rather, you should read and study the
+source code, which is decorated with ample comments. Also, each language `lang` has its
 own `README.markdown` and `example.lang` in the subdirectory `src/lang`.
 
-Nevertheless, all the language are functioning miniature versions of real languages that
-can be executed. You can:
+Nevertheless, all the language are fully functioning miniature versions of real languages
+and can be executed. For each language `lang` you can:
 
-1. Run the toplevel with `./lang.native`
-2. Run files non-interactively with `./lang.native <file> <file> ...`
-3. Load files and enter the toplevel `./lang.native -l <file> -l <file> ...`
+1. see what command-line options are available with
+
+        ./lang.native --help
+
+2. run the toplevel with
+
+        ./lang.native
+
+3. run files non-interactively with
+
+        ./lang.native <file> <file> ...`
+
+4. load files and enter the toplevel
+
+        ./lang.native -l <file> -l <file> ...`
+
+## Authors
+
+* [Andrej Bauer](http://andrej.com/)
+* [Matija Pretnar](http://matija.pretnar.info/)
 
 ## Contributing
 
-Contributions are *very* welcome. They are great service to the community and 
+New contributions are *very* welcome. If you would like to contribute to the project,
+please contact us through the [GitHub project page](https://github.com/andrejbauer/plzoo):
 
-
-If you would like to contribute to the project, please contact us through GitHub:
-
-* If you discover a problem, open an issue about it.
-* Even better, fix the problem and submit a pull request!
-* If you would like to help but do not know how, have a look at open issues and volunteer
-  to resolve one.
-* If you have an idea for a new language, discuss it in an issue, or just go ahead if you
-  can't wait.
+* If you discover a problem, [open an issue](https://github.com/andrejbauer/plzoo/issues/new).
+* Even better, fix the problem and [submit a pull request](https://github.com/andrejbauer/plzoo/compare)!
+* If you would like to help but do not know how, have a look at
+  [open issues](https://github.com/andrejbauer/plzoo/issues) and volunteer to resolve one.
+* If you have an idea for a new language, we will be happy to take it in. Please note that all
+  the languages are purposely kept simple for educational purposes.
 
 We kindly ask that contributions to the repository follow the established pattern. For
 example, all the main programs are generated with the `Zoo.Main` functor found in
 `src/zoo.ml`. It takes care of a number of things, such as command-line wrappers, standard
 command-line options, loading of files, and running an interactive shell. It is best if
 you start by copying one fo the existing languages and adapt it to your language.
-
