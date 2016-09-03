@@ -20,7 +20,7 @@ The language has the following constructs:
 
   There are no local definitions.
 
-Example interaction:
+Example interaction, see also the file `example.miniml`:
 
     MiniML. Press Ctrl-D to exit.
     MiniML> 3 + (if 5 < 6 then 10 else 100) ;;
