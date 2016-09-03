@@ -1,5 +1,3 @@
-# Example
-
 let u = { re = 1, im = 0 }
 ;;
 

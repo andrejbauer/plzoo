@@ -1,11 +1,10 @@
-A simple arithmetical calculator with variables.
-The language has the following construct:
+A simple arithmetical calculator with variables. The language has the following construct:
 * variables
 * integer constants
 * operations `+`, `-`, unary `-`, `*`, and `/`
 * definitions of variables
 
-#### Example interaction
+The language is interactive, it cannot load files. Example interaction:
 
     calc_var -- programming languages zoo
     Type Ctrl-D to exit

@@ -1,7 +1,7 @@
 A simple arithmetic calculator. It handles addition, subtraction,
 negation, multiplication and division of integers.
 
-#### Example interaction
+The calculator is interactive. It cannot load files. Example interaction:
 
     calc -- programming languages zoo
     Type Ctrl-D to exit

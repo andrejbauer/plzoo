@@ -1,4 +1,0 @@
-let fact = fun fact (x : int) : int is
-   if x = 0 then 1 else x * fact (x - 1) ;;
-
-fact 10 ;;

@@ -12,7 +12,7 @@
 %token MOD
 %token EQUAL LESS
 %token IF THEN ELSE
-%token FUN ARROW
+%token FUN DARROW
 %token LPAREN RPAREN
 %token LET
 %token SEMICOLON2
@@ -31,7 +31,7 @@
 %type <Syntax.toplevel_cmd> toplevel
 
 %nonassoc IS
-%right ARROW
+%right DARROW
 %nonassoc ELSE
 %nonassoc EQUAL LESS
 %left PLUS MINUS
@@ -67,9 +67,9 @@ expr:
   | boolean             { $1 }
   | expr CONS expr      { Cons ($1, $3) }
   | IF expr THEN expr ELSE expr	{ If ($2, $4, $6) }
-  | FUN VAR ARROW expr  { Fun ($2, $4) }
+  | FUN VAR DARROW expr  { Fun ($2, $4) }
   | REC VAR IS expr     { Rec ($2, $4) }
-  | MATCH expr WITH nil ARROW expr ALTERNATIVE VAR CONS VAR ARROW expr
+  | MATCH expr WITH nil DARROW expr ALTERNATIVE VAR CONS VAR DARROW expr
       { Match ($2, $6, $8, $10, $12) }
 
 app:

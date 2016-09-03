@@ -16,8 +16,8 @@ We can combine these to get various reduction strategies:
 | `#shallow` | weak normal form | weak head normal form |
 | `#deep`    | normal form      | head normal form      |
 
-In terms of programming language terminology, weak normal form corresponds to call by
-value and the weak head normal form to call by name.
+In terms of programming language terminology, weak normal form corresponds approximately
+to call by value and the weak head normal form to call by name.
 
 ##### Example interaction
 
