@@ -1,0 +1,18 @@
+female(leia).
+male(vader).
+male(luke).
+male(kylo).
+
+child(luke, vader).
+child(leia, vader).
+child(kylo, leia).
+
+son(X,Y) :- male(X), child(X,Y).
+daughter(X,y) :- female(X), child(X,Y).
+
+grandchild(X,Z) :- child(X,Y), child(Y,Z).
+
+?- son(luke, X).
+
+?- grandchild(X, vader).
+
