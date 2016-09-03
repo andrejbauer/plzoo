@@ -27,14 +27,16 @@ The languages demonstrate various aspects of implementation, such as:
 * interpreter
 * unification
 
-## Licensing
+## Installation
 
-The PL Zoo is released under the permissive open source [BSD 2-clause license](LICENSE.html).
+The PL Zoo is available as a [GitHub project](https://github.com/andrejbauer/plzoo). Here
+are detailed installation instructions.
 
-## Prerequisites
+### Prerequisites
 
 To compile the code you will need:
 
+* [GNU Make](https://www.gnu.org/software/make/), which you probably have already
 * [OCaml](http://www.ocaml.org/) programming language, version 4 or later,
 * [menhir](http://gallium.inria.fr/~fpottier/menhir/) parser generator.
 
@@ -43,19 +45,20 @@ A good way to get started with OCaml is to use the OCaml pagackage manager
 available through package managers on Linux and OS X, see instruction on the [OPAM web
 site](http://opam.ocaml.org/doc/Install.html).
 
-### Learning OCaml
-
-If you are not familiar with OCaml yet, we highly recommend that you look at the
-[excellent resources for learning OCaml](https://ocaml.org/learn/).
-
-### Recommended: `ledit` or `rlwrap`
+#### Recommended: `ledit` or `rlwrap`
 
 It is recommended that you install [ledit](http://pauillac.inria.fr/~ddr/ledit/) or
 [rlwrap](https://github.com/hanslub42/rlwrap) command-line editing wrappers. Check your
 package manager, it probably knows about them. They will be detected and automatically
 used by the toplevel interactive loop.
 
-## Installation
+### Learning OCaml
+
+The PL Zoo is implemented in OCaml. If you are not familiar with OCaml, we highly
+recommend that you look at the
+[excellent resources for learning OCaml](https://ocaml.org/learn/).
+
+### Obtaining the source code
 
 Get the source from GitHub:
 
@@ -65,7 +68,11 @@ or via the HTTP protocol
 
     git clone https://github.com/andrejbauer/plzoo.git
 
-Then you should compile the languages:
+You can also download a ZIP archive containing the latest version.
+
+### Compilation
+
+To compile all the languages run:
 
     make all
 
@@ -108,6 +115,10 @@ and can be executed. For each language `lang` you can:
 
 * [Andrej Bauer](http://andrej.com/)
 * [Matija Pretnar](http://matija.pretnar.info/)
+
+## Licensing
+
+The PL Zoo is open source and released under the permissive [MIT license](LICENSE.html).
 
 ## Contributing
 
