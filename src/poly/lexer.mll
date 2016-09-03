@@ -30,7 +30,7 @@ rule token = parse
   | "then"          { THEN }
   | "true"          { TRUE }
   | "with"          { WITH }
-  | "->"            { ARROW }
+  | "=>"            { DARROW }
   | "::"            { CONS }
   | ";;"            { SEMICOLON2 }
   | '%'             { MOD }

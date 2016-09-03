@@ -1,0 +1,50 @@
+let range = rec range is
+  fun m => fun n =>
+    if n < m then [] else m :: (range (m+1) n)
+;;
+
+let map = rec map is
+  fun f => fun lst =>
+    match lst with
+        [] => []
+      | x::xs => (f x)::(map f xs)
+
+let append = rec append is
+  fun lst1 =>
+    fun lst2 =>
+      match lst1 with
+	  [] => lst2
+	| x::xs => x :: (append xs lst2)
+;;
+
+# fold_left f x0 (x1::x2::...::xn) = f(f(f(...f(x0 x1) x2) x3)...)
+let fold_left =
+  rec fold_left is
+    fun f => fun x0 => fun lst =>
+      match lst with
+          [] => x0
+        | x::xs => fold_left f (f x0 x) xs
+;;
+
+let flatten = rec flatten is
+    fun lsts =>
+      match lsts with
+	  [] => []
+	| l :: ls => append l (flatten ls)
+;;
+
+let zip2 = rec zip2 is
+    fun l1 => fun l2 =>
+      match l1 with
+          [] => l2
+        | x::xs => x :: (match l2 with
+			    [] => xs
+		          | y::ys => y::(zip2 xs ys))
+;;
+
+# zip
+let zip = rec zip is
+  fun lsts =>
+    match lsts with
+	[] => []
+      | l::ls => zip2 l (zip ls)
