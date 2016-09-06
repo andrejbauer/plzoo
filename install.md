@@ -3,12 +3,10 @@ layout: default
 navigation: installation
 ---
 
-## Installation
-
 The zoo is available as a [GitHub project](https://github.com/andrejbauer/plzoo). Here
 are detailed installation instructions.
 
-### Prerequisites
+## Prerequisites
 
 To compile the code you will need:
 
@@ -21,20 +19,20 @@ A good way to get started with OCaml is to use the OCaml pagackage manager
 available through package managers on Linux and OS X, see instruction on the [OPAM web
 site](http://opam.ocaml.org/doc/Install.html).
 
-#### Recommended: `ledit` or `rlwrap`
+### Recommended: `ledit` or `rlwrap`
 
 It is recommended that you install [ledit](http://pauillac.inria.fr/~ddr/ledit/) or
 [rlwrap](https://github.com/hanslub42/rlwrap) command-line editing wrappers. Check your
 package manager, it probably knows about them. They will be detected and automatically
 used by the toplevel interactive loop.
 
-### Learning OCaml
+## Learning OCaml
 
 The languages are implemented in OCaml. If you are not familiar with OCaml, we highly
 recommend that you look at the
 [excellent resources for learning OCaml](https://ocaml.org/learn/).
 
-### Obtaining the source code
+## Obtaining the source code
 
 Get the source from GitHub:
 
@@ -46,7 +44,7 @@ or via the HTTP protocol
 
 If you do not use GitHub (why not?!) you can directly download a [ZIP archive](https://github.com/andrejbauer/plzoo/archive/master.zip).
 
-### Compilation
+## Compilation
 
 To compile all the languages run:
 
