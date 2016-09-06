@@ -2,6 +2,7 @@
 layout: language
 language: minihaskell
 ---
+
 A lazy functional language with following features:
 
 * integers with arithmetical operations `*`, `+`, `-`, `/`, `%`

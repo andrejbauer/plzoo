@@ -2,6 +2,7 @@
 layout: language
 language: miniml_error
 ---
+
 An extension of [miniML](../miniml) with division which aborts execution upon division by
 zero with an `error` value The error cannot be caught or thrown explicitly, so it is not a
 proper exception.

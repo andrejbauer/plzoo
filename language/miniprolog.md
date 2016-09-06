@@ -2,6 +2,7 @@
 layout: language
 language: miniprolog
 ---
+
 Miniprolog is a minimalist prolog interpeter. It does not contain cuts, arithmetic, lists,
 or equality -- just basic Horn clauses.
 

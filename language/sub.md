@@ -2,6 +2,7 @@
 layout: language
 language: sub
 ---
+
 An eager purely functional language with records and subtypes.  The
 language has integers, booleans, recursive functions, and immutable
 records.

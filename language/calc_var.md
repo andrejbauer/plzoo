@@ -2,6 +2,7 @@
 layout: language
 language: calc_var
 ---
+
 A simple arithmetical calculator with variables. The language has the following construct:
 * variables
 * integer constants

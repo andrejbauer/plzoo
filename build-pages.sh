@@ -18,6 +18,7 @@ do
         echo "layout: language" >> "language/${lang}.md"
         echo "language: ${lang}" >> "language/${lang}.md"
         echo "---" >> "language/${lang}.md"
+        echo "" >> "language/${lang}.md"
         cat "${MASTER}/src/$lang/README.markdown" >> "language/${lang}.md"
         git add "language/${lang}.md"
     fi

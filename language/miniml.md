@@ -2,6 +2,7 @@
 layout: language
 language: miniml
 ---
+
 An implementation of an eager statically typed functional language with
 a compiler and an abstract machine.
 

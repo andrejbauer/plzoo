@@ -3,6 +3,7 @@ layout: language
 language: boa
 ---
 
+
 A simple object-oriented language with eager evaluation, first-class functions, and
 dynamic types. It is based on a notion of objects as extensible records. There are no
 classes.

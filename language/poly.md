@@ -2,6 +2,7 @@
 layout: language
 language: poly
 ---
+
 A simple lazy purely functional language with parametric
 polymorphism. The implementation contains a parser, type inference,
 and an efficient interpreter. The language has integers, booleans,

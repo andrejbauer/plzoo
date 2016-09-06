@@ -2,6 +2,7 @@
 layout: language
 language: calc
 ---
+
 A simple arithmetic calculator. It handles addition, subtraction,
 negation, multiplication and division of integers.
 
