@@ -1,9 +1,15 @@
-# The Programming Languages Zoo
+This is the `gh-pages` branch of the Programming languages Zoo.
 
-The Programming Languages Zoo, or *PL Zoo* for short, is a collection of implementations
-of miniature programming languages which demonstrates various techniques used in
-implementation of programming languages. It is a good starting point for those who would
-like to implement their own programming language, or just learn how it is done.
+You may run
 
-See the [PL Zoo website](http://plzoo.andrej.com/) for further information, including
-installation instructions.
+    ./build-pages.sh
+
+to create the pages. It assumes that the master branch is available (and up to date) is in
+`../plzoo`. The generated pages can then be inspected locally with
+
+    ./run-server.sh
+
+You have to commit and push the generated pages by hand.
+
+
+

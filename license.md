@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Programming Languages Zoo
+navigation: license
 ---
 
 ## MIT License

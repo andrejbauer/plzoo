@@ -4,9 +4,8 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-        <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
 
-        <title>{{ page.title }}</title>
+        <title>The Programming Languages Zoo</title>
         <meta name="viewport" content="width=device-width">
 
     </head>
@@ -15,11 +14,14 @@
     <header>
       <div class="container">
         <h1>The Programming Languages Zoo</h1>
-        <h2>A potpourri of programming language implementations</h2>
+        <h2>A collection of simple programming languages</h2>
       </div>
-        <section id="downloads">
-          <a href="https://github.com/andrejbauer/plzoo" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
+      <div id="navbar" class="container">
+        &gt; <a href="index.html">home</a>
+        {% if page.navigation %}
+        &gt; {{ page.navigation }}
+        {% endif %}
+      </div>
     </header>
 
     <div class="container">
