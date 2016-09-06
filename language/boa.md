@@ -1,5 +1,5 @@
 ---
-layout: language
+layout: default
 language: boa
 ---
 
