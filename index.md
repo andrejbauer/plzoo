@@ -33,7 +33,7 @@ See the [installation & compilation instructions](install.html).
 
 The following languages are on display:
 
-{% markdown language-list.md %}
+{% include language-list.md %}
 
 ## Usage
 

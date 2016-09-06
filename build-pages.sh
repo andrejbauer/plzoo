@@ -13,16 +13,13 @@ for lang in ${LANGS}
 do
     if [ -r "${MASTER}/src/${lang}/README.markdown" ]
     then        
+        echo "Found ${lang}"
         echo "---" > "language/${lang}.md"
         echo "layout: language" >> "language/${lang}.md"
         echo "language: ${lang}" >> "language/${lang}.md"
         echo "---" >> "language/${lang}.md"
         cat "${MASTER}/src/$lang/README.markdown" >> "language/${lang}.md"
         git add "language/${lang}.md"
-    elif [ -r "language/${lang}.md" ]
-    then
-        # The language is gone
-        git rm "language/${lang.md}"
     fi
 done
 
@@ -44,4 +41,3 @@ do
     fi
 done
 git add "_includes/language-list.md"
-
