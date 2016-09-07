@@ -1,0 +1,12 @@
+Calc only has an interactive shell and cannot load files.
+Here is a record of an interactive session.
+
+calc -- programming languages zoo
+Type Ctrl-D to exit
+calc> 2+2
+4
+calc> 101 * 111
+11211
+calc> 24 / (4 - 4)
+Error: division by zero
+

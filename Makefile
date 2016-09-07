@@ -4,18 +4,7 @@ OCAMLBUILD=ocamlbuild
 BUILD=native
 # BUILD=byte
 
-LANGS = calc \
-	calc_var \
-	lambda \
-	miniml \
-	miniml_error \
-	minihaskell \
-	levy \
-	miniprolog \
-	sub \
-	poly \
-	boa
-
+LANGS = $(shell find src -type d -depth 1 -exec basename {} \;)
 SRCDIR = src
 
 .PHONY: $(LANGS)

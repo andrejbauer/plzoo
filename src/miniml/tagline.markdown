@@ -1,1 +1,1 @@
-eager, functional, integers, booleans, recursive functions, statically typed
+eager, functional, recursive functions, statically typed, compiler, abstract machine
