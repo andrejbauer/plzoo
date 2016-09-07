@@ -3,11 +3,8 @@ layout: language
 language: calc_var
 ---
 
-A simple arithmetical calculator with variables. The language has the following construct:
-* variables
-* integer constants
-* operations `+`, `-`, unary `-`, `*`, and `/`
-* definitions of variables
+A simple arithmetic calculator with variables. It handles addition, subtraction,
+negation, multiplication and division of integers.
 
 The language is interactive, it cannot load files. Example interaction:
 
