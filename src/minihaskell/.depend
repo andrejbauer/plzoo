@@ -1,9 +1,0 @@
-parser.cmi: minhaskell.cmo 
-interpret.cmo: minhaskell.cmo 
-interpret.cmx: minhaskell.cmx 
-lexer.cmo: parser.cmi 
-lexer.cmx: parser.cmx 
-parser.cmo: minhaskell.cmo parser.cmi 
-parser.cmx: minhaskell.cmx parser.cmi 
-toplevel.cmo: parser.cmi minhaskell.cmo message.cmo lexer.cmo interpret.cmo 
-toplevel.cmx: parser.cmx minhaskell.cmx message.cmx lexer.cmx interpret.cmx 
