@@ -18,7 +18,7 @@
 : lazy, functional, integers, booleans, lists, recursion, statically typed
 
 [miniml](language/miniml.html)
-: eager, functional, integers, booleans, recursive functions, statically typed
+: eager, functional, recursive functions, statically typed, compiler, abstract machine
 
 [miniml_error](language/miniml_error.html)
 : like miniml that can also abort execution

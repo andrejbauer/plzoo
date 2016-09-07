@@ -7,7 +7,7 @@ layout: default
 The Programming Languages Zoo is a collection of miniature programming languages which
 demonstrates various concepts and techniques used in programming language design and
 implementation. It is a good starting point for those who would like to implement their
-own programming language, or just learn how it is done
+own programming language, or just learn how it is done.
 
 The following features are demonstrated:
 
@@ -33,12 +33,12 @@ See the [installation & compilation instructions](install.html).
 
 The following languages are on display:
 
-{% include language-list.md %}
+{% include language-list.markdown %}
 
 ## Usage
 
-The languages are not really meant to be used. Rather, you should read and study the
-source code, which is decorated with ample comments. Also, each language `lang` has its
+The languages are not really meant to be used. Rather, you should [read and study the
+source code](https://github.com/andrejbauer/plzoo/tree/master/src), which is decorated with ample comments. Also, each language `lang` has its
 own `README.markdown` and `example.lang` in the subdirectory `src/lang`.
 
 Nevertheless, all the language are fully functioning miniature versions of real languages

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+REPOSRC="https://github.com/andrejbauer/plzoo/tree/master/src/"
+
 # The location of the plzoo master branch repo
 MASTER=../plzoo
 
@@ -14,31 +16,31 @@ do
     if [ -r "${MASTER}/src/${lang}/README.markdown" ]
     then        
         echo "Found ${lang}"
-        echo "---" > "language/${lang}.md"
-        echo "layout: language" >> "language/${lang}.md"
-        echo "language: ${lang}" >> "language/${lang}.md"
-        echo "---" >> "language/${lang}.md"
-        echo "" >> "language/${lang}.md"
-        cat "${MASTER}/src/$lang/README.markdown" >> "language/${lang}.md"
-        git add "language/${lang}.md"
+        echo "---" > "language/${lang}.markdown"
+        echo "layout: language" >> "language/${lang}.markdown"
+        echo "language: ${lang}" >> "language/${lang}.markdown"
+        echo "---" >> "language/${lang}.markdown"
+        echo "" >> "language/${lang}.markdown"
+        cat "${MASTER}/src/$lang/README.markdown" >> "language/${lang}.markdown"
+        git add "language/${lang}.markdown"
     fi
 done
 
 # Generate the index file
-echo "" > "_includes/language-list.md"
+echo "" > "_includes/language-list.markdown"
 for lang in ${LANGS}
 do
-    if [ -r "language/${lang}.md" ]
+    if [ -r "language/${lang}.markdown" ]
     then
-        echo "[${lang}](language/${lang}.html)" >> "_includes/language-list.md"
-        echo -n ": " >> "_includes/language-list.md"
-        if [ -r "${MASTER}/src/${lang}/tagline.md" ]
+        echo "[${lang}](language/${lang}.html)" >> "_includes/language-list.markdown"
+        echo -n ": " >> "_includes/language-list.markdown"
+        if [ -r "${MASTER}/src/${lang}/tagline.markdown" ]
         then
-            cat "${MASTER}/src/${lang}/tagline.md" >> "_includes/language-list.md"
+            cat "${MASTER}/src/${lang}/tagline.markdown" >> "_includes/language-list.markdown"
         else
-            echo "cool language" >> "_includes/language-list.md"
+            echo "a very cool language without description" >> "_includes/language-list.markdown"
         fi
-            echo "" >> "_includes/language-list.md"
+            echo "" >> "_includes/language-list.markdown"
     fi
 done
-git add "_includes/language-list.md"
+git add "_includes/language-list.markdown"

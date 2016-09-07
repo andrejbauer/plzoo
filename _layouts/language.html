@@ -13,7 +13,7 @@
     <header>
       <div class="container">
         <h1>The Programming Languages Zoo</h1>
-        <h2>A collection of simple programming languages</h2>
+        <h2>A potpourri of programming languages</h2>
       </div>
      <div id="navbar" class="container">
       &gt; <a href="../index.html">home</a> &gt; {{ page.language }}
@@ -23,6 +23,10 @@
     <div class="container">
       <section id="main_content">
       <h2>{{ page.language }}</h2>
+
+      [<a href="https://github.com/andrejbauer/plzoo/tree/master/src/{{page.language}}">source</a>]
+      [<a href="https://github.com/andrejbauer/plzoo/tree/master/src/{{page.language}}/example.{{page.language}}">example</a>]
+
       {{ content }}
       </section>
     </div>
