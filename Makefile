@@ -4,7 +4,7 @@ OCAMLBUILD=ocamlbuild
 BUILD=native
 # BUILD=byte
 
-LANGS = $(shell find src -type d -depth 1 -exec basename {} \;)
+LANGS = $(shell find src -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
 SRCDIR = src
 
 .PHONY: $(LANGS)
