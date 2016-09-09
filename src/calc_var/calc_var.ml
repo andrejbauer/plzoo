@@ -11,8 +11,6 @@ module CalcVar = Zoo.Main(struct
   (** At the beginning no variables are defined. *)
   let initial_environment = []
 
-  let read_more _ = false
-
   let file_parser = None
 
   let toplevel_parser = Some (Parser.toplevel Lexer.lexeme)

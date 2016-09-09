@@ -9,8 +9,6 @@ module Calc = Zoo.Main(struct
 
   let initial_environment = ()
 
-  let read_more _ = false
-
   let file_parser = None
 
   let toplevel_parser = Some (Parser.toplevel Lexer.lexeme)

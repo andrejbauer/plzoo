@@ -4,7 +4,6 @@ module Levy = Zoo.Main(struct
   type environment = (Syntax.name * Type_check.vtype) list * Eval.environment
   let options = []
   let initial_environment = ([], [])
-  let read_more _ = false
   let file_parser = Some (Parser.file Lexer.token)
   let toplevel_parser = Some (Parser.toplevel Lexer.token)
 
