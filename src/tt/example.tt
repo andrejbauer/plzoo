@@ -1,0 +1,23 @@
+Parameter N : Type 0.
+Parameter z : N.
+Parameter s : N -> N.
+
+Definition numeral := forall A : Type 0, (A -> A) -> (A -> A).
+
+Definition zero := fun (A : Type 0) (f : A -> A) (x : A) => x.
+Definition one := fun (A : Type 0) (f : A -> A) => f.
+Definition two := fun (A : Type 0) (f : A -> A) (x : A) => f (f x).
+Definition three := fun (A : Type 0) (f : A -> A) (x : A) => f (f (f x)).
+
+Definition plus :=
+  fun (m n : numeral) (A : Type 0) (f : A -> A) (x : A) => m A f (n A f x).
+
+Definition times :=
+  fun (m n : numeral) (A : Type 0) (f : A -> A) (x : A) => m A (n A f) x.
+
+Definition power :=
+  fun (m n : numeral) (A : Type 0) => n (A -> A) (m A).
+  
+Definition four := plus two two.
+
+Definition five := plus two three.
