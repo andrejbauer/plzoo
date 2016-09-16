@@ -81,8 +81,5 @@ please contact us through the [GitHub project page](https://github.com/andrejbau
 * If you have an idea for a new language, we will be happy to take it in. Please note that all
   the languages are purposely kept simple for educational purposes.
 
-We kindly ask that contributions to the repository follow the established pattern. For
-example, all the main programs are generated with the `Zoo.Main` functor found in
-`src/zoo.ml`. It takes care of a number of things, such as command-line wrappers, standard
-command-line options, loading of files, and running an interactive shell. It is best if
-you start by copying one fo the existing languages and adapt it to your language.
+Before you contibute a new langauge, please read these
+[guidelines for contributing](contributions.html).
