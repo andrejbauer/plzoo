@@ -2,6 +2,7 @@ S src
 S src/boa
 S src/calc
 S src/calc_var
+S src/comm
 S src/lambda
 S src/levy
 S src/minihaskell
@@ -14,6 +15,7 @@ B _build/src
 B _build/src/boa
 B _build/src/calc
 B _build/src/calc_var
+B _build/src/comm
 B _build/src/lambda
 B _build/src/levy
 B _build/src/minihaskell

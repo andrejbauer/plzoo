@@ -51,7 +51,7 @@ module type LANGUAGE =
     (** Additional command-line options *)
     val options : (Arg.key * Arg.spec * Arg.doc) list
 
-    (** The initial runtime environment *)                           
+    (** The initial runtime environment *)
     val initial_environment : environment
 
     (** Given the interactive input so far, should we read more? *)
@@ -69,7 +69,7 @@ module type LANGUAGE =
   end
 
 (** Create a language from its definition. *)
-module Main : functor (L : LANGUAGE) -> 
+module Main : functor (L : LANGUAGE) ->
                       sig
                         (** The main program *)
                         val main : unit -> unit
