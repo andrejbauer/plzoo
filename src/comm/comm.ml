@@ -1,15 +1,26 @@
+(** The main program. *)
+
 module CalcVar = Zoo.Main(struct
   let name = "comm"
 
   type command = Syntax.command
 
-  let show_code = ref false
-
   (** There is no top-level environment as all variables are local *)
   type environment = unit
 
+  (** Should we show compiled code? *)
+  let show_code = ref false
+
+  (** RAM size *)
+  let ram_size = ref 64
+
   let options = [
-  ("--code", Arg.Set show_code, "print compiled code")
+      ("--ram",
+       Arg.Set_int ram_size,
+       Format.sprintf "<size> RAM size (default: %d)" !ram_size);
+      ("--code",
+       Arg.Set show_code,
+       " Print compiled code")
   ]
 
   (** At the beginning no variables are defined. *)
@@ -27,10 +38,7 @@ module CalcVar = Zoo.Main(struct
   let exec _ cmd =
     let code = Compile.compile cmd in
     if !show_code then Format.printf "%t@." (Machine.print_code code) ;
-    let state = { Machine.code = code ;
-                  Machine.stack = [] ;
-                  Machine.var = [] ;
-                  Machine.pc = 0 } in
+    let state = Machine.make code !ram_size in
     try
       Machine.run state
     with

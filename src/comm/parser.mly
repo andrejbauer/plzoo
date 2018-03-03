@@ -66,7 +66,7 @@ boolean:
   | FALSE { Syntax.False }
   | e1=expression EQUAL e2=expression { Syntax.Equal (e1, e2) }
   | e1=expression LESS e2=expression { Syntax.Less (e1, e2) }
-  | b1=boolean AND b2=boolean { Syntax.And (b2, b2) }
-  | b1=boolean OR b2=boolean { Syntax.Or (b2, b2) }
+  | b1=boolean AND b2=boolean { Syntax.And (b1, b2) }
+  | b1=boolean OR b2=boolean { Syntax.Or (b1, b2) }
   | NOT b=boolean { Syntax.Not b }
   | LPAREN b=boolean RPAREN { b }

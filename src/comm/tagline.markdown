@@ -1,1 +1,1 @@
-Procedural language with integer variables, conditional statements, and `while` loops.
+A procedural language with integer arithmetic, local variables, conditional statements, `while` loops and `print`.

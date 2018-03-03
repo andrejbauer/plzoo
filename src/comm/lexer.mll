@@ -15,7 +15,7 @@ rule token = parse
     "#" [^'\n']* '\n'   { incr_linenum lexbuf; token lexbuf }
   | '\n'            { incr_linenum lexbuf; token lexbuf }
   | [' ' '\t']      { token lexbuf }
-  | ['0'-'9']+      { Parser.NUMERAL (int_of_string(lexeme lexbuf)) }
+  | '-'? ['0'-'9']+ { Parser.NUMERAL (int_of_string(lexeme lexbuf)) }
   | "true"          { Parser.TRUE }
   | "false"         { Parser.FALSE }
   | "skip"          { Parser.SKIP }
@@ -26,9 +26,12 @@ rule token = parse
   | "while"         { Parser.WHILE }
   | "do"            { Parser.DO }
   | "done"          { Parser.DONE }
-  | "print"          { Parser.PRINT }
+  | "print"         { Parser.PRINT }
   | "new"           { Parser.NEW }
   | "in"            { Parser.IN }
+  | "and"           { Parser.AND }
+  | "or"            { Parser.OR }
+  | "not"           { Parser.NOT }
   | ":="            { Parser.ASSIGN }
   | ';'             { Parser.SEMICOLON }
   | '('             { Parser.LPAREN }
@@ -40,9 +43,6 @@ rule token = parse
   | '%'             { Parser.REMAINDER }
   | '='             { Parser.EQUAL }
   | '<'             { Parser.LESS }
-  | "&&"            { Parser.AND }
-  | "||"            { Parser.OR }
-  | '!'             { Parser.NOT }
   | variable        { Parser.VARIABLE (lexeme lexbuf) }
   | eof             { Parser.EOF }
 
