@@ -59,5 +59,5 @@ will create native code executables. To generate bytecode use the `BUILD=byte` o
 
     make BUILD=byte ...
 
-There is `make clean` if you want ot clean up.
+There is `make clean` if you want to clean up.
 
