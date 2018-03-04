@@ -12,7 +12,7 @@
 : call-by-push value, statically typed
 
 [comm](language/comm.html)
-: A procedural language with integer arithmetic, local variables, conditional statements, `while` loops and `print`.
+: A procedural language with integer arithmetic, local variables, conditional statements, `while` loops and `print`, compiled to simple machine code.
 
 [calc](language/calc.html)
 : integer arithmetic `+`, `-`, `*`, `/`

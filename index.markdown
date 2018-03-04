@@ -38,8 +38,9 @@ The following languages are on display:
 ## Usage
 
 The languages are not really meant to be used. Rather, you should [read and study the
-source code](https://github.com/andrejbauer/plzoo/tree/master/src), which is decorated with ample comments. Also, each language `lang` has its
-own `README.markdown` and `example.lang` in the subdirectory `src/lang`.
+source code](https://github.com/andrejbauer/plzoo/tree/master/src), which is decorated
+with ample comments. Also, each language `lang` has its own `README.markdown` and
+`example.lang` in the subdirectory `src/lang`.
 
 Nevertheless, all the language are fully functioning miniature versions of real languages
 and can be executed. For each language `lang` you can:
@@ -59,7 +60,7 @@ and can be executed. For each language `lang` you can:
 4. load files and enter the toplevel
 
         ./lang.native -l <file> -l <file> ...`
-    
+
 ## Authors
 
 * [Andrej Bauer](http://andrej.com/)
