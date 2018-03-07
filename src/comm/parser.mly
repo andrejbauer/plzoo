@@ -18,6 +18,7 @@
 %token EOF
 
 /* Precedence and associativity */
+%nonassoc IN
 %left SEMICOLON
 %left OR
 %left AND
@@ -48,7 +49,7 @@ command:
   | x=VARIABLE ASSIGN e=expression { Syntax.Assign (x, e) }
   | c1=command SEMICOLON c2=command { Syntax.Sequence (c1, c2) }
   | WHILE b=boolean DO c=command DONE { Syntax.While (b, c) }
-  | IF b=boolean THEN c1=command ELSE c2=command END { Syntax. Conditional (b, c1, c2) }
+  | IF b=boolean THEN c1=command ELSE c2=command END { Syntax.Conditional (b, c1, c2) }
   | LPAREN c=command RPAREN { c }
 
 expression:
