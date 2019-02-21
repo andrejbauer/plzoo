@@ -22,14 +22,14 @@ module Lambda = Zoo.Main(struct
   (** The help text printed when [#help] is used. *)
   let help_text = "Toplevel directives:
 <expr> ;                      evaluate <expr>
-#lazy ;                       evaluate lazily (do not evaluate arguments)
-#eager ;                      evaluate eagrly (evaluate arguments immediately)
-#deep ;                       evaluate inside λ-abstraction
-#shallow ;                    do not evaluate inside λ-abstraction
-#constant x ... y ;           declare constants
-#context ;                    print current definitions
-#help ;                       print this help
-#quit ;                       exit
+:lazy ;                       evaluate lazily (do not evaluate arguments)
+:eager ;                      evaluate eagrly (evaluate arguments immediately)
+:deep ;                       evaluate inside λ-abstraction
+:shallow ;                    do not evaluate inside λ-abstraction
+:constant x ... y ;           declare constants
+:context ;                    print current definitions
+:help ;                       print this help
+:quit ;                       exit
 
 Syntax:
 ^ x ... y . e                  λ-abstraction
