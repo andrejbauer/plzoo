@@ -1,3 +1,5 @@
+-- Ordered pairs
+
 pair := ^ a b . ^p . p a b ;
 first := ^ p . p (^x y . x) ;
 second := ^ p . p (^x y. y) ;
@@ -8,9 +10,9 @@ K := ^ x y . x ;
 
 -- Booleans
 
-true  := ^x y . x ;
-false := ^x y . y ;
-if := ^u . u ;
+true  := ^ x y . x ;
+false := ^ x y . y ;
+if := ^ p x y . p x y ;
 
 and := ^x y . if x y false ;
 or  := ^x y . if x true y ;
@@ -24,7 +26,7 @@ fix := ^f . (^x . f (x x)) (^x . f (x x)) ;
 
 :constant error
 
-nil := ^x f . x ;
+nil := ^ x f . x ;
 
 cons := ^g r . ^x f . f g r ;
 
@@ -34,7 +36,7 @@ tail := ^l . l error (^a b . b) ;
 
 match := ^l x f. l x f ;
 
-map := fix (^map f l . match l nil (^x xs. cons (f x) (map f xs))) ;
+map := fix (^self f l . match l nil (^x xs. cons (f x) (self f xs))) ;
 
 fold := fix (^fold x f l. match l x (^y ys . f y (fold x f ys))) ;
 
@@ -54,11 +56,11 @@ fold := fix (^fold x f l. match l x (^y ys . f y (fold x f ys))) ;
 
 succ := ^n f x . f (n f x) ;
 
-+ := ^n m f x . (n f) ((m f) x) ;
++ := ^n m f x . (n f) (m f x) ;
 
 * := ^n m f x . (n (m f)) x ;
 
-** := ^n m . m n ;
+** := ^n m f x . m n ;
 
 iszero := ^n . (n (K false)) true ;
 

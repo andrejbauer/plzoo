@@ -13,7 +13,7 @@
 %}
 
 %token <string> NAME
-%token LPAREN RPAREN LAMBDA PERIOD
+%token LPAREN RPAREN MAPSTO
 %token COLONEQ SEMI
 %token CONTEXT HELP QUIT CONSTANT LAZY EAGER DEEP SHALLOW
 %token EOF
@@ -79,8 +79,8 @@ plain_topdirective:
 
 expr: mark_position(plain_expr) { $1 }
 plain_expr:
-  | LAMBDA xs = binders PERIOD e = expr
-    { (make_lambda e xs).Zoo.data }
+  | x = NAME MAPSTO e = expr
+    { Lambda (x, e) }
   | e = plain_app_expr
     { e }
 
@@ -97,12 +97,6 @@ plain_simple_expr:
     { Var x }
   | LPAREN e = plain_expr RPAREN
     { e }
-
-binders: nonempty_list(name) { $1 }
-name: mark_position(plain_name) { $1 }
-plain_name:
-  | x = NAME
-    { x }
 
 mark_position(X):
   x = X

@@ -7,17 +7,17 @@ let ident ppf x =
 (** Print a sequence *)
 let sequence ?(sep=" ") printer lst ppf =
   Format.pp_print_list
-    ~pp_sep:(fun ppf () -> Format.fprintf ppf " ")
+    ~pp_sep:(fun ppf () -> Format.fprintf ppf "%s@ " sep)
     printer
     ppf
     lst
-    
+
 (** [lambda e ppf] prints abstraction using formatter [ppf]. *)
 let rec lambda xs y e ppf =
   let rec collect ({Zoo.data=e';_} as e) =
     match e' with
       | Syntax.Subst (s, e) -> let e = Syntax.subst s e in collect e
-      | Syntax.Lambda (y, e) -> 
+      | Syntax.Lambda (y, e) ->
         let ys, k, e = collect e in ((y,k) :: ys), k+1, e
       | Syntax.Var _ | Syntax.App _ -> [], 0, e
   in
@@ -26,14 +26,14 @@ let rec lambda xs y e ppf =
   let (ys, _) =
     List.fold_right
       (fun (y,k) (ys, xs) ->
-        let y = (if Syntax.occurs k e then Beautify.refresh y xs else "_") in
+        let y = Beautify.refresh y xs in
           (y::ys, y::xs))
       ys ([], xs)
   in
   let xs = (List.rev ys) @ xs
   in
-    Zoo.print_parens ~at_level:3 ppf "λ %t .@ %t"
-                     (sequence ident ys)
+    Zoo.print_parens ~at_level:3 ppf "%t ↦@ %t"
+                     (sequence ~sep:" ↦" ident ys)
                      (expr xs e)
 
 (** [expr ctx e ppf] prints expression [e] using formatter [ppf]. *)

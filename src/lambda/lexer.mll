@@ -11,6 +11,7 @@ rule token = parse
     "--" [^'\n']* '\n'  { Lexing.new_line lexbuf; token lexbuf }
   | '\n'                { Lexing.new_line lexbuf; token lexbuf }
   | [' ' '\r' '\t']     { token lexbuf }
+  | "->"                { MAPSTO }
   | name                { let s = Lexing.lexeme lexbuf in NAME s }
   | ":context"          { CONTEXT }
   | ":help"             { HELP }
@@ -23,8 +24,6 @@ rule token = parse
   | '('                 { LPAREN }
   | ')'                 { RPAREN }
   | ":="                { COLONEQ }
-  | '.'                 { PERIOD }
-  | '^'                 { LAMBDA }
   | ';'                 { SEMI }
   | eof                 { EOF }
 
