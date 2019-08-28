@@ -85,8 +85,6 @@ e1 e2                          application
       print_endline help_text ; ctx
 
     | Input.Quit -> exit 0
-
-  let read_more _ = false
 end) ;;
 
 Lambda.main ()

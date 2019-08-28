@@ -10,11 +10,6 @@ let options = []
 
 let initial_environment = []
 
-let read_more str =
-  let i = ref (String.length str - 1) in
-  while !i >= 0 && List.mem str.[!i] [' '; '\n'; '\t'; '\r'] do decr i done ;
-  !i < 1 || (str.[!i] <> ';' || str.[!i - 1] <> ';')
-
 let file_parser = Some (Parser.file Lexer.token)
 
 let toplevel_parser = Some (Parser.toplevel Lexer.token)

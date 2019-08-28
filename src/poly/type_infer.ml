@@ -52,23 +52,25 @@ let rec occurs k = function
 *)
 let solve eq =
   let rec solve eq sbst =
-    match eq with
+    (* The following warning directive tells OCaml not to worry about the
+       pattern involving [TParam] and [when] guard below. *)
+    match[@warning "-57"] eq with
       | [] -> sbst
-	  
+
       | (t1, t2) :: eq when t1 = t2 -> solve eq sbst
-	  
+
       | ((TParam k, t) :: eq | (t, TParam k) :: eq) when (not (occurs k t)) ->
 	  let ts = tsubst [(k,t)] in
 	    solve
 	      (List.map (fun (ty1,ty2) -> (ts ty1, ts ty2)) eq)
 	      ((k,t)::(List.map (fun (n, u) -> (n, ts u)) sbst))
-	      
+
       | (TTimes (u1,v1), TTimes (u2,v2)) :: eq
       | (TArrow (u1,v1), TArrow (u2,v2)) :: eq ->
 	  solve ((u1,u2)::(v1,v2)::eq) sbst
-	    
+
       | (TList t1, TList t2) :: eq -> solve ((t1,t2) :: eq) sbst
-	  
+
       | (t1,t2)::_ ->
 	  let u1, u2 = rename2 t1 t2 in
 	    type_error ("The types " ^ string_of_type u1 ^ " and " ^
@@ -79,9 +81,9 @@ let solve eq =
 (** [constraints_of gctx e] infers the type of expression [e] and a set
     of constraints, where [gctx] is global context of values that [e]
     may refer to. *)
-let rec constraints_of gctx = 
+let rec constraints_of gctx =
   let rec cnstr ctx = function
-    | Var x ->  
+    | Var x ->
 	(try
 	   List.assoc x ctx, []
 	 with Not_found ->
@@ -89,7 +91,7 @@ let rec constraints_of gctx =
 	      (* we call [refresh] here to get let-polymorphism *)
 	      refresh (List.assoc x gctx), []
 	    with Not_found -> type_error ("Unknown variable " ^ x)))
-	  
+
     | Int _ ->  TInt, []
 
     | Bool _ -> TBool, []

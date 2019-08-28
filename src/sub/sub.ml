@@ -4,7 +4,6 @@ module Sub = Zoo.Main(struct
   type environment = (string * Syntax.ty) list * Syntax.environment
   let options = []
   let initial_environment = ([], [])
-  let read_more _ = false
   let file_parser = Some (Parser.file Lexer.token)
   let toplevel_parser = Some (Parser.toplevel Lexer.token)
 

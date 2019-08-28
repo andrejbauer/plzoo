@@ -54,9 +54,6 @@ module type LANGUAGE =
     (** The initial runtime environment *)
     val initial_environment : environment
 
-    (** Given the interactive input so far, should we read more? *)
-    val read_more : string -> bool
-
     (** A parser for parsing entire files *)
     val file_parser : (Lexing.lexbuf -> command list) option
 

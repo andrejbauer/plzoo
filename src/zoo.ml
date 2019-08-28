@@ -81,7 +81,6 @@ sig
   type environment
   val options : (Arg.key * Arg.spec * Arg.doc) list
   val initial_environment : environment
-  val read_more : string -> bool
   val file_parser : (Lexing.lexbuf -> command list) option
   val toplevel_parser : (Lexing.lexbuf -> command) option
   val exec : environment -> command -> environment
@@ -159,9 +158,9 @@ struct
     and prompt_more = String.make (String.length L.name) ' ' ^ "> " in
     print_string prompt ;
     let str = ref (read_line ()) in
-      while L.read_more !str do
+      while String.length !str > 0 && !str.[String.length !str - 1] == '\\' do
         print_string prompt_more ;
-        str := !str ^ (read_line ()) ^ "\n"
+        str := String.sub !str 0 (String.length !str - 1) ^ "\n" ^ (read_line ())
       done ;
       parser (Lexing.from_string (!str ^ "\n"))
 
@@ -197,7 +196,7 @@ struct
         | None -> fatal_error "I am sorry but this language has no interactive toplevel."
       in
       Format.printf "%s -- programming languages zoo@\n" L.name ;
-      Format.printf "Type %s to exit@." eof ;
+      Format.printf "Type %s to exit.@." eof ;
       try
         let ctx = ref ctx in
           while true do
