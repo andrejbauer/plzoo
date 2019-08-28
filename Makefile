@@ -1,5 +1,5 @@
 OCAMLBUILD=ocamlbuild
-OCAMLFLAGS=-unsafe
+OCAMLFLAGS=
 # Should we build native or bytecode by default?
 BUILD=native
 # BUILD=byte
