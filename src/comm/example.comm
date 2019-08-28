@@ -1,5 +1,5 @@
 # Print prime numbers up to n
-new n := 100 in
+new n := 100000 in
 new k := 2 in
 while k < n do
   new i := 2 in
