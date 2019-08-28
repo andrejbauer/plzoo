@@ -13,7 +13,7 @@ type choice = database * environment * clause * int
 let base = ref ([] : database)
 
 (** Add a new assertion at the end of the current database. *)
-let assertz a = 
+let assertz a =
   let rec add = function [] -> [a] | b::bs -> b::(add bs) in
     (base := add !base)
 
@@ -41,8 +41,8 @@ let rec display_solution ch env =
     | answer, [] -> Zoo.print_info "%s@." answer
     | answer, ch -> begin
       	Zoo.print_info "%s@.more? (y/n) [y]@?" answer;
-      	match String.lowercase (read_line ()) with
-      	  | "y" | "yes" | "" -> continue_search ch
+      	match read_line () with
+      	  | "y" | "yes" | "Y" | "YES" | "Yes" | "" -> continue_search ch
       	  | _ -> raise NoSolution
       end
 
@@ -55,7 +55,7 @@ and continue_search = function
 
 (** [solve ch asrl env c n] looks for the proof of clause [c]. Other
     arguments are:
-    
+
     [ch] is a list of choices at which we may look for other solutions,
 
     [asrl] is the list of assertions that are used to reduce [c] to subgoals,
@@ -88,7 +88,7 @@ and solve ch asrl env c n =
       | a::c' ->
 	  (* Reduce the first atom in the clause. *)
 	  (match reduce_atom a asrl with
-	     | None -> 
+	     | None ->
 		 (* This clause cannot be solved, look for other solutions. *)
 		 continue_search ch
 	     | Some (asrl', env', d) ->
