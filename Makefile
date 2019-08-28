@@ -1,5 +1,5 @@
 OCAMLBUILD=ocamlbuild
-
+OCAMLFLAGS=-unsafe
 # Should we build native or bytecode by default?
 BUILD=native
 # BUILD=byte
@@ -19,7 +19,7 @@ default:
 all: $(LANGS)
 
 $(LANGS): % :
-	$(OCAMLBUILD) -use-menhir -menhir "menhir --explain" -libs unix -I $(SRCDIR) src/$@/$@.$(BUILD)
+	$(OCAMLBUILD) -use-menhir -menhir "menhir --explain" -cflags "$(OCAMLFLAGS)" -libs unix -I $(SRCDIR) src/$@/$@.$(BUILD)
 
 clean:
 	$(OCAMLBUILD) -clean
