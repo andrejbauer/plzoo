@@ -167,7 +167,7 @@ struct
 
   (** Parser wrapper that catches syntax-related errors and converts them to errors. *)
   let wrap_syntax_errors parser lex =
-    try[@warning "-52"]
+    try
       parser lex
     with
       | Failure _ ->
