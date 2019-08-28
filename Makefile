@@ -19,7 +19,7 @@ default:
 all: $(LANGS)
 
 $(LANGS): % :
-	$(OCAMLBUILD) -use-menhir -menhir "menhir --explain" -libs unix -I $(SRCDIR) src/$@/$@.$(BUILD)
+	$(OCAMLBUILD) -r -use-menhir -menhir "menhir --explain" -libs unix -I $(SRCDIR) src/$@/$@.$(BUILD)
 
 clean:
 	$(OCAMLBUILD) -clean
