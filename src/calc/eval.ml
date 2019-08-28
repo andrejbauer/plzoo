@@ -1,7 +1,7 @@
 (** Evaluation of expressions, given as big step semantics. *)
 
 (** [eval e] evaluates the expression [e] to an integer. It raises an
-    expressions if division by zero occurs. *)
+    exception if division by zero occurs. *)
 let rec eval = function
   | Syntax.Numeral n -> n
   | Syntax.Plus (e1, e2) -> eval e1 + eval e2

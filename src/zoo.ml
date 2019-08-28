@@ -76,14 +76,14 @@ let print_info msg = Format.kfprintf (fun ppf -> Format.pp_print_flush ppf ()) F
 
 module type LANGUAGE =
 sig
-  val name : string 
-  type command     
-  type environment 
-  val options : (Arg.key * Arg.spec * Arg.doc) list 
-  val initial_environment : environment 
-  val file_parser : (Lexing.lexbuf -> command list) option 
+  val name : string
+  type command
+  type environment
+  val options : (Arg.key * Arg.spec * Arg.doc) list
+  val initial_environment : environment
+  val file_parser : (Lexing.lexbuf -> command list) option
   val toplevel_parser : (Lexing.lexbuf -> command) option
-  val exec : environment -> command -> environment 
+  val exec : environment -> command -> environment
 end
 
 module Main (L : LANGUAGE) =
@@ -96,7 +96,7 @@ struct
   let wrapper = ref (Some ["rlwrap"; "ledit"])
 
   (** The usage message. *)
-  let usage = 
+  let usage =
     match L.file_parser with
     | Some _ -> "Usage: " ^ L.name ^ " [option] ... [file] ..."
     | None   -> "Usage:" ^ L.name ^ " [option] ..."
@@ -109,7 +109,7 @@ struct
   let add_file interactive filename = (files := (filename, interactive) :: !files)
 
   (** Command-line options *)
-  let options = Arg.align [
+  let options = Arg.align ([
     ("--wrapper",
      Arg.String (fun str -> wrapper := Some [str]),
      "<program> Specify a command-line wrapper to be used (such as rlwrap or ledit)");
@@ -128,7 +128,7 @@ struct
      Arg.String (fun str -> add_file false str),
      "<file> Load <file> into the initial environment")
   ] @
-  L.options
+  L.options)
 
   (** Treat anonymous arguments as files to be run. *)
   let anonymous str =
@@ -169,10 +169,10 @@ struct
     try
       parser lex
     with
-      | Failure "lexing: empty token" ->
+      | Failure _ ->
         syntax_error ~loc:(location_of_lex lex) "unrecognised symbol"
       | _ ->
-        syntax_error ~loc:(location_of_lex lex) "general confusion"
+        syntax_error ~loc:(location_of_lex lex) "syntax error"
 
   (** Load directives from the given file. *)
   let use_file ctx (filename, interactive) =
@@ -196,8 +196,7 @@ struct
         | None -> fatal_error "I am sorry but this language has no interactive toplevel."
       in
       Format.printf "%s -- programming languages zoo@\n" L.name ;
-      Format.printf "Type %s to exit@\n" eof ;
-      Format.printf "If you end your input with \\, you can continue it in the next line.@." ;
+      Format.printf "Type %s to exit.@." eof ;
       try
         let ctx = ref ctx in
           while true do

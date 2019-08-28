@@ -1,0 +1,13 @@
+# Print prime numbers up to n
+new n := 100000 in
+new k := 2 in
+while k < n do
+  new i := 2 in
+  new isPrime := 1 in # 1 = true, 0 = false
+  while isPrime = 1 and i * i < k + 1 do
+    if k % i = 0 then isPrime := 0 else skip end ;
+    i := i + 1
+  done ;
+  if isPrime = 1 then print k else skip end ;
+  k := k + 1
+done
