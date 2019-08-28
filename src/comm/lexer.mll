@@ -1,19 +1,12 @@
 {
   open Lexing
-
-  let incr_linenum lexbuf =
-    let pos = lexbuf.lex_curr_p in
-    lexbuf.lex_curr_p <- { pos with
-      pos_lnum = pos.pos_lnum + 1;
-      pos_bol = pos.pos_cnum;
-    }
 }
 
 let variable = ['_' 'a'-'z' 'A'-'Z'] ['_' 'a'-'z' 'A'-'Z' '0'-'9']*
 
 rule token = parse
-    "#" [^'\n']* '\n'   { incr_linenum lexbuf; token lexbuf }
-  | '\n'            { incr_linenum lexbuf; token lexbuf }
+    "#" [^'\n']* '\n'   { Lexing.new_line lexbuf; token lexbuf }
+  | '\n'            { Lexing.new_line lexbuf; token lexbuf }
   | [' ' '\t']      { token lexbuf }
   | '-'? ['0'-'9']+ { Parser.NUMERAL (int_of_string(lexeme lexbuf)) }
   | "true"          { Parser.TRUE }

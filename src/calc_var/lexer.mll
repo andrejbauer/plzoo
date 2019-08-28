@@ -3,7 +3,8 @@
 }
 
 rule lexeme = parse
-    [' ' '\t' '\r' '\n']  { lexeme lexbuf }
+    [' ' '\t' '\r']  { lexeme lexbuf }
+  | '\n'        { Lexing.new_line lexbuf; lexeme lexbuf }
   | ['0'-'9']+  { NUMERAL (int_of_string (Lexing.lexeme lexbuf)) }
   | ['a'-'z' 'A'-'Z']+ ['a'-'z' 'A'-'Z' '0'-'9']* { VARIABLE (Lexing.lexeme lexbuf) }
   | '='         { EQUAL }
