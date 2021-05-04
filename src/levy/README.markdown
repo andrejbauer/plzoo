@@ -1,6 +1,6 @@
 An implementation of [Paul Levy's](http://www.cs.bham.ac.uk/~pbl/) [call-by-push-value](http://www.cs.bham.ac.uk/~pbl/cbpv.html)
 language. The language has the following constructs:
-* integers with arithmetical operations `*`, `+`, `-``
+* integers with arithmetical operations `*`, `+`, `-`
 * booleans with conditional statements and comparison `=`, `<` of integers
 * functions
 * general recursion (fixpoint operator)
