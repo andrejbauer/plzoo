@@ -5,3 +5,6 @@ _build
 *.native
 *.byte
 .DS_Store
+**/*.exe
+**/*.bc
+**/.merlin

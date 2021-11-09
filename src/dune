@@ -1,0 +1,4 @@
+(library
+ (name zoo)
+ (modes byte native)
+ (libraries unix))

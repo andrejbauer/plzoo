@@ -1,0 +1,9 @@
+(ocamllex lexer)
+
+(menhir
+ (modules parser))
+
+(executable
+ (name miniml_error)
+ (promote (until-clean))
+ (libraries zoo unix))

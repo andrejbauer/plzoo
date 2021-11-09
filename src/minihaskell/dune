@@ -1,0 +1,10 @@
+(ocamllex lexer)
+
+(menhir
+ (modules parser))
+
+(executable
+ (name minihaskell)
+ (modes byte native)
+ (promote (until-clean))
+ (libraries zoo unix))

@@ -1,0 +1,10 @@
+(ocamllex lexer)
+
+(menhir
+ (modules parser))
+
+(executable
+ (name comm)
+ (promote (until-clean))
+ (modes byte native)
+ (libraries zoo unix))
