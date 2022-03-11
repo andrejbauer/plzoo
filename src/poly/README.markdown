@@ -6,4 +6,4 @@ lists, pairs, functions, and a general fixpoint operator.
 Poly is very similar to miniHaskell. The only difference is that it
 infers polymorphic types.
 
-The file `example.minply` defines basic operations on lists.
+The file `example.poly` defines basic operations on lists.
