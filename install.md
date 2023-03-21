@@ -49,6 +49,6 @@ To compile all the languages run:
 
     dune build
 
-You can also compile a single language with
+You can also compile a single language `lang` with
 
-    dune build lang.exe
+    dune build src/lang
