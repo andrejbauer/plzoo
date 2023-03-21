@@ -21,7 +21,7 @@ let empty_context = {
 }
 
 (** [lookup_definition k ctx] returns the definition of [Var k] in context [ctx]. *)
-let lookup_definition k {decls=lst} = 
+let lookup_definition k {decls=lst; _} =
   match List.nth lst k with
     | Some e -> Some (Syntax.shift (k+1) e)
     | None -> None

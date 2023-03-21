@@ -1,14 +1,12 @@
 (** Renaming of bound variables for pretty printing. *)
 
-open Syntax
-
 (** Split a variable name into base and numerical postfix, e.g.,
    ["x42"] is split into [("x", 42)]. *)
 let split s =
   let n = String.length s in
   let i = ref (n - 1) in
     while !i >= 0 && '0' <= s.[!i] && s.[!i] <= '9' do decr i done ;
-    if !i < 0 || !i = n - 1 
+    if !i < 0 || !i = n - 1
     then (s, None)
     else
       let k = int_of_string (String.sub s (!i+1) (n - !i - 1)) in

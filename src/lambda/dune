@@ -1,0 +1,11 @@
+(executable
+ (name lambda)
+ (libraries zoolib)
+ (promote
+  (until-clean)
+  (into ../..)))
+
+(menhir
+  (modules parser))
+
+(ocamllex lexer)

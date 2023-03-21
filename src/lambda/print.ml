@@ -7,17 +7,17 @@ let ident ppf x =
 (** Print a sequence *)
 let sequence ?(sep=" ") printer lst ppf =
   Format.pp_print_list
-    ~pp_sep:(fun ppf () -> Format.fprintf ppf " ")
+    ~pp_sep:(fun ppf () -> Format.fprintf ppf "%s" sep)
     printer
     ppf
     lst
-    
+
 (** [lambda e ppf] prints abstraction using formatter [ppf]. *)
 let rec lambda xs y e ppf =
   let rec collect ({Zoo.data=e';_} as e) =
     match e' with
       | Syntax.Subst (s, e) -> let e = Syntax.subst s e in collect e
-      | Syntax.Lambda (y, e) -> 
+      | Syntax.Lambda (y, e) ->
         let ys, k, e = collect e in ((y,k) :: ys), k+1, e
       | Syntax.Var _ | Syntax.App _ -> [], 0, e
   in
@@ -38,7 +38,7 @@ let rec lambda xs y e ppf =
 
 (** [expr ctx e ppf] prints expression [e] using formatter [ppf]. *)
 and expr ?max_level xs e ppf =
-  let rec expr ?max_level xs {Zoo.data=e} ppf = expr' ?max_level xs e ppf
+  let rec expr ?max_level xs {Zoo.data=e; _} ppf = expr' ?max_level xs e ppf
   and expr' ?max_level xs e ppf =
     let print ?at_level = Zoo.print_parens ?max_level ?at_level ppf in
       if not (Format.over_max_boxes ()) then

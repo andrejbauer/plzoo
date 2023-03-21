@@ -41,8 +41,8 @@ let subst =
   let rec subst s {Zoo.data=e'; loc} =
     match s, e' with
       | Shift m, Var k -> Zoo.locate ~loc (Var (k + m))
-      | Dot (a, s), Var 0 -> a
-      | Dot (a, s), Var k -> subst s (Zoo.locate ~loc (Var (k - 1)))
+      | Dot (a, _), Var 0 -> a
+      | Dot (_, s), Var k -> subst s (Zoo.locate ~loc (Var (k - 1)))
       | s, Subst (t, e) -> subst s (subst t e)
       | s, Lambda (x, e) ->
         let e = mk_subst (Dot (mk_var 0, compose (Shift 1) s)) e in

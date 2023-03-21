@@ -22,7 +22,7 @@ let norm ?(eager=false) ?(deep=false) =
       | Syntax.Subst (s, e') ->
         norm env (Syntax.subst s e')
 
-      | Syntax.Lambda (x, e') -> 
+      | Syntax.Lambda (x, e') ->
         if deep
         then
           let e' = norm (extend env) e' in
@@ -30,10 +30,10 @@ let norm ?(eager=false) ?(deep=false) =
         else e
 
       | Syntax.App (e1, e2) ->
-         let e2 = (if eager then norm env e2 else e2) in 
-         let {Zoo.data=e1'} as e1 = norm env e1 in
+         let e2 = (if eager then norm env e2 else e2) in
+         let {Zoo.data=e1'; _} as e1 = norm env e1 in
           (match e1' with
-            | Syntax.Lambda (x, e) -> 
+            | Syntax.Lambda (_, e) ->
                norm env (Syntax.mk_subst (Syntax.Dot (e2, Syntax.idsubst)) e)
             | Syntax.Var _ | Syntax.App _ -> Zoo.locate ~loc (Syntax.App (e1, e2))
             | Syntax.Subst _ ->
