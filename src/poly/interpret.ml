@@ -31,12 +31,12 @@ let rec interp env = function
 	 | _ -> runtime_error "Integers expected in multiplication")
   | Divide (e1, e2) ->
       (match (interp env e1), (interp env e2) with
-	 | VInt k1, VInt 0  -> runtime_error ("Division by 0")
+	 | VInt  _, VInt 0  -> runtime_error ("Division by 0")
 	 | VInt k1, VInt k2 -> VInt (k1 / k2)
 	 | _ -> runtime_error "Integers expected in division")
   | Mod (e1, e2) ->
       (match (interp env e1), (interp env e2) with
-	 | VInt k1, VInt 0  -> runtime_error ("Division by 0")
+	 | VInt  _, VInt 0  -> runtime_error ("Division by 0")
 	 | VInt k1, VInt k2 -> VInt (k1 mod k2)
 	 | _ -> runtime_error "Integers expected in remainder")
   | Plus (e1, e2) ->
@@ -69,13 +69,13 @@ let rec interp env = function
   | Pair _ as e ->  VClosure (env, e)
   | Fst e ->
       (match interp env e with
-	 | VClosure (env', Pair (e1, e2)) -> interp env' e1
+	 | VClosure (env', Pair (e1, _)) -> interp env' e1
 	 | _ -> runtime_error "Pair expected in fst")
   | Snd e ->
       (match interp env e with
-	 | VClosure (env', Pair (e1, e2)) -> interp env' e2
+	 | VClosure (env', Pair (_, e2)) -> interp env' e2
 	 | _ -> runtime_error "Pair expected in snd")
-  | Rec (x, e) -> 
+  | Rec (x, e) ->
       let rec env' = (x,ref (VClosure (env',e))) :: env in
 	interp env' e
   | Nil -> VNil

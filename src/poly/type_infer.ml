@@ -81,7 +81,7 @@ let solve eq =
 (** [constraints_of gctx e] infers the type of expression [e] and a set
     of constraints, where [gctx] is global context of values that [e]
     may refer to. *)
-let rec constraints_of gctx =
+let constraints_of gctx =
   let rec cnstr ctx = function
     | Var x ->
 	(try

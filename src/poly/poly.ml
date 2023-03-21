@@ -16,7 +16,7 @@ module Poly = Zoo.Main(struct
 
   let toplevel_parser = Some (Parser.toplevel Lexer.token)
 
-  let rec exec (ctx, env) = function
+  let exec (ctx, env) = function
     | Syntax.Expr e ->
       (* type check [e], evaluate, and print result *)
        let ty = Type_infer.type_of ctx e in

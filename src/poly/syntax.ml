@@ -50,7 +50,7 @@ let rename ty =
     | TParam k ->
 	(try
 	   TParam (List.assoc k s), c
-	 with 
+	 with
 	     Not_found -> TParam j, (j+1, (k, j)::s))
     | TArrow (t1, t2) ->
 	let u1, c'  = ren c t1 in
@@ -104,7 +104,7 @@ let string_of_expr e =
 	| Nil ->            (10, "[]")
 	| Fst e ->           (9, "fst " ^ (to_str 9 e))
 	| Snd e ->           (9, "snd " ^ (to_str 9 e))
-	| Apply (e1, e2) ->  (10, "<app>")
+	| Apply (_, _) ->   (10, "<app>")
 	    (* (9, (to_str 8 e1) ^ " " ^ (to_str 9 e2)) *)
 	| Times (e1, e2) ->  (8, (to_str 7 e1) ^ " * " ^ (to_str 8 e2))
 	| Divide (e1, e2) -> (8, (to_str 7 e1) ^ " / " ^ (to_str 8 e2))
@@ -120,11 +120,11 @@ let string_of_expr e =
 	    (3, "match " ^ (to_str 3 e1) ^ " with " ^
 	       "[] -> " ^ (to_str 3 e2) ^ " | " ^
 	       x ^ "::" ^ y ^ " -> " ^ (to_str 3 e3))
-	| Fun (x, e) -> (10, "<fun>")
+	| Fun (_, _) -> (10, "<fun>")
 	    (* (2, "fun " ^ x ^  " -> " ^ (to_str 0 e)) *)
-	| Rec (x, e) -> (10, "<rec>")
+	| Rec (_, _) -> (10, "<rec>")
 	    (* (1, "rec " ^ x ^ " is " ^ (to_str 0 e)) *)
-	       
+
     in
       if m > n then str else "(" ^ str ^ ")"
   in
