@@ -29,7 +29,7 @@ let rec eval env = function
 	 | _, _ -> runtime_error "integers expected in multiplication")
   | Divide (e1, e2) ->
       (match eval env e1, eval env e2 with
-	   Int k1, Int 0 -> runtime_error "division by zero"
+	   Int  _, Int 0 -> runtime_error "division by zero"
 	 | Int k1, Int k2 -> Int (k1 / k2)
 	 | _, _ -> runtime_error "integers expeced in quotient")
   | Bool _ as e -> e
@@ -72,4 +72,3 @@ let rec eval env = function
       (match eval env e with
 	   Record vs -> eval env (snd (List.find (fun (l',_) -> l = l') vs))
 	 | _ -> runtime_error "record expected")
-
