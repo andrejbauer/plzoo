@@ -28,7 +28,7 @@ let mk_func f = {as_int=None; as_bool=None; as_func=Some f; fields=[]}
 let mk_obj lst = {as_int=None; as_bool=None; as_func=None; fields=lst}
 
 (** [copy ob] makes a shallow copy of object [ob]. *)
-let rec copy ob =
+let copy ob =
   { ob with fields = List.map (fun (x,v) -> (x, ref (!v))) ob.fields }
 
 let get_int = function
@@ -44,7 +44,7 @@ let get_func = function
   | _ -> Zoo.error "function expected"
 
 (** [get_attr x ob] returns the value of attribute [x] in object [ob]. *)
-let rec get_attr x {fields=lst} =
+let get_attr x {fields=lst; _} =
   try
     List.assoc x lst
   with
@@ -89,7 +89,7 @@ let rec print_value { as_int=i; as_bool=b; as_func=f; fields=lst } ppf =
 
 (** [eval env e] evaluates expression [e] in environment [env].
     It returns a value of type [ob]. *)
-let eval env e = 
+let eval env e =
   let rec eval th env = function
 
     | Syntax.Var x ->
@@ -99,7 +99,7 @@ let eval env e =
 
     | Syntax.Bool b -> mk_bool b
 
-    | Syntax.ArithOp (op, e1, e2) -> 
+    | Syntax.ArithOp (op, e1, e2) ->
        let v1 = eval th env e1 in
        let v2 = eval th env e2 in
        let v = arith op (get_int v1) (get_int v2) in
@@ -109,7 +109,7 @@ let eval env e =
        let v = eval th env e in
        mk_bool (not (get_bool v))
 
-    | Syntax.CmpOp (op, e1, e2) -> 
+    | Syntax.CmpOp (op, e1, e2) ->
        let v1 = eval th env e1 in
        let v2 = eval th env e2 in
        mk_bool (cmp op (get_int v1) (get_int v2))
@@ -160,7 +160,7 @@ let eval env e =
        { as_int = join v1.as_int v2.as_int ;
          as_bool = join v1.as_bool v2.as_bool ;
          as_func = join v1.as_func v2.as_func ;
-         fields = (List.fold_left 
+         fields = (List.fold_left
                      (fun lst (x,v) -> if not (List.mem_assoc x lst) then (x,v) :: lst else lst)
                      v2.fields v1.fields)
        }

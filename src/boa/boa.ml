@@ -14,7 +14,7 @@ let file_parser = Some (Parser.file Lexer.token)
 
 let toplevel_parser = Some (Parser.toplevel Lexer.token)
 
-let rec exec env = function
+let exec env = function
 
   | Syntax.Expr e ->
       (* evaluate [e] *)
