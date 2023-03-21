@@ -66,7 +66,7 @@ module type LANGUAGE =
   end
 
 (** Create a language from its definition. *)
-module Main : functor (L : LANGUAGE) ->
+module Main : functor (_ : LANGUAGE) ->
                       sig
                         (** The main program *)
                         val main : unit -> unit

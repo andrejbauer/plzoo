@@ -175,7 +175,7 @@ struct
         syntax_error ~loc:(location_of_lex lex) "syntax error"
 
   (** Load directives from the given file. *)
-  let use_file ctx (filename, interactive) =
+  let use_file ctx (filename, _interactive) =
     match L.file_parser with
     | Some f ->
        let cmds = read_file (wrap_syntax_errors f) filename in

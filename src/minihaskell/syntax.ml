@@ -68,7 +68,7 @@ let string_of_expr e =
 	| Nil ty ->         (10, "[" ^ (string_of_type ty) ^ "]")
 	| Fst e ->           (9, "fst " ^ (to_str 9 e))
 	| Snd e ->           (9, "snd " ^ (to_str 9 e))
-	| Apply (e1, e2) ->  (10, "<app>")
+	| Apply (_, _) ->   (10, "<app>")
 	    (* (9, (to_str 8 e1) ^ " " ^ (to_str 9 e2)) *)
 	| Times (e1, e2) ->  (8, (to_str 7 e1) ^ " * " ^ (to_str 8 e2))
 	| Divide (e1, e2) -> (8, (to_str 7 e1) ^ " / " ^ (to_str 8 e2))
@@ -84,11 +84,11 @@ let string_of_expr e =
 	    (3, "match " ^ (to_str 3 e1) ^ " with " ^
 	       "[" ^ (string_of_type ty) ^ "] -> " ^ (to_str 3 e2) ^ " | " ^
 	       x ^ "::" ^ y ^ " -> " ^ (to_str 3 e3))
-	| Fun (x, ty, e) -> (10, "<fun>")
+	| Fun (_, _, _) -> (10, "<fun>")
 	    (* (2, "fun " ^ x ^ " : " ^ (string_of_type ty) ^ " -> " ^ (to_str 0 e)) *)
-	| Rec (x, ty, e) -> (10, "<rec>")
+	| Rec (_, _, _) -> (10, "<rec>")
 	    (* (1, "rec " ^ x ^ " : " ^ (string_of_type ty) ^ " is " ^ (to_str 0 e)) *)
-	       
+
     in
       if m > n then str else "(" ^ str ^ ")"
   in

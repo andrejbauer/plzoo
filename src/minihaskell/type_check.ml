@@ -37,37 +37,37 @@ and type_of ctx = function
      check ctx Syntax.TInt e1 ;
      check ctx Syntax.TInt e2 ;
      Syntax.TInt
-  
+
   | Syntax.Mod (e1, e2) ->
-     check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ; 
-     Syntax.TInt
-  
-  | Syntax.Plus (e1, e2) -> 
      check ctx Syntax.TInt e1 ;
      check ctx Syntax.TInt e2 ;
      Syntax.TInt
-  
+
+  | Syntax.Plus (e1, e2) ->
+     check ctx Syntax.TInt e1 ;
+     check ctx Syntax.TInt e2 ;
+     Syntax.TInt
+
   | Syntax.Cons (e1, e2) ->
      let ty = type_of ctx e1 in
      check ctx (Syntax.TList ty) e2 ;
      Syntax.TList ty
-  
+
   | Syntax.Minus (e1, e2) ->
      check ctx Syntax.TInt e1 ;
      check ctx Syntax.TInt e2 ;
      Syntax.TInt
-  
+
   | Syntax.Equal (e1, e2) ->
      check ctx Syntax.TInt e1 ;
      check ctx Syntax.TInt e2 ;
      Syntax.TBool
-  
-  | Syntax.Less (e1, e2) -> 
+
+  | Syntax.Less (e1, e2) ->
      check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ; 
+     check ctx Syntax.TInt e2 ;
      Syntax.TBool
-  
+
   | Syntax.If (e1, e2, e3) ->
       check ctx Syntax.TBool e1 ;
       let ty = type_of ctx e2 in
@@ -82,7 +82,7 @@ and type_of ctx = function
 
   | Syntax.Match (e1, ty, e2, x, y, e3) ->
       (match type_of ctx e1 with
-       | Syntax.TList ty1 ->
+       | Syntax.TList _ ->
 	  check ctx (Syntax.TList ty) e1;
 	  let ty2 = type_of ctx e2 in
 	  check ((x,ty)::(y, Syntax.TList ty)::ctx) ty2 e3 ; ty2

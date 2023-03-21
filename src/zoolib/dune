@@ -1,0 +1,4 @@
+(library
+  (name zoolib)
+  (wrapped false)
+  (libraries unix))

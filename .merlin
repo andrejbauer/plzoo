@@ -1,3 +1,0 @@
-S src/**
-B _build/**
-PKG menhirLib
