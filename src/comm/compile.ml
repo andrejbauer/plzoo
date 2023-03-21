@@ -44,7 +44,7 @@ let compile cmd =
        (expression ctx e1) @ (expression ctx e2) @ [MOD]
   in
 
-  (** Compile a boolea expression in the given context. *)
+  (* Compile a boolean expression in the given context. *)
   let rec boolean ctx = function
 
   | Syntax.True -> [PUSH 1]
@@ -67,7 +67,7 @@ let compile cmd =
      (boolean ctx b) @ [NOT]
   in
 
-  (** Compile the given command in the given context [ctx]. *)
+  (* Compile the given command in the given context [ctx]. *)
   let rec command ctx = function
   | Syntax.New (x, e, c) ->
      let e' = expression ctx e in
