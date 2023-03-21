@@ -29,7 +29,7 @@ let rec renumber_term n = function
 
 (** [renumber_atom n a] renumbers all variable instances occurring in
     atom [a] so that they have level [n]. *)
-let rec renumber_atom n (c,ts) = (c, List.map (renumber_term n) ts)
+let renumber_atom n (c,ts) = (c, List.map (renumber_term n) ts)
 
 (** [display_solution ch env] displays the solution of a goal encoded
     by [env]. It then gives the user the option to search for other
@@ -68,7 +68,7 @@ and continue_search = function
     then decides whether other solutions should be searched for.
 *)
 and solve ch asrl env c n =
-  (** [reduce_atom a asrl] reduces atom [a] to subgoals by using the
+  (* [reduce_atom a asrl] reduces atom [a] to subgoals by using the
       first assertion in the assetion list [asrl] whose conclusion matches
       [a]. It returns [None] if the atom cannot be reduced, or the
       remaining assertions, the new environment and the list of subgoals.

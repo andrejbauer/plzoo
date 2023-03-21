@@ -2,7 +2,7 @@
 
 (** Constants and atoms are strings starting with lower-case letters. *)
 type constant = string
-    
+
 (** Variables are strings starting with upper-case letters, followed
     by a number which indicates an instance of the variable. Thus a
     variable instance is a pair [(x,n)] where [x] is a variable and [n] is
@@ -37,15 +37,15 @@ type environment = (variable * term) list
     program. *)
 type database = assertion list
 
-(** Toplevel commands. *)    
+(** Toplevel commands. *)
 type toplevel_cmd =
   | Assert of assertion  (** Assertion [a :- b_1, ..., b_n.] or [a.] *)
   | Goal of clause       (** Query [?- a] *)
-      
+
 (** [lookup env x] returns the value of variable instance [x] in
     environment [env]. It returns [Var x] if the variable does not occur
     in [env]. *)
-let rec lookup env x =
+let lookup env x =
   try List.assoc x env with Not_found -> Var x
 
 
@@ -59,7 +59,7 @@ let rec subst_term env = function
       (let e' = lookup env x in
 	 if e = e' then e' else subst_term env e')
   | Const _ as e -> e
-  | App (c, ls) -> App (c, List.map (subst_term env) ls)	
+  | App (c, ls) -> App (c, List.map (subst_term env) ls)
 
 
 (** [string_of_term t] converts term [t] to its string represenation. *)
@@ -77,7 +77,7 @@ let string_of_env env =
     | [] -> "Yes"
     | env' -> String.concat "\n"
 	(List.map
-	   (fun ((x,n), e) ->
+	   (fun ((x, _), e) ->
 	      x ^ " = " ^ string_of_term (subst_term env e))
 	   (List.rev env'))
 

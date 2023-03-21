@@ -7,7 +7,7 @@ module MiniProlog = Zoo.Main(struct
   let file_parser = Some (Parser.file Lexer.token)
   let toplevel_parser = Some (Parser.expr Lexer.token)
 
-  let rec exec () = function
+  let exec () = function
     | Syntax.Goal g -> Solve.solve_toplevel g
     | Syntax.Assert a ->  Solve.assertz a
 
