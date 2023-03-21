@@ -33,13 +33,13 @@ See the [installation & compilation instructions](install.html).
 
 The following languages are on display:
 
-{% include language-list.markdown %}
+{% include language-list.md %}
 
 ## Usage
 
 The languages are not really meant to be used. Rather, you should [read and study the
 source code](https://github.com/andrejbauer/plzoo/tree/master/src), which is decorated
-with ample comments. Also, each language `lang` has its own `README.markdown` and
+with ample comments. Also, each language `lang` has its own `README.md` and
 `example.lang` in the subdirectory `src/lang`.
 
 Nevertheless, all the language are fully functioning miniature versions of real languages

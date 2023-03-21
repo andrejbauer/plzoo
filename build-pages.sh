@@ -10,37 +10,37 @@ LANGS=$(find ${MASTER}/src -type d -depth 1 -exec basename {} \;)
 # All the generated files are in the language subfolder
 mkdir -p language
 
-# Copy README files to language.markdown files
+# Copy README files to language.md files
 for lang in ${LANGS}
 do
-    if [ -r "${MASTER}/src/${lang}/README.markdown" ]
-    then        
+    if [ -r "${MASTER}/src/${lang}/README.md" ]
+    then
         echo "Found ${lang}"
-        echo "---" > "language/${lang}.markdown"
-        echo "layout: language" >> "language/${lang}.markdown"
-        echo "language: ${lang}" >> "language/${lang}.markdown"
-        echo "---" >> "language/${lang}.markdown"
-        echo "" >> "language/${lang}.markdown"
-        cat "${MASTER}/src/$lang/README.markdown" >> "language/${lang}.markdown"
-        git add "language/${lang}.markdown"
+        echo "---" > "language/${lang}.md"
+        echo "layout: language" >> "language/${lang}.md"
+        echo "language: ${lang}" >> "language/${lang}.md"
+        echo "---" >> "language/${lang}.md"
+        echo "" >> "language/${lang}.md"
+        cat "${MASTER}/src/$lang/README.md" >> "language/${lang}.md"
+        git add "language/${lang}.md"
     fi
 done
 
 # Generate the index file
-echo "" > "_includes/language-list.markdown"
+echo "" > "_includes/language-list.md"
 for lang in ${LANGS}
 do
-    if [ -r "language/${lang}.markdown" ]
+    if [ -r "language/${lang}.md" ]
     then
-        echo "[${lang}](language/${lang}.html)" >> "_includes/language-list.markdown"
-        echo -n ": " >> "_includes/language-list.markdown"
-        if [ -r "${MASTER}/src/${lang}/tagline.markdown" ]
+        echo "[${lang}](language/${lang}.html)" >> "_includes/language-list.md"
+        echo -n ": " >> "_includes/language-list.md"
+        if [ -r "${MASTER}/src/${lang}/tagline.md" ]
         then
-            cat "${MASTER}/src/${lang}/tagline.markdown" >> "_includes/language-list.markdown"
+            cat "${MASTER}/src/${lang}/tagline.md" >> "_includes/language-list.md"
         else
-            echo "a very cool language without description" >> "_includes/language-list.markdown"
+            echo "a very cool language without description" >> "_includes/language-list.md"
         fi
-            echo "" >> "_includes/language-list.markdown"
+            echo "" >> "_includes/language-list.md"
     fi
 done
-git add "_includes/language-list.markdown"
+git add "_includes/language-list.md"

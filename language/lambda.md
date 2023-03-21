@@ -9,17 +9,17 @@ The λ-calculus is an equational theory and so does not by itself enforce a noti
 computation. There are several strategies for normalizing redices, which in `lambda` can
 be controlled with directives:
 
-* `#eager` - reduce arguments of applications
-* `#lazy` - do not reduce arguments of applications
-* `#deep` - reduce inside abstractions
-* `#shallow` - do not reduce inside abstractions
+* `:eager` - reduce arguments of applications
+* `:lazy` - do not reduce arguments of applications
+* `:deep` - reduce inside abstractions
+* `:shallow` - do not reduce inside abstractions
 
 We can combine these to get various reduction strategies:
 
-|            |    `#eager`      |        `#lazy`        |
+|            |    `:eager`      |        `:lazy`        |
 |-----------:|:----------------:|:---------------------:|
-| `#shallow` | weak normal form | weak head normal form |
-| `#deep`    | normal form      | head normal form      |
+| `:shallow` | weak normal form | weak head normal form |
+| `:deep`    | normal form      | head normal form      |
 
 In terms of programming language terminology, weak normal form corresponds approximately
 to call by value and the weak head normal form to call by name.
