@@ -2,7 +2,6 @@ Gemfile.lock
 _site
 *~
 _build
-*.native
-*.byte
+*.exe
 .DS_Store
 ./*.html
