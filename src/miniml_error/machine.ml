@@ -85,7 +85,7 @@ let error msg = raise (Machine_error msg)
 let string_of_mvalue = function
   | MInt k -> string_of_int k
   | MBool b -> string_of_bool b
-  | MClosure _ -> "<fun>" (** Closures cannot be reasonably displayed *)
+  | MClosure _ -> "<fun>" (* Closures cannot be reasonably displayed *)
   | MError -> "error"
 
 (** [lookup x envs] scans through the list of environments [envs] and
@@ -120,7 +120,7 @@ let mult = function
 
 (** Division *)
 let quot = function
-  | (MInt 0) :: (MInt y) :: s -> MError :: s
+  | (MInt 0) :: (MInt _) :: s -> MError :: s
   | (MInt x) :: (MInt y) :: s -> MInt (y / x) :: s
   | _ -> error "int and int expected in mult"
 
