@@ -1,6 +1,6 @@
 (executable
  (name miniml)
- (libraries zoolib)
+ (libraries zoo)
  (promote
   (until-clean)
   (into ../..)))

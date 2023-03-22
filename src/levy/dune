@@ -1,6 +1,6 @@
 (executable
  (name levy)
- (libraries zoolib)
+ (libraries zoo)
  (promote
   (until-clean)
   (into ../..)))

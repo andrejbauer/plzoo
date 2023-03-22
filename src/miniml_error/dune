@@ -1,6 +1,6 @@
 (executable
  (name miniml_error)
- (libraries zoolib)
+ (libraries zoo)
  (promote
   (until-clean)
   (into ../..)))

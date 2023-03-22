@@ -1,6 +1,6 @@
 (executable
  (name minihaskell)
- (libraries zoolib)
+ (libraries zoo)
  (promote
   (until-clean)
   (into ../..)))

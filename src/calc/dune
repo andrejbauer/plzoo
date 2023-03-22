@@ -1,6 +1,6 @@
 (executable
  (name calc)
- (libraries zoolib)
+ (libraries zoo)
  (promote
   (until-clean)
   (into ../..)))
