@@ -13,7 +13,7 @@ The following features are demonstrated:
 
 * functional, declarative, object-oriented, and procedural languages
 * source code parsing with a parser generator
-* recoding of source code positions
+* keep track of source code positions
 * pretty-printing of values
 * interactive shell (REPL) and non-interactive file processing
 * untyped, statically and dynamically typed languages
@@ -72,7 +72,7 @@ The project is open source and released under the permissive [MIT license](licen
 
 ## Contributing
 
-New contributions are *very* welcome. If you would like to contribute to the project,
+New contributions are welcome. If you would like to contribute to the project,
 please contact us through the [GitHub project page](https://github.com/andrejbauer/plzoo):
 
 * If you discover a problem, [open an issue](https://github.com/andrejbauer/plzoo/issues/new).
