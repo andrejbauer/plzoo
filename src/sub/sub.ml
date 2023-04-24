@@ -4,8 +4,8 @@ module Sub = Zoo.Main(struct
   type environment = (string * Syntax.ty) list * Syntax.environment
   let options = []
   let initial_environment = ([], [])
-  let file_parser = Some (Parser.file Lexer.token)
-  let toplevel_parser = Some (Parser.toplevel Lexer.token)
+  let file_parser = Some (fun _ -> Parser.file Lexer.token)
+  let toplevel_parser = Some (fun _ -> Parser.toplevel Lexer.token)
 
   let exec (ctx, env) = function
     | Syntax.Expr e ->

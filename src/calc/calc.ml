@@ -11,7 +11,7 @@ module Calc = Zoo.Main(struct
 
   let file_parser = None
 
-  let toplevel_parser = Some (Parser.toplevel Lexer.lexeme)
+  let toplevel_parser = Some (fun _ -> Parser.toplevel Lexer.lexeme)
 
   let exec () e =
     let n = Eval.eval e in

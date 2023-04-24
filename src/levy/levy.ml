@@ -4,8 +4,8 @@ module Levy = Zoo.Main(struct
   type environment = (Syntax.name * Type_check.vtype) list * Eval.environment
   let options = []
   let initial_environment = ([], [])
-  let file_parser = Some (Parser.file Lexer.token)
-  let toplevel_parser = Some (Parser.toplevel Lexer.token)
+  let file_parser = Some (fun _ -> Parser.file Lexer.token)
+  let toplevel_parser = Some (fun _ -> Parser.toplevel Lexer.token)
 
   let exec (ctx, env) = function
     | Syntax.Expr e ->
@@ -20,7 +20,7 @@ module Levy = Zoo.Main(struct
         (* type check [e], evaluate it and store *)
         let ty = Type_check.vtype_of ctx e in
         let v = Eval.expr env e in
-        Zoo.print_info "val %s : %t = %t@." x 
+        Zoo.print_info "val %s : %t = %t@." x
                        (Type_check.print_vtype ty)
                        (Eval.print_value v);
         ((x,ty)::ctx, (x,v)::env)

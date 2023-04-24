@@ -26,9 +26,9 @@ module CalcVar = Zoo.Main(struct
   (** At the beginning no variables are defined. *)
   let initial_environment = ()
 
-  let file_parser = Some (Parser.file Lexer.token)
+  let file_parser = Some (fun _ -> Parser.file Lexer.token)
 
-  let toplevel_parser = Some (Parser.program Lexer.token)
+  let toplevel_parser = Some (fun _ -> Parser.program Lexer.token)
 
   (** The command that actually executes a command. It accepts an argument which we can
       ignore, a flag indicating whether we are in ineractive mode, an environment, and a

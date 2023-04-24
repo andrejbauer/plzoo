@@ -13,7 +13,7 @@ module CalcVar = Zoo.Main(struct
 
   let file_parser = None
 
-  let toplevel_parser = Some (Parser.toplevel Lexer.lexeme)
+  let toplevel_parser = Some (fun _ -> Parser.toplevel Lexer.lexeme)
 
   (** The command that actually executes a command. It accepts an argument which we can
       ignore, a flag indicating whether we are in ineractive mode, an environment, and a

@@ -10,9 +10,9 @@ let options = []
 
 let initial_environment = []
 
-let file_parser = Some (Parser.file Lexer.token)
+let file_parser = Some (fun _ -> Parser.file Lexer.token)
 
-let toplevel_parser = Some (Parser.toplevel Lexer.token)
+let toplevel_parser = Some (fun _ -> Parser.toplevel Lexer.token)
 
 let exec env = function
 

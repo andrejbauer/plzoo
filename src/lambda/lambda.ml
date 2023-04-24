@@ -7,9 +7,9 @@ module Lambda = Zoo.Main(struct
 
   let initial_environment = Context.empty_context
 
-  let file_parser = Some (Parser.file Lexer.token)
+  let file_parser = Some (fun _ -> Parser.file Lexer.token)
 
-  let toplevel_parser = Some (Parser.commandline Lexer.token)
+  let toplevel_parser = Some (fun _ -> Parser.commandline Lexer.token)
 
   let options = []
 
