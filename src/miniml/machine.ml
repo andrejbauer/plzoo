@@ -34,7 +34,7 @@ type mvalue =
 (**
    There are two kinds of machine instructions.
 
-   The first kind manipules tha stack of machine values. These are
+   The first kind manipulates the stack of machine values. These are
    arithmetical operations, integer comparison, variable lookup,
    placing constants onto the stack, and closure formation.
 
