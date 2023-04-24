@@ -1,0 +1,7 @@
+true: debug
+
+true: warn(+A-4-6-9-40-42-44)
+true: strict_sequence, safe_string, short_paths
+true: bin_annot, keep_locs
+
+true : use_menhir, explain
