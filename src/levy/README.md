@@ -31,7 +31,7 @@ function. You can load it and try it as follows:
     val a : int = 5
     val b : int = 15
     val c : U (F int) = <thunk>
-    val fact : U int -> F int = <thunk>
+    val fact : U (int -> F int) = <thunk>
     return (5040) : F int
     levy -- programming languages zoo
     Type Ctrl-D to exit

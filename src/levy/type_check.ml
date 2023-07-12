@@ -27,10 +27,10 @@ and print_ctype ?max_level cty ppf =
                       "F@ %t" 
                       (print_vtype ~max_level:1 vty)
   | CArrow (vty, cty) ->
-     Zoo.print_parens ?max_level ~at_level:1 ppf
+     Zoo.print_parens ?max_level ~at_level:3 ppf
                       "%t@ ->@ %t"
-                      (print_vtype ~max_level:1 vty)
-                      (print_ctype ~max_level:2 cty)
+                      (print_vtype ~max_level:2 vty)
+                      (print_ctype ~max_level:3 cty)
 
 let rec as_ctype {Zoo.data=ty; loc} =
   match ty with
