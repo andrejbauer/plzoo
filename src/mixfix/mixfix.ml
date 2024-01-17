@@ -1,32 +1,53 @@
-type associativity = Left | Right | None
+module Mixfix = Zoo.Main(struct
 
-type fixity = Prefix | Infix of associativity | Postfix | Closed
+  let name = "Mixfix"
 
-type operator = {
-    names : string list ;
-    fixity : fixity ;
-    precedence : int
-}
-(* Example: { names = ["if"; "then"; "else"] ; fixity = Prefix } *)
+  type command = Syntax.toplevel_cmd
 
-type t = operator list
+  type associativity = Left | Right | NonAssoc
+  and fixity = Prefix | Postfix | Infix of associativity
 
-let empty = []
+  type operator = {
+    tokens: string list;
+    fx : fixity;
+    prec: int;
+  }
+  type environment = {
+    operators: string list;
+    context:(string * Syntax.htype) list;
+    env: Interpret.environment;
+    } 
 
-let add_operator xs prec asc p = failwith "add_operator: not implemented"
+  let print_depth = ref 100
 
-let rec expr p lst =
-  (* here main work happens, we have a list of exprs *)
-  failwith "expr: missing cases"
+  let options = [("-p", Arg.Int (fun n -> print_depth := n), "set print depth")]
 
-and basic p = function
-  | Input.Expr lst -> basic p lst
-  | Input.Builtin s -> Syntax.Builtin s
-  | Fun (x, ty, e) -> Syntax.Fun (x, ty, expr p e)
-  | _ -> failwith "basic: missing cases"
+  let initial_environment:environment = {
+    operators = [];
+    context = [];
+    env = [];
+  }
 
-let toplevel_cmd p = function
-  | Input.TopExpr e -> Syntax.Expr (expr p e)
-  | Input.Def (x, e) -> Syntax.Def (x, expr p e)
-  | Input.Mixfix (op, prec, asc) -> Syntax.Mixif (add_operator op prec asc p)
-  | Input.Quit -> p, Syntax.Quit
+  let file_parser = Some (fun _ -> Parser.file Lexer.token)
+
+  let toplevel_parser = Some (fun _ -> Parser.toplevel Lexer.token)
+
+  let exec (state:environment) = function
+    | Syntax.Expr e ->
+      (* type check [e], evaluate, and print result *)
+       let ty = Type_check.type_of state.context e in
+       let v = Interpret.interp state.env e in
+       Zoo.print_info "- : %s = " (Syntax.string_of_type ty) ;
+       Interpret.print_result !print_depth v ;
+       Zoo.print_info "@." ;
+       {state with env = state.env}
+    | Syntax.Def (x, e) ->
+       (* type check [e], and store it unevaluated! *)
+       let ty = Type_check.type_of state.context e in
+       Zoo.print_info "val %s : %s@." x (Syntax.string_of_type ty) ;
+      {state with context = (x,ty)::state.context; env = (x, ref (Interpret.VClosure (state.env,e)))::state.env}
+    | Syntax.Quit -> raise End_of_file
+
+end) ;;
+
+Mixfix.main () ;;

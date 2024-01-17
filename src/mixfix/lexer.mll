@@ -9,7 +9,7 @@ rule token = parse
     "--" [^'\n']* '\n' { Lexing.new_line lexbuf; token lexbuf }
   | '\n'            { Lexing.new_line lexbuf; token lexbuf }
   | [' ' '\t']      { token lexbuf }
-  | ['0'-'9']+      { INT (int_of_string(lexeme lexbuf)) }
+  | '-'?['0'-'9']+      { INT (int_of_string(lexeme lexbuf)) }
   | "bool"          { TBOOL }
   | "else"          { ELSE }
   | "false"         { FALSE }
@@ -31,17 +31,19 @@ rule token = parse
   | "=>"            { DARROW }
   | "::"            { CONS }
   | ";;"            { SEMICOLON2 }
-  | '%'             { MOD }
+  | "$mod"          { MOD }
   | '('             { LPAREN }
   | ')'             { RPAREN }
-  | '*'             { TIMES }
-  | '+'             { PLUS }
+  | "$times"        { TIMES }
+  | "$plus"         { PLUS }
   | ','             { COMMA }
-  | '-'             { MINUS }
-  | '/'             { DIVIDE }
+  | "$minus"        { MINUS } 
+  | "$divide"       { DIVIDE }
   | ':'             { COLON }
-  | '<'             { LESS }
-  | '='             { EQUAL }
+  | '*'             { STAR }
+  | "$less"         { LESS }
+  | '='             { SET_EQUAL }
+  | "$equal"        { EQUALS }
   | '['             { LBRACK }
   | ']'             { RBRACK }
   | '|'             { ALTERNATIVE }
