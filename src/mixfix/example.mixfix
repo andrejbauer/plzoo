@@ -5,6 +5,9 @@
 let succ = rec succ : int -> int is fun x : int => $plus x 1 ;;
 -- let f = rec f : int -> int is fun t : int => t + 1 ;;
 
+
+let not = fun b : bool => $cond b false true
+
 let range = rec range : int -> int -> int list is
   fun m : int => fun n : int =>
     if ($less n m) then [int] else m :: (range ($plus m 1) n)

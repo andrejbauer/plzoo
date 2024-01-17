@@ -12,14 +12,14 @@
 %token DIVIDE
 %token MOD
 %token EQUALS LESS
-%token IF THEN ELSE
+%token COND // Prefix IF THEN ELSE
 %token FUN DARROW
 %token COLON
 %token STAR
 %token LPAREN RPAREN
 %token LET SET_EQUAL
 %token SEMICOLON2
-%token COMMA
+%token PAIR
 %token FST
 %token SND
 %token LBRACK RBRACK
@@ -32,11 +32,6 @@
 %start toplevel file
 %type <Syntax.toplevel_cmd list> file
 %type <Syntax.toplevel_cmd> toplevel
-
-%nonassoc IS
-%right DARROW
-%nonassoc ELSE
-%right CONS
 
 %%
 
@@ -72,8 +67,6 @@ def: LET VAR SET_EQUAL expr { Def ($2, $4) }
 expr:
   | non_app                         { $1 }
   | app                             { $1 }
-  | expr CONS expr                  { Cons ($1, $3) }
-  | IF expr THEN expr ELSE expr     { If ($2, $4, $6) }
   | FUN VAR COLON ty DARROW expr    { Fun ($2, $4, $6) }
   | REC VAR COLON ty IS expr        { Rec ($2, $4, $6) }
   | MATCH expr WITH nil DARROW expr ALTERNATIVE VAR CONS VAR DARROW expr
@@ -84,14 +77,19 @@ app: // application
   | FST non_app         { Fst $2 }
   | SND non_app         { Snd $2 }
   | non_app non_app     { Apply ($1, $2) }
+
   | PLUS  non_app  non_app                { Plus ($2, $3) }
   | MINUS  non_app  non_app               { Minus ($2, $3) }
   | TIMES  non_app  non_app               { Times ($2, $3) }
   | DIVIDE  non_app  non_app              { Divide ($2, $3) }
   | MOD  non_app  non_app                 { Mod ($2, $3) }
-  | EQUALS non_app non_app           { Equal ($2, $3) }
-  | LESS non_app non_app             { Less ($2, $3) }
 
+  | EQUALS non_app non_app                { Equal ($2, $3) }
+  | LESS non_app non_app                  { Less ($2, $3) }
+  
+  | COND non_app non_app non_app          { If ($2, $3, $4) }
+  | CONS non_app non_app                  { Cons ($2, $3) }
+  | PAIR non_app non_app                  { Pair ($2, $3) }
 
 non_app: // non-application
     VAR                           { Var $1 }
@@ -100,7 +98,6 @@ non_app: // non-application
   | INT                           { Int $1 }
   | nil                           { Nil $1 }
   | LPAREN expr RPAREN            { $2 }
-  | LPAREN expr COMMA expr RPAREN { Pair ($2, $4) }
 
 nil: LBRACK ty RBRACK          { $2 }
 

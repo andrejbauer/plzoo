@@ -11,11 +11,10 @@ rule token = parse
   | [' ' '\t']      { token lexbuf }
   | '-'?['0'-'9']+      { INT (int_of_string(lexeme lexbuf)) }
   | "bool"          { TBOOL }
-  | "else"          { ELSE }
   | "false"         { FALSE }
   | "fst"           { FST }
   | "fun"           { FUN }
-  | "if"            { IF }
+  | "$cond"         { COND }
   | "int"           { TINT }
   | "is"            { IS }
   | "let"           { LET }  
@@ -23,20 +22,19 @@ rule token = parse
   | "match"         { MATCH }
   | "rec"           { REC }
   | "snd"           { SND }
-  | "then"          { THEN }
   | "true"          { TRUE }
   | ":quit"         { QUIT }
   | "with"          { WITH }
   | "->"            { TARROW }
   | "=>"            { DARROW }
-  | "::"            { CONS }
+  | "$cons"         { CONS }
+  | "$pair"         { PAIR }
   | ";;"            { SEMICOLON2 }
   | "$mod"          { MOD }
   | '('             { LPAREN }
   | ')'             { RPAREN }
   | "$times"        { TIMES }
   | "$plus"         { PLUS }
-  | ','             { COMMA }
   | "$minus"        { MINUS } 
   | "$divide"       { DIVIDE }
   | ':'             { COLON }
