@@ -35,6 +35,12 @@ type expr =
   | Match of expr * htype * expr * name * name * expr
       (** list decomposition [match e with [t] -> e1 | x::y -> e2] *)
 
+let multifun ((a:(string * htype) list), (e:expr)) =
+  List.fold_right (fun (x, ty) e -> Fun (x, ty, e)) a e
+
+let multirec ((a:(string * htype) list), (e:expr)) =
+  List.fold_right (fun (x, ty) e -> Rec (x, ty, e)) a e
+
 (** Toplevel commands *)
 type toplevel_cmd =
   | Expr of expr       (** an expression to be evaluated *)

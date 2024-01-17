@@ -69,7 +69,15 @@ toplevel:
 cmd:
   | QUIT       { Quit }
 
+
 def: LET VAR EQUAL expr { Def ($2, $4) }
+
+tvar:
+  | LPAREN VAR COLON ty RPAREN { ($2, $4) }
+
+funvardef:
+  | VAR COLON ty        { [ ($1, $3) ] }
+  | tvar+               { $1 }
 
 expr:
   | non_app             { $1 }
@@ -78,8 +86,8 @@ expr:
   | boolean             { $1 }
   | expr CONS expr      { Cons ($1, $3) }
   | IF expr THEN expr ELSE expr	{ If ($2, $4, $6) }
-  | FUN VAR COLON ty DARROW expr { Fun ($2, $4, $6) }
-  | REC VAR COLON ty IS expr { Rec ($2, $4, $6) }
+  | FUN funvardef DARROW expr { multifun ($2, $4) }
+  | REC tvar IS expr { multirec ([$2], $4) }
   | MATCH expr WITH nil DARROW expr ALTERNATIVE VAR CONS VAR DARROW expr
       { Match ($2, $4, $6, $8, $10, $12) }
 
@@ -126,8 +134,8 @@ ty_list :
   | ty_list TLIST            { TList $1 }
 
 ty_simple :
-  | TBOOL	 	     { TBool }
-  | TINT         	     { TInt }
+  | TBOOL	 	                 { TBool }
+  | TINT         	           { TInt }
   | LPAREN ty RPAREN         { $2 }
 
 %%
