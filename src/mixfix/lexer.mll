@@ -10,14 +10,15 @@ rule token = parse
   | '\n'            { Lexing.new_line lexbuf; token lexbuf }
   | [' ' '\t']      { token lexbuf }
   | '-'?['0'-'9']+      { INT (int_of_string(lexeme lexbuf)) }
-  | "bool"          { TBOOL }
-  | "false"         { FALSE }
-  | "fst"           { FST }
-  | "fun"           { FUN }
-  | "$cond"         { COND }
-  | "int"           { TINT }
-  | "is"            { IS }
-  | "let"           { LET }  
+  | "bool"              { TBOOL }
+  | "false"             { FALSE }
+  | "fst"               { FST }
+  | "fun"               { FUN }
+  | "$cond"             { COND }
+  | "int"               { TINT }
+  | "is"                { IS }
+  | "let"               { LET }  
+  | "mix" ['l' 'r' 'n']? { MIX_DEF (lexeme lexbuf) }  
   | "list"          { TLIST }
   | "match"         { MATCH }
   | "rec"           { REC }

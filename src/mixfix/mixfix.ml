@@ -4,20 +4,12 @@ module Mixfix = Zoo.Main(struct
 
   type command = Syntax.toplevel_cmd
 
-  type associativity = Left | Right | NonAssoc
-  and fixity = Prefix | Postfix | Infix of associativity
-
-  type operator = {
-    tokens: string list;
-    fx : fixity;
-    prec: int;
-  }
   
   type environment = {
-    operators: string list;
+    operators: Mixer.operator list;
     context:(string * Syntax.htype) list;
     env: Interpret.environment;
-    } 
+  } 
 
   let print_depth = ref 100
 
@@ -29,9 +21,9 @@ module Mixfix = Zoo.Main(struct
     env = [];
   }
 
-  let file_parser = Some (fun _ -> Parser.file Lexer.token)
+  let file_parser = Some (fun _ s -> Mixer.file (Parser.file Lexer.token s) )
 
-  let toplevel_parser = Some (fun _ -> Parser.toplevel Lexer.token)
+  let toplevel_parser = Some (fun _ s -> Mixer.toplevel_cmd (Parser.toplevel Lexer.token s) )
 
   let exec (state:environment) = function
     | Syntax.Expr e ->
@@ -47,8 +39,10 @@ module Mixfix = Zoo.Main(struct
        let ty = Type_check.type_of state.context e in
        Zoo.print_info "val %s : %s@." x (Syntax.string_of_type ty) ;
       {state with context = (x,ty)::state.context; env = (x, ref (Interpret.VClosure (state.env,e)))::state.env}
+    | Syntax.MixDef (cmd, mixname, prec, expression)->
+       (* Ad operator x with precedence prec and expression e to environment.operators *)
+      {state with operators = (Mixer.create_operator (cmd, mixname, prec, expression)) :: state.operators}
     | Syntax.Quit -> raise End_of_file
-
 end) ;;
 
 Mixfix.main () ;;

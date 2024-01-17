@@ -39,6 +39,7 @@ type expr =
 type toplevel_cmd =
   | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
+  | MixDef of string * name * int * expr 
   | Quit               (** exit toplevel [$quit] *)
 
 (** Conversion from a type to a string *)

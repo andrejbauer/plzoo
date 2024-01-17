@@ -95,7 +95,7 @@ and type_of ctx = function
       | Syntax.TArrow (ty1, ty2) -> check ctx ty1 e2 ; ty2
       | ty ->
 	 type_error "%s is used as a function but its type is %s"
-                    Syntax.(string_of_expr e1)
+         (Syntax.string_of_expr e1)
 		    (Syntax.string_of_type ty))
 
   | Syntax.Pair (e1, e2) ->
@@ -106,8 +106,8 @@ and type_of ctx = function
        | Syntax.TTimes (ty1, _) -> ty1
        | ty ->
 	  type_error "%s is used as a pair but its type is %s"
-                     (Syntax.string_of_expr e)
-                     (Syntax.string_of_type ty))
+         (Syntax.string_of_expr e)
+            (Syntax.string_of_type ty))
 
   | Syntax.Snd e ->
       (match type_of ctx e with

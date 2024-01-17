@@ -1,10 +1,12 @@
 %{
+  open Presyntax
   open Syntax
 %}
 
 %token TINT TBOOL TLIST TARROW
-%token <Syntax.name> VAR
+%token <Presyntax.name> VAR
 %token <int> INT
+%token <string> MIX_DEF
 %token TRUE FALSE
 %token PLUS
 %token MINUS
@@ -30,8 +32,8 @@
 %token EOF
 
 %start toplevel file
-%type <Syntax.toplevel_cmd list> file
-%type <Syntax.toplevel_cmd> toplevel
+%type <Presyntax.toplevel_cmd list> file
+%type <Presyntax.toplevel_cmd> toplevel
 
 %%
 
@@ -62,21 +64,25 @@ toplevel:
 cmd:
   | QUIT       { Quit }
 
-def: LET VAR SET_EQUAL expr { Def ($2, $4) }
+def: 
+  | LET VAR SET_EQUAL expr  { Def ($2, $4) }
+  | MIX_DEF VAR INT expr    { MixDef ($1, $2, $3, $4) }
 
 expr:
-  | non_app                         { $1 }
-  | app                             { $1 }
+  | seq                             { $1 }
   | FUN VAR COLON ty DARROW expr    { Fun ($2, $4, $6) }
   | REC VAR COLON ty IS expr        { Rec ($2, $4, $6) }
   | MATCH expr WITH nil DARROW expr ALTERNATIVE VAR CONS VAR DARROW expr
       { Match ($2, $4, $6, $8, $10, $12) }
 
+seq:
+  | app+            { Seq $1 }
+
 app: // application
-    app non_app         { Apply ($1, $2) }
+  | non_app             { $1 }
+
   | FST non_app         { Fst $2 }
   | SND non_app         { Snd $2 }
-  | non_app non_app     { Apply ($1, $2) }
 
   | PLUS  non_app  non_app                { Plus ($2, $3) }
   | MINUS  non_app  non_app               { Minus ($2, $3) }
@@ -86,7 +92,7 @@ app: // application
 
   | EQUALS non_app non_app                { Equal ($2, $3) }
   | LESS non_app non_app                  { Less ($2, $3) }
-  
+
   | COND non_app non_app non_app          { If ($2, $3, $4) }
   | CONS non_app non_app                  { Cons ($2, $3) }
   | PAIR non_app non_app                  { Pair ($2, $3) }
