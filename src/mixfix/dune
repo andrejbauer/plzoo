@@ -1,11 +1,20 @@
 (executable
- (name minihaskell)
- (libraries zoo)
+ (name mixfix)
+ (libraries zoo menhirLib)
  (promote
   (until-clean)
   (into ../..)))
 
 (menhir
-  (modules parser))
+  (modules parser)
+  (flags --explain --inspection --table --dump)
+)
 
 (ocamllex lexer)
+
+(env
+ (dev
+  ; ignore 69 and 37
+  (flags
+   (:standard -w -69-37-34))
+   ))
