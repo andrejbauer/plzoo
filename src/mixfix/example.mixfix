@@ -2,9 +2,16 @@
 -- Basic operations on lists of integers
 ------------------------------------------------------------------------
 
+let succ = rec succ : int -> int is fun x : int => $plus x 1 ;;
+-- let f = rec f : int -> int is fun t : int => t + 1 ;;
+
 let range = rec range : int -> int -> int list is
   fun m : int => fun n : int =>
-    if n < m then [int] else m :: (range (m+1) n)
+    if ($less n m) then [int] else m :: (range ($plus m 1) n)
+
+-- let range = rec range : int -> int -> int list is
+--   fun m : int => fun n : int =>
+--     if n < m then [int] else m :: (range (m+1) n)
 
 let append = rec append : int list -> int list -> int list is
   fun lst1 : int list =>
@@ -79,16 +86,16 @@ let not = fun b : bool => if b then false else true
 
 -- integer division
 let div = fun m : int => rec d : int -> int is
-  fun n : int => if n < m then 0 else 1 + (d (n-m))
+  fun n : int => if $less n m then 0 else $plus 1 (d (n-m))
 ;;
 
 -- remainder
 let mod = fun m : int => fun n : int =>
-  n - m * (div m n)
+  $minus n ($times m (div m n))
 ;;
 
 let notmultiple = fun m : int => fun n : int =>
-  not (n % m = 0)
+  not ($mod n m = 0)
 ;;
 
 let nth = rec nth : int list -> int -> int is
@@ -98,10 +105,10 @@ let nth = rec nth : int list -> int -> int is
       | x::xs => if n = 0 then x else nth xs (n-1)
 ;;
 
-let nat = rec nat : int list is 1 :: (map (fun n : int => n + 1) nat)
+let nat = rec nat : int list is 1 :: (map (fun n : int => $plus n 1) nat)
 ;;
 
-let nat2 = rec nat2 : int list is 2 :: (map (fun n : int => n+1) nat2)
+let nat2 = rec nat2 : int list is 2 :: (map (fun n : int => $plus n 1) nat2)
 ;;
 
 let sieve = rec sieve : int list -> int list is

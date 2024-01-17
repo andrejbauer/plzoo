@@ -12,6 +12,7 @@ module Mixfix = Zoo.Main(struct
     fx : fixity;
     prec: int;
   }
+  
   type environment = {
     operators: string list;
     context:(string * Syntax.htype) list;
