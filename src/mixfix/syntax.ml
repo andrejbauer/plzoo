@@ -39,7 +39,7 @@ type expr =
 type toplevel_cmd =
   | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
-  | MixDef of string * name * int * expr 
+  | MixDef of name list * Operators.fixity * int * expr 
   | Quit               (** exit toplevel [$quit] *)
 
 (** Conversion from a type to a string *)
@@ -69,18 +69,18 @@ let string_of_expr e =
 	| Nil ty ->         (10, "[" ^ (string_of_type ty) ^ "]")
 	| Fst e ->           (9, "fst " ^ (to_str 9 e))
 	| Snd e ->           (9, "snd " ^ (to_str 9 e))
-	| Apply (_, _) ->   (10, "<app>")
+	| Apply (_, _) ->   (9, "<app>")
 	    (* (9, (to_str 8 e1) ^ " " ^ (to_str 9 e2)) *)
-	| Times (e1, e2) ->  (8, (to_str 7 e1) ^ " * " ^ (to_str 8 e2))
-	| Divide (e1, e2) -> (8, (to_str 7 e1) ^ " / " ^ (to_str 8 e2))
-	| Mod (e1, e2) ->    (8, (to_str 7 e1) ^ " % " ^ (to_str 8 e2))
-	| Plus (e1, e2) ->   (7, (to_str 6 e1) ^ " + " ^ (to_str 7 e2))
-	| Minus (e1, e2) ->  (7, (to_str 6 e1) ^ " - " ^ (to_str 7 e2))
-	| Cons (e1, e2) ->   (6, (to_str 6 e1) ^ " :: " ^ (to_str 5 e2))
-	| Equal (e1, e2) ->  (5, (to_str 5 e1) ^ " = " ^ (to_str 5 e2))
-	| Less (e1, e2) ->   (5, (to_str 5 e1) ^ " < " ^ (to_str 5 e2))
-	| If (e1, e2, e3) -> (4, "if " ^ (to_str 4 e1) ^ " then " ^
-				(to_str 4 e2) ^ " else " ^ (to_str 4 e3))
+	| Times (e1, e2) ->  (9, (to_str 8 e1) ^ " * " ^ (to_str 8 e2))
+	| Divide (e1, e2) -> (9, (to_str 8 e1) ^ " / " ^ (to_str 8 e2))
+	| Mod (e1, e2) ->    (9, (to_str 8 e1) ^ " % " ^ (to_str 8 e2))
+	| Plus (e1, e2) ->   (9, (to_str 8 e1) ^ " + " ^ (to_str 8 e2))
+	| Minus (e1, e2) ->  (9, (to_str 8 e1) ^ " - " ^ (to_str 8 e2))
+	| Cons (e1, e2) ->   (9, (to_str 8 e1) ^ " :: " ^(to_str 8 e2))
+	| Equal (e1, e2) ->  (9, (to_str 8 e1) ^ " = " ^ (to_str 8 e2))
+	| Less (e1, e2) ->   (9, (to_str 8 e1) ^ " < " ^ (to_str 8 e2))
+	| If (e1, e2, e3) -> (9, "if " ^ (to_str 8 e1) ^ " then " ^
+				(to_str 8 e2) ^ " else " ^ (to_str 8 e3))
 	| Match (e1, ty, e2, x, y, e3) ->
 	    (3, "match " ^ (to_str 3 e1) ^ " with " ^
 	       "[" ^ (string_of_type ty) ^ "] -> " ^ (to_str 3 e2) ^ " | " ^

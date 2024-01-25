@@ -169,8 +169,10 @@ struct
     try
       parser lex
     with
-      | Failure _ ->
-        syntax_error ~loc:(location_of_lex lex) "unrecognised symbol"
+      | Failure msg -> 
+        syntax_error ~loc:(location_of_lex lex) "%s" msg
+      | Parsing.Parse_error ->
+        syntax_error ~loc:(location_of_lex lex) "parsing error"
       | _ ->
         syntax_error ~loc:(location_of_lex lex) "syntax error"
 

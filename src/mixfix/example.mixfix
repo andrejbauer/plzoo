@@ -5,6 +5,8 @@
 let succ = rec succ : int -> int is fun x : int => $plus x 1 ;;
 -- let f = rec f : int -> int is fun t : int => t + 1 ;;
 
+-- Completely wrong, should add fun with multiple var defenitions (with types and names).
+mixn _a_ 10 (fun t :int => $plus t 1)
 
 let not = fun b : bool => $cond b false true
 

@@ -15,7 +15,7 @@ module Mixfix = Zoo.Main(struct
 
   let options = [("-p", Arg.Int (fun n -> print_depth := n), "set print depth")]
 
-  let initial_environment:environment = {
+  let initial_environment: environment = {
     operators = [];
     context = [];
     env = [];
