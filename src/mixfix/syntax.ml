@@ -1,5 +1,16 @@
 (** Abstract syntax *)
 
+type associativity = LeftAssoc | RightAssoc | NonAssoc
+
+type fixity = Prefix | Postfix | Infix of associativity | Closed
+
+type operator = {
+  tokens: string list;
+  fx : fixity;
+  prec: int;
+}
+
+
 (** The type of variable names. *)
 type name = string
 
@@ -39,8 +50,8 @@ type expr =
 type toplevel_cmd =
   | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
-  | MixDef of name list * Operators.fixity * int * expr 
-  | Quit               (** exit toplevel [$quit] *)
+  | Mixfix of operator
+  | Quit
 
 (** Conversion from a type to a string *)
 let string_of_type ty =

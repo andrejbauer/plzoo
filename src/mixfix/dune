@@ -16,5 +16,5 @@
  (dev
   ; ignore 69 and 37
   (flags
-   (:standard -w -69-37-34))
+   (:standard -w -69-37-34-27))
    ))

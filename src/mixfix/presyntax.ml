@@ -27,15 +27,14 @@ type expr =
   | Match of expr * Syntax.htype * expr * name * name * expr
       (** list decomposition [match e with [t] -> e1 | x::y -> e2] *)
 
-let split_to_functions ((a:(string * Syntax.htype) list), (e:expr)) =
-      List.fold_right (fun (x, ty) e -> Fun (x, ty, e)) a e
-
+type associativity =
+  | LeftAssoc | RightAssoc | NonAssoc
 
 (** Toplevel commands *)
 type toplevel_cmd =
   | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
-  | MixDef of string * name * int * expr 
+  | Mixfix of associativity * int * string 
   | Quit               (** exit toplevel [$quit] *)
 
 (* NOTE: No need to bother with printing Seq, because it will be always called from Syntax *)
