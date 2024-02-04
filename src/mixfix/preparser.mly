@@ -1,9 +1,12 @@
 %{
   open Presyntax
+  
   let split_to_functions (a:(name * Syntax.htype) list) (e:expr) =
         List.fold_right (fun (x, ty) e -> Fun (x, ty, e)) a e
+
   let type_all_names (a:string list) (b:Syntax.htype) =
         List.map (fun x -> (x, b)) a
+  
 %}
 %token TINT TBOOL TLIST TARROW
 %token <Presyntax.name> VAR

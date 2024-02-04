@@ -6,9 +6,7 @@
   (into ../..)))
 
 (menhir
-  (modules parser)
-  (flags --explain --inspection --table --dump)
-)
+ (modules preparser))
 
 (ocamllex lexer)
 
@@ -16,5 +14,4 @@
  (dev
   ; ignore 69 and 37
   (flags
-   (:standard -w -69-37-34-27))
-   ))
+   (:standard -w -69-37-34-27))))

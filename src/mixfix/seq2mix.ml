@@ -1,11 +1,12 @@
 
-module Seq2App : Grammer.T = struct
-
+module Seq2Mix : Grammer.T = struct
 type state = Syntax.operator list
 
 let initial_state = fun () -> []
 
 let add_operator state operator = operator :: state
+
+(* TODO State more met variable name iz trenutnega konteksta *)
 
 let parse_presyntax (s: state) (env) (presyn_expr) = 
   let rec expr = function

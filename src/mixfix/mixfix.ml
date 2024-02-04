@@ -4,9 +4,10 @@ module Mixfix = Zoo.Main(struct
 
   type command = Syntax.toplevel_cmd
 
-  
+  module Mix = Mixer.Create(Seq2app.Seq2App)
+
   type environment = {
-    operators: Seq2app.state;
+    operators: Mix.state;
     context:(Syntax.name * Syntax.htype) list;
     env: Interpret.environment;
   }
@@ -16,14 +17,14 @@ module Mixfix = Zoo.Main(struct
   let options = [("-p", Arg.Int (fun n -> print_depth := n), "set print depth")]
 
   let initial_environment: environment = {
-    operators = [];
+    operators = Mix.initial_state ();
     context = [];
     env = [];
   }
 
-  let file_parser = Some (fun environ  s -> Mixer.file environ.operators (Parser.file Lexer.token s) )
+  let file_parser = Some (fun environ  s -> Mix.file environ.operators environ.context (Preparser.file Lexer.token s) )
 
-  let toplevel_parser = Some (fun environ  s -> Mixer.toplevel_cmd environ.operators (Parser.toplevel Lexer.token s) )
+  let toplevel_parser = Some (fun environ  s -> Mix.toplevel_cmd environ.operators environ.context (Preparser.toplevel Lexer.token s) )
 
   let exec (state:environment) = function
     | Syntax.Expr e ->
@@ -41,7 +42,7 @@ module Mixfix = Zoo.Main(struct
       {state with context = (x,ty)::state.context; env = (x, ref (Interpret.VClosure (state.env,e)))::state.env}
     | Syntax.Mixfix (operator)->
        (* Ad operator x with precedence prec and expression e to environment.operators *)
-      {state with operators = Seq2app.add_operator state.operators operator }
+      {state with operators = Mix.add_operator state.operators operator }
     | Syntax.Quit -> raise End_of_file
 end) ;;
 
