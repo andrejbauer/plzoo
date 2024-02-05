@@ -1,6 +1,6 @@
 
 
-(** Explicit Maybe *)
+(** As per reference in the paper *)
 type name_part = Presyntax.expr
 
 type 'a parse_result = ('a * name_part list)
@@ -52,15 +52,21 @@ let iter (p:'a parser): 'a list parser =
 (* Tuki nekaj ne štima, mogoče pa vseeno rabimo explicit Error ? *)
 (* Zna biti da je option čisto odveč. Ne smemo kar vrnit empty seznama, če so še tokeni !! *)
 let between (p: 'a parser) (tokens: name_part list) =
-  let rec between' p tokens = 
-    fun s -> 
-    match (tokens, s) with
-      | [], _ -> return ([], true) (* Edge case: We ran out of tokens, everything is ok *)
-      | (t::ts, s1::s2) when t = s1 -> 
-        p >>= (fun x -> 
-          (between' p ts s2 >>= (fun (xs, allok) -> 
-            (if allok then return ((x::xs), allok) else return ([], allok)))))
-      | _ -> return ([], false) (* Error case, one of the tokens didn't match *)
+  (** between' takes 'a parser, tokens: name_part list, s: name_part list *)
+  let rec between' p tokens s = 
+    match (tokens, s) with 
+    | ([], _) ->  return (Some []) (* Edge case: We ran out of tokens, everything is ok *)
+    | (t::ts, s1::s2) when t = s1 -> 
+      p >>= (fun x -> 
+        (between' p ts s2 >>= (fun xs -> 
+          (* Use of Option.bind for x::xs *)
+          return (Option.bind xs (fun xs -> 
+              Some (x::xs)
+            ))
+          ))
+      )
+    | _ -> return (None) (* Error case, one of the tokens didn't match *)
   in
-  fun s -> (between' p tokens s) >>= (fun (x, _) -> return x)
+  (* TODO: kaj pomeni ~defauolt ! *)
+  fun s -> (between' p tokens s) >>= (fun xs -> return (Option.value ~default:[] xs))
   ;;
