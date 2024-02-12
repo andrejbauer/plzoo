@@ -14,14 +14,6 @@ type operator = {
 (** The type of variable names. *)
 type name = string
 
-(** Mixfix types. *)
-type htype =
-  | TInt (** integer [int] *)
-  | TBool (** booleans [bool] *)
-  | TTimes of htype * htype  (** Product [s * t] *)
-  | TArrow of htype * htype  (** Function type *)
-  | TList of htype (** Lists [t list] *)
-
 (** Mixfix expressions *)
 type expr =
   | Var of name          (** variable *)
@@ -35,15 +27,15 @@ type expr =
   | Equal of expr * expr (** integer equality [e1 = e2] *)
   | Less of expr * expr  (** integer comparison [e1 < e2] *)
   | If of expr * expr * expr (** conditional [if e1 then e2 else e3] *)
-  | Fun of name * htype * expr (** function [fun x:t -> e] *)
+  | Fun of name * Presyntax.htype * expr (** function [fun x:t -> e] *)
   | Apply of expr * expr (** application [e1 e2] *)
   | Pair of expr * expr  (** pair [(e1, e2)] *)
   | Fst of expr          (** first projection [fst e] *)
   | Snd of expr          (** second projection [snd e] *)
-  | Rec of name * htype * expr (** recursion [rec x:t is e] *)
-  | Nil of htype         (** empty list *)
+  | Rec of name * Presyntax.htype * expr (** recursion [rec x:t is e] *)
+  | Nil of Presyntax.htype         (** empty list *)
   | Cons of expr * expr  (** cons list [e1 :: e2] *)
-  | Match of expr * htype * expr * name * name * expr
+  | Match of expr * Presyntax.htype * expr * name * name * expr
       (** list decomposition [match e with [t] -> e1 | x::y -> e2] *)
 
 (** Toplevel commands *)
@@ -53,20 +45,26 @@ type toplevel_cmd =
   | Mixfix of operator
   | Quit
 
-(** Conversion from a type to a string *)
-let string_of_type ty =
-  let rec to_str n ty =
-    let (m, str) =
-      match ty with
-	  TInt -> (4, "int")
-	| TBool -> (4, "bool")
-	| TList ty -> (3, to_str 3 ty ^ " list")
-	| TTimes (ty1, ty2) -> (2, (to_str 2 ty1) ^ " * " ^ (to_str 2 ty2))
-	| TArrow (ty1, ty2) -> (1, (to_str 1 ty1) ^ " -> " ^ (to_str 0 ty2))
-    in
-      if m > n then str else "(" ^ str ^ ")"
-  in
-    to_str (-1) ty
+let predef_cascade rec_f = function
+  | Presyntax.Int k -> Int k
+  | Presyntax.Bool b -> Bool b
+  | Presyntax.Nil ht -> Nil ht
+  | Presyntax.Times (e1, e2) -> Times ( rec_f e1,  rec_f e2)
+  | Presyntax.Divide (e1, e2) -> Divide ( rec_f e1,  rec_f e2)
+  | Presyntax.Mod (e1, e2) -> Mod ( rec_f e1,  rec_f e2)
+  | Presyntax.Plus (e1, e2) -> Plus ( rec_f e1,  rec_f e2)
+  | Presyntax.Minus (e1, e2) -> Minus ( rec_f e1,  rec_f e2)
+  | Presyntax.Equal (e1, e2) -> Equal ( rec_f e1,  rec_f e2)
+  | Presyntax.Less (e1, e2) -> Less ( rec_f e1,  rec_f e2)
+  | Presyntax.If (e1, e2, e3) -> If ( rec_f e1,  rec_f e2,  rec_f e3)
+  | Presyntax.Fun (x, ht, e) -> Fun (x, ht,  rec_f e)
+  | Presyntax.Pair (e1, e2) -> Pair ( rec_f e1,  rec_f e2)
+  | Presyntax.Fst e -> Fst ( rec_f e)
+  | Presyntax.Snd e -> Snd ( rec_f e)
+  | Presyntax.Rec (f, x, e1) -> Rec (f, x,  rec_f e1)
+  | Presyntax.Cons (e1, e2) -> Cons ( rec_f e1,  rec_f e2)
+  | Presyntax.Match (e, ht, e1, x, y, e2) -> Match ( rec_f e, ht,  rec_f e1, x, y,  rec_f e2)
+  
 
 (** Conversion from an expression to a string *)
 let string_of_expr e =
@@ -77,11 +75,12 @@ let string_of_expr e =
 	| Bool b ->         (10, string_of_bool b)
 	| Var x ->          (10, x)
 	| Pair (e1, e2) ->  (10, "(" ^ (to_str 0 e1) ^ ", " ^ (to_str 0 e2) ^ ")")
-	| Nil ty ->         (10, "[" ^ (string_of_type ty) ^ "]")
+	| Nil ty ->         (10, "[" ^ (Presyntax.string_of_type ty) ^ "]")
 	| Fst e ->           (9, "fst " ^ (to_str 9 e))
 	| Snd e ->           (9, "snd " ^ (to_str 9 e))
-	| Apply (_, _) ->   (9, "<app>")
-	    (* (9, (to_str 8 e1) ^ " " ^ (to_str 9 e2)) *)
+	| Apply (e1, e2) ->   
+    (* (9, "<app>") *)
+	    (9, (to_str 8 e1) ^ " " ^ (to_str 9 e2))
 	| Times (e1, e2) ->  (9, (to_str 8 e1) ^ " * " ^ (to_str 8 e2))
 	| Divide (e1, e2) -> (9, (to_str 8 e1) ^ " / " ^ (to_str 8 e2))
 	| Mod (e1, e2) ->    (9, (to_str 8 e1) ^ " % " ^ (to_str 8 e2))
@@ -94,12 +93,14 @@ let string_of_expr e =
 				(to_str 8 e2) ^ " else " ^ (to_str 8 e3))
 	| Match (e1, ty, e2, x, y, e3) ->
 	    (3, "match " ^ (to_str 3 e1) ^ " with " ^
-	       "[" ^ (string_of_type ty) ^ "] -> " ^ (to_str 3 e2) ^ " | " ^
+	       "[" ^ (Presyntax.string_of_type ty) ^ "] -> " ^ (to_str 3 e2) ^ " | " ^
 	       x ^ "::" ^ y ^ " -> " ^ (to_str 3 e3))
-	| Fun (_, _, _) -> (10, "<fun>")
-	    (* (2, "fun " ^ x ^ " : " ^ (string_of_type ty) ^ " -> " ^ (to_str 0 e)) *)
-	| Rec (_, _, _) -> (10, "<rec>")
-	    (* (1, "rec " ^ x ^ " : " ^ (string_of_type ty) ^ " is " ^ (to_str 0 e)) *)
+	| Fun (x, ty, e) -> 
+    (* (10, "<fun>") *)
+	    (2, "fun " ^ x ^ " : " ^ (Presyntax.string_of_type ty) ^ " -> " ^ (to_str 0 e))
+	| Rec (x, ty, e) -> 
+    (* (10, "<rec>") *)
+	    (1, "rec " ^ x ^ " : " ^ (Presyntax.string_of_type ty) ^ " is " ^ (to_str 0 e))
 
     in
       if m > n then str else "(" ^ str ^ ")"

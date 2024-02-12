@@ -5,7 +5,7 @@ type environment = (Syntax.name * value ref) list
 and value =
   | VInt of int
   | VBool of bool
-  | VNil of Syntax.htype
+  | VNil of Presyntax.htype
   | VClosure of environment * Syntax.expr
 
 exception Runtime_error of string
@@ -94,7 +94,7 @@ let rec print_result n v =
      match v with
      | VInt k -> print_int k
      | VBool b -> print_string (string_of_bool b)
-     | VNil ty -> print_string ("[" ^ Syntax.string_of_type ty ^ "]")
+     | VNil ty -> print_string ("[" ^ Presyntax.string_of_type ty ^ "]")
      | VClosure (env, Syntax.Pair (e1, e2)) ->
 	print_char '(' ;
 	print_result (n/2) (interp env e1) ;

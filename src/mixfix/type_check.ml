@@ -11,8 +11,8 @@ let rec check ctx ty e =
       type_error
         "%s has type %s but is used as if it has type %s"
         (Syntax.string_of_expr e)
-        (Syntax.string_of_type ty')
-        (Syntax.string_of_type ty)
+        (Presyntax.string_of_type ty')
+        (Presyntax.string_of_type ty)
 
 (** [type-of ctx e] computes the type of expression [e] in context [ctx].
     It raises [Type_error] if [e] does not have a type. *)
@@ -22,59 +22,59 @@ and type_of ctx = function
       (try List.assoc x ctx with
 	   Not_found -> type_error "unknown identifier %s" x)
 
-  | Syntax.Int _ -> Syntax.TInt
+  | Syntax.Int _ -> Presyntax.TInt
 
-  | Syntax.Bool _ -> Syntax.TBool
+  | Syntax.Bool _ -> Presyntax.TBool
 
-  | Syntax.Nil ty -> Syntax.TList ty
+  | Syntax.Nil ty -> Presyntax.TList ty
 
   | Syntax.Times (e1, e2) ->
-     check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ;
-     Syntax.TInt
+     check ctx Presyntax.TInt e1 ;
+     check ctx Presyntax.TInt e2 ;
+     Presyntax.TInt
 
   | Syntax.Divide (e1, e2) ->
-     check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ;
-     Syntax.TInt
+     check ctx Presyntax.TInt e1 ;
+     check ctx Presyntax.TInt e2 ;
+     Presyntax.TInt
 
   | Syntax.Mod (e1, e2) ->
-     check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ;
-     Syntax.TInt
+     check ctx Presyntax.TInt e1 ;
+     check ctx Presyntax.TInt e2 ;
+     Presyntax.TInt
 
   | Syntax.Plus (e1, e2) ->
-     check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ;
-     Syntax.TInt
+     check ctx Presyntax.TInt e1 ;
+     check ctx Presyntax.TInt e2 ;
+     Presyntax.TInt
 
   | Syntax.Cons (e1, e2) ->
      let ty = type_of ctx e1 in
-     check ctx (Syntax.TList ty) e2 ;
-     Syntax.TList ty
+     check ctx (Presyntax.TList ty) e2 ;
+     Presyntax.TList ty
 
   | Syntax.Minus (e1, e2) ->
-     check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ;
-     Syntax.TInt
+     check ctx Presyntax.TInt e1 ;
+     check ctx Presyntax.TInt e2 ;
+     Presyntax.TInt
 
   | Syntax.Equal (e1, e2) ->
-     check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ;
-     Syntax.TBool
+     check ctx Presyntax.TInt e1 ;
+     check ctx Presyntax.TInt e2 ;
+     Presyntax.TBool
 
   | Syntax.Less (e1, e2) ->
-     check ctx Syntax.TInt e1 ;
-     check ctx Syntax.TInt e2 ;
-     Syntax.TBool
+     check ctx Presyntax.TInt e1 ;
+     check ctx Presyntax.TInt e2 ;
+     Presyntax.TBool
 
   | Syntax.If (e1, e2, e3) ->
-      check ctx Syntax.TBool e1 ;
+      check ctx Presyntax.TBool e1 ;
       let ty = type_of ctx e2 in
 	check ctx ty e3 ; ty
 
   | Syntax.Fun (x, ty, e) ->
-     Syntax.TArrow (ty, type_of ((x,ty)::ctx) e)
+     Presyntax.TArrow (ty, type_of ((x,ty)::ctx) e)
 
   | Syntax.Rec (x, ty, e) ->
      check ((x,ty)::ctx) ty e ;
@@ -82,37 +82,37 @@ and type_of ctx = function
 
   | Syntax.Match (e1, ty, e2, x, y, e3) ->
       (match type_of ctx e1 with
-       | Syntax.TList _ ->
-	  check ctx (Syntax.TList ty) e1;
+       | Presyntax.TList _ ->
+	  check ctx (Presyntax.TList ty) e1;
 	  let ty2 = type_of ctx e2 in
-	  check ((x,ty)::(y, Syntax.TList ty)::ctx) ty2 e3 ; ty2
+	  check ((x,ty)::(y, Presyntax.TList ty)::ctx) ty2 e3 ; ty2
        | ty -> type_error "%s is used as a list but its type is %s"
                           (Syntax.string_of_expr e1)
-			  (Syntax.string_of_type ty))
+			  (Presyntax.string_of_type ty))
 
   | Syntax.Apply (e1, e2) ->
      (match type_of ctx e1 with
-      | Syntax.TArrow (ty1, ty2) -> check ctx ty1 e2 ; ty2
+      | Presyntax.TArrow (ty1, ty2) -> check ctx ty1 e2 ; ty2
       | ty ->
 	 type_error "%s is used as a function but its type is %s"
          (Syntax.string_of_expr e1)
-		    (Syntax.string_of_type ty))
+		    (Presyntax.string_of_type ty))
 
   | Syntax.Pair (e1, e2) ->
-     Syntax.TTimes (type_of ctx e1, type_of ctx e2)
+     Presyntax.TTimes (type_of ctx e1, type_of ctx e2)
 
   | Syntax.Fst e ->
       (match type_of ctx e with
-       | Syntax.TTimes (ty1, _) -> ty1
+       | Presyntax.TTimes (ty1, _) -> ty1
        | ty ->
 	  type_error "%s is used as a pair but its type is %s"
          (Syntax.string_of_expr e)
-            (Syntax.string_of_type ty))
+            (Presyntax.string_of_type ty))
 
   | Syntax.Snd e ->
       (match type_of ctx e with
-       | Syntax.TTimes (_, ty2) -> ty2
+       | Presyntax.TTimes (_, ty2) -> ty2
        | ty ->
 	     type_error "%s is used as a pair but its type is %s"
                         (Syntax.string_of_expr e)
-			(Syntax.string_of_type ty))
+			(Presyntax.string_of_type ty))
