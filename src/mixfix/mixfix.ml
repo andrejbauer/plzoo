@@ -4,11 +4,7 @@ module Mixfix = Zoo.Main(struct
 
   type command = Syntax.toplevel_cmd
 
-  type environment = {
-    operators: Precedence.graph;
-    context: (Syntax.name * Presyntax.htype) list;
-    env: Interpret.environment;
-  }
+  type environment = Environment.t
 
   let print_depth = ref 100
 
