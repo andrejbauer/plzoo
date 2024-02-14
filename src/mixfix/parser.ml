@@ -192,39 +192,43 @@ let data = [
 (* let t = exec (if_then_else_endif numeral @@> eof) data *)
 
 let numlist = List.map (fun x -> Predef (Int (int_of_string x))) (String.split_on_char ' ' "1 2 3 4 5 6")
-;;
+
+
 let t = exec (iter numeral @@ iter numeral @@> eof) 
 
 
+(** A parser that parses the language, but still needs the most binding parser *)
 let language_parser big_p = ((if_then_else_endif big_p) @@> eof)
 
-let main_parse s = 
-  let rec
-    seq_parser s = language_parser main_parser s
-  and
-    expr = function
-    | Var varname -> (Syntax.Var varname)
-    | Seq es  -> (match (exec seq_parser es) with
-      | Result x -> x
-      | Ambiguous x -> let rec log = function
-        | [] -> failwith "Ambiguous parse"
-        | x::xs -> print_string (Syntax.string_of_expr x); log xs in
-        log x
-      | Error -> failwith "Parse error")
-    (* TODO! Other predefined *)
-    | Predef x -> Syntax.predef_cascade expr x
-  and
-    main_parser = function
+let rec debug_print_ambig = function
+| [] -> ()
+| x::xs -> print_string (Syntax.string_of_expr x); debug_print_ambig xs
+
+
+let main_parse env s = 
+  
+  let rec seq_p s = language_parser seq2app_p s
+  
+  and inner = function
+    | Var varname -> Syntax.Var varname
+    | Seq es  -> begin 
+        match exec seq_p es with
+        | Result x -> x
+        | Ambiguous x -> print_endline "Multiple parses:" ; debug_print_ambig x; failwith "Ambiguous parse"
+        | Error -> failwith "Parse error"
+      end
+    | Predef x -> Syntax.from_predef inner x
+
+  and seq2app_p = function
     | [] -> []
-    | x::y::rest -> let ex = expr x in [Syntax.Apply(ex,  expr y), rest; ex ,y::rest] (* Try parsing 2 expr? and go forward etc. *)
-    | x::rest -> [expr x, rest] (* Try parsing 2 expr and go forward etc. *)
+    | x::y::rest -> let ex = inner x in [Syntax.Apply(ex,  inner y), rest; ex ,y::rest] (* Try parsing 2 expr? and go forward etc. *)
+    | x::rest -> [inner x, rest] (* Try parsing 2 expr and go forward etc. *)
 
-in expr s
-;;
+in inner s
 
-let parse_presyntax (env) (presyn_expr) = 
+
+let parse_presyntax env presyn_expr = 
   print_endline ("Presyntax:" ^ (Presyntax.string_of_expr presyn_expr)) ;
-  let e = main_parse presyn_expr in 
-  print_endline ("Syntax:" ^(Syntax.string_of_expr e)) ;
+  let e = main_parse env presyn_expr in 
+  print_endline ("Syntax:" ^ (Syntax.string_of_expr e)) ;
   e
-;;

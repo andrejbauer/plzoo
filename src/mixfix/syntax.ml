@@ -45,25 +45,25 @@ type toplevel_cmd =
   | Mixfix of operator
   | Quit
 
-let predef_cascade rec_f = function
+let from_predef self_rec = function
   | Presyntax.Int k -> Int k
   | Presyntax.Bool b -> Bool b
   | Presyntax.Nil ht -> Nil ht
-  | Presyntax.Times (e1, e2) -> Times ( rec_f e1,  rec_f e2)
-  | Presyntax.Divide (e1, e2) -> Divide ( rec_f e1,  rec_f e2)
-  | Presyntax.Mod (e1, e2) -> Mod ( rec_f e1,  rec_f e2)
-  | Presyntax.Plus (e1, e2) -> Plus ( rec_f e1,  rec_f e2)
-  | Presyntax.Minus (e1, e2) -> Minus ( rec_f e1,  rec_f e2)
-  | Presyntax.Equal (e1, e2) -> Equal ( rec_f e1,  rec_f e2)
-  | Presyntax.Less (e1, e2) -> Less ( rec_f e1,  rec_f e2)
-  | Presyntax.If (e1, e2, e3) -> If ( rec_f e1,  rec_f e2,  rec_f e3)
-  | Presyntax.Fun (x, ht, e) -> Fun (x, ht,  rec_f e)
-  | Presyntax.Pair (e1, e2) -> Pair ( rec_f e1,  rec_f e2)
-  | Presyntax.Fst e -> Fst ( rec_f e)
-  | Presyntax.Snd e -> Snd ( rec_f e)
-  | Presyntax.Rec (f, x, e1) -> Rec (f, x,  rec_f e1)
-  | Presyntax.Cons (e1, e2) -> Cons ( rec_f e1,  rec_f e2)
-  | Presyntax.Match (e, ht, e1, x, y, e2) -> Match ( rec_f e, ht,  rec_f e1, x, y,  rec_f e2)
+  | Presyntax.Times (e1, e2) -> Times ( self_rec e1,  self_rec e2)
+  | Presyntax.Divide (e1, e2) -> Divide ( self_rec e1,  self_rec e2)
+  | Presyntax.Mod (e1, e2) -> Mod ( self_rec e1,  self_rec e2)
+  | Presyntax.Plus (e1, e2) -> Plus ( self_rec e1,  self_rec e2)
+  | Presyntax.Minus (e1, e2) -> Minus ( self_rec e1,  self_rec e2)
+  | Presyntax.Equal (e1, e2) -> Equal ( self_rec e1,  self_rec e2)
+  | Presyntax.Less (e1, e2) -> Less ( self_rec e1,  self_rec e2)
+  | Presyntax.If (e1, e2, e3) -> If ( self_rec e1,  self_rec e2,  self_rec e3)
+  | Presyntax.Fun (x, ht, e) -> Fun (x, ht,  self_rec e)
+  | Presyntax.Pair (e1, e2) -> Pair ( self_rec e1,  self_rec e2)
+  | Presyntax.Fst e -> Fst ( self_rec e)
+  | Presyntax.Snd e -> Snd ( self_rec e)
+  | Presyntax.Rec (f, x, e1) -> Rec (f, x,  self_rec e1)
+  | Presyntax.Cons (e1, e2) -> Cons ( self_rec e1,  self_rec e2)
+  | Presyntax.Match (e, ht, e1, x, y, e2) -> Match ( self_rec e, ht,  self_rec e1, x, y,  self_rec e2)
   
 
 (** Conversion from an expression to a string *)

@@ -10,7 +10,7 @@ let parse_presyntax (env) (presyn_expr) =
   let rec expr = function
   | Presyntax.Var varname -> Syntax.Var varname
   | Presyntax.Seq es -> (seq_to_app es)
-  | Presyntax.Predef x -> Syntax.predef_cascade expr x
+  | Presyntax.Predef x -> Syntax.from_predef expr x
     
 and seq_to_app (es: Presyntax.expr list): Syntax.expr =
   (* Fold left wants initial value, which we dont really have? *)
