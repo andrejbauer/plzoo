@@ -15,9 +15,7 @@ type htype =
 (** Mixfix expressions *)
 type expr =
   | Var of name          (** variable *)
-  | Predef of predef
   | Seq of expr list (** unparsed sequence *)
-and predef =
   | Int of int           (** integer constant *)
   | Bool of bool         (** boolean constant *)
   | Times of expr * expr (** product [e1 * e2] *)
@@ -38,7 +36,6 @@ and predef =
   | Match of expr * htype * expr * name * name * expr
       (** list decomposition [match e with [t] -> e1 | x::y -> e2] *)
 
-
 type associativity =
   | LeftAssoc | RightAssoc | NonAssoc
 
@@ -46,7 +43,7 @@ type associativity =
 type toplevel_cmd =
   | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
-  | Mixfix of associativity * int * string 
+  | Mixfix of associativity * int * string
   | Quit               (** exit toplevel [$quit] *)
 
 
@@ -73,8 +70,6 @@ let string_of_expr e =
       match e with
         | Var v -> (100, v)
       	| Seq exprs ->       (9, "[[" ^ String.concat ";" ( List.map (to_str 8) exprs) ^ "]]")
-        | Predef x -> 
-          match x with
 	| Int n ->           (10, string_of_int n)
 	| Bool b ->          (10, string_of_bool b)
 	| Pair (e1, e2) ->   (10, "(" ^ (to_str 0 e1) ^ ", " ^ (to_str 0 e2) ^ ")")
@@ -95,9 +90,9 @@ let string_of_expr e =
 	    (3, "match " ^ (to_str 3 e1) ^ " with " ^
 	       "[" ^ (string_of_type ty) ^ "] -> " ^ (to_str 3 e2) ^ " | " ^
 	       x ^ "::" ^ y ^ " -> " ^ (to_str 3 e3))
-	| Fun (x, ty, e) -> 
+	| Fun (x, ty, e) ->
 	    (2, "fun " ^ x ^ " : " ^ (string_of_type ty) ^ " -> " ^ (to_str 0 e))
-	| Rec (x, ty, e) -> 
+	| Rec (x, ty, e) ->
 	    (1, "rec " ^ x ^ " : " ^ (string_of_type ty) ^ " is " ^ (to_str 0 e))
     in
       if m > n then str else "(" ^ str ^ ")"

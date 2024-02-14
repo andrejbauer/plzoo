@@ -45,27 +45,6 @@ type toplevel_cmd =
   | Mixfix of operator
   | Quit
 
-let from_predef self_rec = function
-  | Presyntax.Int k -> Int k
-  | Presyntax.Bool b -> Bool b
-  | Presyntax.Nil ht -> Nil ht
-  | Presyntax.Times (e1, e2) -> Times ( self_rec e1,  self_rec e2)
-  | Presyntax.Divide (e1, e2) -> Divide ( self_rec e1,  self_rec e2)
-  | Presyntax.Mod (e1, e2) -> Mod ( self_rec e1,  self_rec e2)
-  | Presyntax.Plus (e1, e2) -> Plus ( self_rec e1,  self_rec e2)
-  | Presyntax.Minus (e1, e2) -> Minus ( self_rec e1,  self_rec e2)
-  | Presyntax.Equal (e1, e2) -> Equal ( self_rec e1,  self_rec e2)
-  | Presyntax.Less (e1, e2) -> Less ( self_rec e1,  self_rec e2)
-  | Presyntax.If (e1, e2, e3) -> If ( self_rec e1,  self_rec e2,  self_rec e3)
-  | Presyntax.Fun (x, ht, e) -> Fun (x, ht,  self_rec e)
-  | Presyntax.Pair (e1, e2) -> Pair ( self_rec e1,  self_rec e2)
-  | Presyntax.Fst e -> Fst ( self_rec e)
-  | Presyntax.Snd e -> Snd ( self_rec e)
-  | Presyntax.Rec (f, x, e1) -> Rec (f, x,  self_rec e1)
-  | Presyntax.Cons (e1, e2) -> Cons ( self_rec e1,  self_rec e2)
-  | Presyntax.Match (e, ht, e1, x, y, e2) -> Match ( self_rec e, ht,  self_rec e1, x, y,  self_rec e2)
-  
-
 (** Conversion from an expression to a string *)
 let string_of_expr e =
   let rec to_str n e =
@@ -78,7 +57,7 @@ let string_of_expr e =
 	| Nil ty ->         (10, "[" ^ (Presyntax.string_of_type ty) ^ "]")
 	| Fst e ->           (9, "fst " ^ (to_str 9 e))
 	| Snd e ->           (9, "snd " ^ (to_str 9 e))
-	| Apply (e1, e2) ->   
+	| Apply (e1, e2) ->
     (* (9, "<app>") *)
 	    (9, (to_str 8 e1) ^ " " ^ (to_str 9 e2))
 	| Times (e1, e2) ->  (9, (to_str 8 e1) ^ " * " ^ (to_str 8 e2))
@@ -95,10 +74,10 @@ let string_of_expr e =
 	    (3, "match " ^ (to_str 3 e1) ^ " with " ^
 	       "[" ^ (Presyntax.string_of_type ty) ^ "] -> " ^ (to_str 3 e2) ^ " | " ^
 	       x ^ "::" ^ y ^ " -> " ^ (to_str 3 e3))
-	| Fun (x, ty, e) -> 
+	| Fun (x, ty, e) ->
     (* (10, "<fun>") *)
 	    (2, "fun " ^ x ^ " : " ^ (Presyntax.string_of_type ty) ^ " -> " ^ (to_str 0 e))
-	| Rec (x, ty, e) -> 
+	| Rec (x, ty, e) ->
     (* (10, "<rec>") *)
 	    (1, "rec " ^ x ^ " : " ^ (Presyntax.string_of_type ty) ^ " is " ^ (to_str 0 e))
 

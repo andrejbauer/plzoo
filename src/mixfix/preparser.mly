@@ -1,12 +1,12 @@
 %{
   open Presyntax
-  
+
   let split_to_functions (a:(name * htype) list) (e:expr) =
-        List.fold_right (fun (x, ty) e -> Predef(Fun (x, ty, e))) a e
+        List.fold_right (fun (x, ty) e -> Fun (x, ty, e)) a e
 
   let type_all_names (a:string list) (b:htype) =
         List.map (fun x -> (x, b)) a
-  
+
 %}
 %token TINT TBOOL TLIST TARROW
 %token <Presyntax.name> VAR
@@ -83,7 +83,7 @@ vars:
   | VAR
     { [$1] }
   | VAR vars
-    { $1 :: $2 } 
+    { $1 :: $2 }
 
 typed_vars:
   | LPAREN vars COLON ty RPAREN
@@ -101,9 +101,9 @@ expr:
   | FUN funvardef DARROW expr
     { split_to_functions $2 $4 }
   | REC VAR COLON ty IS expr
-    {Predef( Rec ($2, $4, $6) )}
+    { Rec ($2, $4, $6) }
   | MATCH expr WITH nil DARROW expr ALTERNATIVE VAR CONS VAR DARROW expr
-    { Predef(Match ($2, $4, $6, $8, $10, $12))}
+    { Match ($2, $4, $6, $8, $10, $12)}
 
 seq:
   | app+
@@ -113,41 +113,41 @@ app: // application
   | non_app
     { $1 }
   | FST non_app
-    { Predef( Fst $2 )}
+    {  Fst $2 }
   | SND non_app
-    { Predef( Snd $2 )}
+    {  Snd $2 }
   | PLUS non_app non_app
-    { Predef( Plus ($2, $3) ) }
+    {  Plus ($2, $3)  }
   | MINUS non_app non_app
-    { Predef( Minus ($2, $3) ) }
+    {  Minus ($2, $3)  }
   | TIMES non_app non_app
-    { Predef( Times ($2, $3) ) }
+    {  Times ($2, $3)  }
   | DIVIDE non_app non_app
-    { Predef( Divide ($2, $3) ) }
+    {  Divide ($2, $3)  }
   | MOD non_app non_app
-    { Predef( Mod ($2, $3) ) }
+    {  Mod ($2, $3)  }
   | EQUALS non_app non_app
-    { Predef( Equal ($2, $3) ) }
+    {  Equal ($2, $3)  }
   | LESS non_app non_app
-    { Predef( Less ($2, $3) ) }
+    {  Less ($2, $3)  }
   | COND non_app non_app non_app
-    { Predef( If ($2, $3, $4) ) }
+    {  If ($2, $3, $4)  }
   | CONS non_app non_app
-    { Predef( Cons ($2, $3)) }
+    {  Cons ($2, $3) }
   | PAIR non_app non_app
-    { Predef( Pair ($2, $3)) }
+    {  Pair ($2, $3) }
 
 non_app: // non-application
     VAR
     { Var $1 }
   | TRUE
-    { Predef( Bool true) }
+    {  Bool true }
   | FALSE
-    { Predef( Bool false) }
+    {  Bool false }
   | INT
-    { Predef( Int $1) }
+    {  Int $1 }
   | nil
-    { Predef( Nil $1) }
+    {  Nil $1 }
   | LPAREN expr RPAREN
     { $2 }
 
