@@ -3,7 +3,7 @@
   open Lexing
 }
 
-let var = ['_' 'a'-'z' 'A'-'Z' '0'-'9' '+' '-' '*' '/' '&' '%' '#' ]+
+let var = ['_' 'a'-'z' 'A'-'Z' '0'-'9' '+' '-' '*' '/' '|' '&' '%' '#' ]+
 
 rule token = parse
     "--" [^'\n']* '\n'  { Lexing.new_line lexbuf; token lexbuf }
@@ -36,15 +36,15 @@ rule token = parse
   | "$mod"              { MOD }
   | '('                 { LPAREN }
   | ')'                 { RPAREN }
-  | "$times"            { TIMES }
-  | "$plus"             { PLUS }
-  | "$minus"            { MINUS } 
-  | "$divide"           { DIVIDE }
+  | "$mul"              { TIMES }
+  | "$add"              { PLUS }
+  | "$sub"              { MINUS } 
+  | "$div"              { DIVIDE }
   | ':'                 { COLON }
   | '*'                 { STAR }
-  | "$less"             { LESS }
+  | "$lt"               { LESS }
   | '='                 { SET_EQUAL }
-  | "$equal"            { EQUALS }
+  | "$eq"               { EQUALS }
   | '['                 { LBRACK }
   | ']'                 { RBRACK }
   | '|'                 { ALTERNATIVE }
