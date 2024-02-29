@@ -66,7 +66,7 @@ expr:
   | arith               { $1 }
   | boolean             { $1 }
   | expr CONS expr      { Cons ($1, $3) }
-  | IF expr THEN expr ELSE expr	{ If ($2, $4, $6) }
+  | IF expr THEN expr ELSE expr { If ($2, $4, $6) }
   | FUN VAR DARROW expr  { Fun ($2, $4) }
   | REC VAR IS expr     { Rec ($2, $4) }
   | MATCH expr WITH nil DARROW expr ALTERNATIVE VAR CONS VAR DARROW expr
@@ -79,21 +79,21 @@ app:
   | non_app non_app     { Apply ($1, $2) }
 
 non_app:
-    VAR		        	  { Var $1 }
-  | TRUE                	  { Bool true }
-  | FALSE               	  { Bool false }
-  | INT		                  { Int $1 }
+    VAR                           { Var $1 }
+  | TRUE                          { Bool true }
+  | FALSE                         { Bool false }
+  | INT                           { Int $1 }
   | nil                           { Nil }
-  | LPAREN expr RPAREN		  { $2 }    
+  | LPAREN expr RPAREN            { $2 }
   | LPAREN expr COMMA expr RPAREN { Pair ($2, $4) }
 
 arith:
   | MINUS INT           { Int (-$2) }
-  | expr PLUS expr	{ Plus ($1, $3) }
-  | expr MINUS expr	{ Minus ($1, $3) }
-  | expr TIMES expr	{ Times ($1, $3) }
-  | expr DIVIDE expr	{ Divide ($1, $3) }
-  | expr MOD expr	{ Mod ($1, $3) }
+  | expr PLUS expr      { Plus ($1, $3) }
+  | expr MINUS expr     { Minus ($1, $3) }
+  | expr TIMES expr     { Times ($1, $3) }
+  | expr DIVIDE expr    { Divide ($1, $3) }
+  | expr MOD expr       { Mod ($1, $3) }
 
 nil: LBRACK RBRACK      { () }
 

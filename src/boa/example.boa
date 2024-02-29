@@ -88,7 +88,7 @@ let list = {
   isEmpty = fun _ -> this.empty,
   getHead = fun _ -> this.head,
   getTail = fun _ -> this.tail,
-  
+
   # constructors
   nil =  fun _ -> this with { empty = true },
   cons = fun x -> fun xs -> this with { empty = false, head = x, tail = xs },

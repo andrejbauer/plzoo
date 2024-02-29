@@ -17,7 +17,7 @@ rule token = parse
   | "if"            { IF }
   | "then"          { THEN }
   | "else"          { ELSE }
-  | "let"           { LET }  
+  | "let"           { LET }
   | ";;"            { SEMISEMI }
   | '='             { EQUAL }
   | '<'             { LESS }

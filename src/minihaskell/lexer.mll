@@ -18,7 +18,7 @@ rule token = parse
   | "if"            { IF }
   | "int"           { TINT }
   | "is"            { IS }
-  | "let"           { LET }  
+  | "let"           { LET }
   | "list"          { TLIST }
   | "match"         { MATCH }
   | "rec"           { REC }

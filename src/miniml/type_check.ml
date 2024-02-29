@@ -22,7 +22,7 @@ and type_of ctx {Zoo.data=e; loc} =
   match e with
     | Var x ->
       (try List.assoc x ctx with
-	  Not_found -> typing_error ~loc "unknown variable %s" x)
+          Not_found -> typing_error ~loc "unknown variable %s" x)
     | Int _ -> TInt
     | Bool _ -> TBool
     | Times (e1, e2) -> check ctx TInt e1 ; check ctx TInt e2 ; TInt
@@ -33,14 +33,14 @@ and type_of ctx {Zoo.data=e; loc} =
     | If (e1, e2, e3) ->
       check ctx TBool e1 ;
       let ty = type_of ctx e2 in
-	check ctx ty e3 ; ty
+        check ctx ty e3 ; ty
     | Fun (f, x, ty1, ty2, e) ->
       check ((f, TArrow(ty1,ty2)) :: (x, ty1) :: ctx) ty2 e ;
       TArrow (ty1, ty2)
     | Apply (e1, e2) ->
       begin match type_of ctx e1 with
-	  TArrow (ty1, ty2) -> check ctx ty1 e2 ; ty2
-	| ty ->
-	  typing_error ~loc
+          TArrow (ty1, ty2) -> check ctx ty1 e2 ; ty2
+        | ty ->
+          typing_error ~loc
             "this expression is used as a function but its type is %t" (Print.ty ty)
       end

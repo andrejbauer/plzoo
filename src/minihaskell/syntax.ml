@@ -46,11 +46,11 @@ let string_of_type ty =
   let rec to_str n ty =
     let (m, str) =
       match ty with
-	  TInt -> (4, "int")
-	| TBool -> (4, "bool")
-	| TList ty -> (3, to_str 3 ty ^ " list")
-	| TTimes (ty1, ty2) -> (2, (to_str 2 ty1) ^ " * " ^ (to_str 2 ty2))
-	| TArrow (ty1, ty2) -> (1, (to_str 1 ty1) ^ " -> " ^ (to_str 0 ty2))
+          TInt -> (4, "int")
+        | TBool -> (4, "bool")
+        | TList ty -> (3, to_str 3 ty ^ " list")
+        | TTimes (ty1, ty2) -> (2, (to_str 2 ty1) ^ " * " ^ (to_str 2 ty2))
+        | TArrow (ty1, ty2) -> (1, (to_str 1 ty1) ^ " -> " ^ (to_str 0 ty2))
     in
       if m > n then str else "(" ^ str ^ ")"
   in
@@ -61,33 +61,33 @@ let string_of_expr e =
   let rec to_str n e =
     let (m, str) =
       match e with
-	  Int n ->          (10, string_of_int n)
-	| Bool b ->         (10, string_of_bool b)
-	| Var x ->          (10, x)
-	| Pair (e1, e2) ->  (10, "(" ^ (to_str 0 e1) ^ ", " ^ (to_str 0 e2) ^ ")")
-	| Nil ty ->         (10, "[" ^ (string_of_type ty) ^ "]")
-	| Fst e ->           (9, "fst " ^ (to_str 9 e))
-	| Snd e ->           (9, "snd " ^ (to_str 9 e))
-	| Apply (_, _) ->   (10, "<app>")
-	    (* (9, (to_str 8 e1) ^ " " ^ (to_str 9 e2)) *)
-	| Times (e1, e2) ->  (8, (to_str 7 e1) ^ " * " ^ (to_str 8 e2))
-	| Divide (e1, e2) -> (8, (to_str 7 e1) ^ " / " ^ (to_str 8 e2))
-	| Mod (e1, e2) ->    (8, (to_str 7 e1) ^ " % " ^ (to_str 8 e2))
-	| Plus (e1, e2) ->   (7, (to_str 6 e1) ^ " + " ^ (to_str 7 e2))
-	| Minus (e1, e2) ->  (7, (to_str 6 e1) ^ " - " ^ (to_str 7 e2))
-	| Cons (e1, e2) ->   (6, (to_str 6 e1) ^ " :: " ^ (to_str 5 e2))
-	| Equal (e1, e2) ->  (5, (to_str 5 e1) ^ " = " ^ (to_str 5 e2))
-	| Less (e1, e2) ->   (5, (to_str 5 e1) ^ " < " ^ (to_str 5 e2))
-	| If (e1, e2, e3) -> (4, "if " ^ (to_str 4 e1) ^ " then " ^
-				(to_str 4 e2) ^ " else " ^ (to_str 4 e3))
-	| Match (e1, ty, e2, x, y, e3) ->
-	    (3, "match " ^ (to_str 3 e1) ^ " with " ^
-	       "[" ^ (string_of_type ty) ^ "] -> " ^ (to_str 3 e2) ^ " | " ^
-	       x ^ "::" ^ y ^ " -> " ^ (to_str 3 e3))
-	| Fun (_, _, _) -> (10, "<fun>")
-	    (* (2, "fun " ^ x ^ " : " ^ (string_of_type ty) ^ " -> " ^ (to_str 0 e)) *)
-	| Rec (_, _, _) -> (10, "<rec>")
-	    (* (1, "rec " ^ x ^ " : " ^ (string_of_type ty) ^ " is " ^ (to_str 0 e)) *)
+          Int n ->          (10, string_of_int n)
+        | Bool b ->         (10, string_of_bool b)
+        | Var x ->          (10, x)
+        | Pair (e1, e2) ->  (10, "(" ^ (to_str 0 e1) ^ ", " ^ (to_str 0 e2) ^ ")")
+        | Nil ty ->         (10, "[" ^ (string_of_type ty) ^ "]")
+        | Fst e ->           (9, "fst " ^ (to_str 9 e))
+        | Snd e ->           (9, "snd " ^ (to_str 9 e))
+        | Apply (_, _) ->   (10, "<app>")
+            (* (9, (to_str 8 e1) ^ " " ^ (to_str 9 e2)) *)
+        | Times (e1, e2) ->  (8, (to_str 7 e1) ^ " * " ^ (to_str 8 e2))
+        | Divide (e1, e2) -> (8, (to_str 7 e1) ^ " / " ^ (to_str 8 e2))
+        | Mod (e1, e2) ->    (8, (to_str 7 e1) ^ " % " ^ (to_str 8 e2))
+        | Plus (e1, e2) ->   (7, (to_str 6 e1) ^ " + " ^ (to_str 7 e2))
+        | Minus (e1, e2) ->  (7, (to_str 6 e1) ^ " - " ^ (to_str 7 e2))
+        | Cons (e1, e2) ->   (6, (to_str 6 e1) ^ " :: " ^ (to_str 5 e2))
+        | Equal (e1, e2) ->  (5, (to_str 5 e1) ^ " = " ^ (to_str 5 e2))
+        | Less (e1, e2) ->   (5, (to_str 5 e1) ^ " < " ^ (to_str 5 e2))
+        | If (e1, e2, e3) -> (4, "if " ^ (to_str 4 e1) ^ " then " ^
+                                (to_str 4 e2) ^ " else " ^ (to_str 4 e3))
+        | Match (e1, ty, e2, x, y, e3) ->
+            (3, "match " ^ (to_str 3 e1) ^ " with " ^
+               "[" ^ (string_of_type ty) ^ "] -> " ^ (to_str 3 e2) ^ " | " ^
+               x ^ "::" ^ y ^ " -> " ^ (to_str 3 e3))
+        | Fun (_, _, _) -> (10, "<fun>")
+            (* (2, "fun " ^ x ^ " : " ^ (string_of_type ty) ^ " -> " ^ (to_str 0 e)) *)
+        | Rec (_, _, _) -> (10, "<rec>")
+            (* (1, "rec " ^ x ^ " : " ^ (string_of_type ty) ^ " is " ^ (to_str 0 e)) *)
 
     in
       if m > n then str else "(" ^ str ^ ")"
@@ -112,7 +112,7 @@ let rec subst s = function
   | Rec (x, ty, e) -> let s' = List.remove_assoc x s in Rec (x, ty, subst s' e)
   | Match (e1, ty, e2, x, y, e3) ->
       let s' = List.remove_assoc y (List.remove_assoc x s) in
-	Match (subst s e1, ty, subst s e2, x, y, subst s' e3)
+        Match (subst s e1, ty, subst s e2, x, y, subst s' e3)
   | Apply (e1, e2) -> Apply (subst s e1, subst s e2)
   | Pair (e1, e2) -> Pair (subst s e1, subst s e2)
   | Fst e -> Fst (subst s e)

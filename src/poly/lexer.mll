@@ -16,7 +16,7 @@ rule token = parse
   | "fun"           { FUN }
   | "if"            { IF }
   | "is"            { IS }
-  | "let"           { LET }  
+  | "let"           { LET }
   | "match"         { MATCH }
   | "rec"           { REC }
   | "snd"           { SND }

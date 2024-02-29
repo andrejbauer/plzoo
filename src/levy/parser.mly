@@ -62,7 +62,7 @@ plain_expr:
   | IF expr THEN expr ELSE expr  { If ($2, $4, $6) }
   | FUN VAR COLON ty DARROW expr { Fun ($2, $4, $6) }
   | REC VAR COLON ty IS expr     { Rec ($2, $4, $6) }
-  
+
 (* boolean: mark_position(plain_boolean) { $1 } *)
 plain_boolean:
   | plain_arith         { $1 }
@@ -94,7 +94,7 @@ plain_simple:
   | INT                       { Int $1 }
   | TRUE                      { Bool true }
   | FALSE                     { Bool false }
-  | LPAREN plain_expr RPAREN  { $2 }    
+  | LPAREN plain_expr RPAREN  { $2 }
 
 ty: mark_position(plain_ty)   { $1 }
 plain_ty:

@@ -57,7 +57,7 @@ let lookup env x =
 let rec subst_term env = function
   | Var x as e ->
       (let e' = lookup env x in
-	 if e = e' then e' else subst_term env e')
+         if e = e' then e' else subst_term env e')
   | Const _ as e -> e
   | App (c, ls) -> App (c, List.map (subst_term env) ls)
 
@@ -76,10 +76,10 @@ let string_of_env env =
   match List.filter (fun ((_, n), _) -> n = 0) env with
     | [] -> "Yes"
     | env' -> String.concat "\n"
-	(List.map
-	   (fun ((x, _), e) ->
-	      x ^ " = " ^ string_of_term (subst_term env e))
-	   (List.rev env'))
+        (List.map
+           (fun ((x, _), e) ->
+              x ^ " = " ^ string_of_term (subst_term env e))
+           (List.rev env'))
 
 (** [occurs x t] returns [true] when variable instance [x] appears in
     term [t]. *)

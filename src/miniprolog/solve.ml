@@ -40,10 +40,10 @@ let rec display_solution ch env =
     | "Yes", _ -> Zoo.print_info "Yes@."
     | answer, [] -> Zoo.print_info "%s@." answer
     | answer, ch -> begin
-      	Zoo.print_info "%s@.more? (y/n) [y]@?" answer;
-      	match read_line () with
-      	  | "y" | "yes" | "Y" | "YES" | "Yes" | "" -> continue_search ch
-      	  | _ -> raise NoSolution
+        Zoo.print_info "%s@.more? (y/n) [y]@?" answer;
+        match read_line () with
+          | "y" | "yes" | "Y" | "YES" | "Yes" | "" -> continue_search ch
+          | _ -> raise NoSolution
       end
 
 (** [continue_search ch] looks for other answers. It accepts a list of
@@ -76,28 +76,28 @@ and solve ch asrl env c n =
   let rec reduce_atom a = function
     | [] -> None
     | (b,lst)::asrl' ->
-	(try
-	   let env' = Unify.unify_atoms env a (renumber_atom n b) in
-	     Some (asrl', env', List.map (renumber_atom n) lst)
-	 with Unify.NoUnify -> reduce_atom a asrl')
+        (try
+           let env' = Unify.unify_atoms env a (renumber_atom n b) in
+             Some (asrl', env', List.map (renumber_atom n) lst)
+         with Unify.NoUnify -> reduce_atom a asrl')
   in
     match c with
       | [] ->
-	  (* All atoms are solved, we found a solution. *)
-	  display_solution ch env
+          (* All atoms are solved, we found a solution. *)
+          display_solution ch env
       | a::c' ->
-	  (* Reduce the first atom in the clause. *)
-	  (match reduce_atom a asrl with
-	     | None ->
-		 (* This clause cannot be solved, look for other solutions. *)
-		 continue_search ch
-	     | Some (asrl', env', d) ->
-		 (* The atom was reduced to subgoals [d]. Continue
-		    search with the subgoals added to the list of
-		    goals. *)
-		 let ch' = (asrl', env, c, n)::ch (* Add a new choice. *)
-		 in
-		   solve ch' !base env' (d @ c') (n+1))
+          (* Reduce the first atom in the clause. *)
+          (match reduce_atom a asrl with
+             | None ->
+                 (* This clause cannot be solved, look for other solutions. *)
+                 continue_search ch
+             | Some (asrl', env', d) ->
+                 (* The atom was reduced to subgoals [d]. Continue
+                    search with the subgoals added to the list of
+                    goals. *)
+                 let ch' = (asrl', env, c, n)::ch (* Add a new choice. *)
+                 in
+                   solve ch' !base env' (d @ c') (n+1))
 
 (** [solve_toplevel c] searches for the proof of clause [c] using the
     global databased [!base]. This function is called from the main

@@ -58,9 +58,9 @@ and instr =
   | ISub                            (** subtraction *)
   | IEqual                          (** equality *)
   | ILess                           (** less than *)
-  | IVar of name  		    (** push value of variable *)
-  | IInt of int   		    (** push integer constant *)
-  | IBool of bool 		    (** push boolean constant *)
+  | IVar of name                    (** push value of variable *)
+  | IInt of int                     (** push integer constant *)
+  | IBool of bool                   (** push boolean constant *)
   | IClosure of name * name * frame (** push closure *)
   | IBranch of frame * frame        (** branch *)
   | ICall                           (** execute a closure *)
@@ -165,22 +165,22 @@ let exec instr frms stck envs =
     | IInt k  -> (frms, (MInt k) :: stck, envs)
     | IBool b -> (frms, (MBool b) :: stck, envs)
     | IClosure (f, x, frm) ->
-	(match envs with
-	     env :: _ ->
-	       let rec c = MClosure (x, frm, (f,c) :: env) in
-		 (frms, c :: stck, envs)
-	   | [] -> error "no environment for a closure")
+        (match envs with
+             env :: _ ->
+               let rec c = MClosure (x, frm, (f,c) :: env) in
+                 (frms, c :: stck, envs)
+           | [] -> error "no environment for a closure")
     (* Control instructions *)
     | IBranch (f1, f2) ->
-	let (b, stck') = pop_bool stck in
-	  ((if b then f1 else f2) :: frms, stck', envs)
+        let (b, stck') = pop_bool stck in
+          ((if b then f1 else f2) :: frms, stck', envs)
     | ICall ->
-	let (x, frm, env, v, stck') = pop_app stck in
-	  (frm :: frms, stck', ((x,v) :: env) :: envs)
+        let (x, frm, env, v, stck') = pop_app stck in
+          (frm :: frms, stck', ((x,v) :: env) :: envs)
     | IPopEnv ->
-	(match envs with
-	     [] -> error "no environment to pop"
-	   | _ :: envs' -> (frms, stck, envs'))
+        (match envs with
+             [] -> error "no environment to pop"
+           | _ :: envs' -> (frms, stck, envs'))
 
 (** [run frm env] executes the frame [frm] in environment [env]. *)
 let run frm env =

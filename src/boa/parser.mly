@@ -58,7 +58,7 @@ expr:
   | app                 { $1 }
   | arith               { $1 }
   | boolean             { $1 }
-  | IF expr THEN expr ELSE expr	       { If ($2, $4, $6) }
+  | IF expr THEN expr ELSE expr        { If ($2, $4, $6) }
   | FUN VAR ARROW expr                 { Fun ($2, $4) }
   | LET VAR EQUAL expr IN expr         { Let ($2, $4, $6) }
   | non_app PERIOD VAR ASSIGN expr     { Assign ($1, $3, $5) }
@@ -69,24 +69,24 @@ app:
   | non_app non_app     { App ($1, $2) }
 
 non_app:
-    VAR		        	  { Var $1 }
+    VAR                           { Var $1 }
   | THIS                          { This }
-  | TRUE                	  { Bool true }
-  | FALSE               	  { Bool false }
-  | INT		                  { Int $1 }
+  | TRUE                          { Bool true }
+  | FALSE                         { Bool false }
+  | INT                           { Int $1 }
   | SKIP                          { Skip }
-  | LPAREN expr RPAREN		  { $2 }    
+  | LPAREN expr RPAREN            { $2 }
   | non_app PERIOD VAR            { Project ($1, $3) }
   | LBRACE fields RBRACE          { Object $2 }
   | COPY non_app                  { Copy $2 }
   | non_app WITH non_app          { With ($1, $3) }
 
 arith:
-  | expr PLUS   expr	{ ArithOp (Plus, $1, $3) }
-  | expr MINUS expr	{ ArithOp (Minus, $1, $3) }
-  | expr TIMES  expr	{ ArithOp (Times, $1, $3) }
-  | expr DIVIDE expr	{ ArithOp (Divide, $1, $3) }
-  | expr REMAINDER expr	{ ArithOp (Remainder, $1, $3) }
+  | expr PLUS   expr    { ArithOp (Plus, $1, $3) }
+  | expr MINUS expr     { ArithOp (Minus, $1, $3) }
+  | expr TIMES  expr    { ArithOp (Times, $1, $3) }
+  | expr DIVIDE expr    { ArithOp (Divide, $1, $3) }
+  | expr REMAINDER expr { ArithOp (Remainder, $1, $3) }
 
 boolean:
   | NOT expr            { Not $2 }

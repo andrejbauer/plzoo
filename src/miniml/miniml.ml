@@ -32,7 +32,7 @@ module MiniML = Zoo.Main (struct
       (ctx, env)
     | Syntax.Def (x, e) ->
       (* check the type of [e], compile it, run it, and return a new
-	 context-environemtn pair with [x] defined as [e]. *)
+         context-environemtn pair with [x] defined as [e]. *)
       let ty = Type_check.type_of ctx e in
       let frm = Compile.compile e in
       let v = Machine.run frm env in

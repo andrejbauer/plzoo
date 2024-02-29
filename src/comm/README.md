@@ -18,7 +18,7 @@ Boolean expression `b`:
 
 * boolean constants `true` and `false`
 * conjunction `b₁ and b₂`
-* disjunction `b₁ or b₂` 
+* disjunction `b₁ or b₂`
 * negation `not b`
 
 Command `c`:

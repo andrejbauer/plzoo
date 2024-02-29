@@ -12,7 +12,7 @@ A lazy functional language with following features:
 The file primes.minhs defines the infinite list of prime numbers. You
 can load it and try it as follows:
 
-    $ ./minihaskell.byte prime.minhs 
+    $ ./minihaskell.byte prime.minhs
     val not : bool -> bool
     val div : int -> int -> int
     val mod : int -> int -> int
@@ -37,5 +37,5 @@ can load it and try it as follows:
       :: 383 :: 389 :: 397 :: 401 :: 409 :: 419 :: 421 :: 431 :: 433
       :: 439 :: 443 :: 449 :: 457 :: 461 :: 463 :: 467 :: 479 :: 487
       :: 491 :: 499 :: 503 :: 509 :: 521 :: 523 :: ... :: ...
-    MiniHaskell> 
+    MiniHaskell>
     Good bye.

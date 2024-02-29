@@ -19,7 +19,7 @@ rule token = parse
   | "in"            { IN }
   | "is"            { IS }
   | "int"           { TINT }
-  | "let"           { LET }  
+  | "let"           { LET }
   | "not"           { NOT }
   | "or"            { OR }
   | "then"          { THEN }
