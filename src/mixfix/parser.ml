@@ -63,7 +63,7 @@ module ListMonad =
   let check_success (env:Environment.t) lst =
     let lst =  List.filter (fun x ->
       try (
-        let _ = Type_check.type_of (env.context) x in true) with 
+        let _ = Type_check.type_of (env.context) x in true) with
       _ -> false
     ) lst
     in match lst with
@@ -72,6 +72,45 @@ module ListMonad =
     | _ :: _ :: _ as e -> print_endline (String.concat "\n"(List.map Syntax.string_of_expr e) ); Zoo.error "ambiguous parse"
 
   open Monad
+
+  type (_,_) parser =
+    (* | AppParser? *)
+    | Fail : ('a, 'b) parser
+    | Kw : 'a -> ('a, unit) parser
+    | Or : ('a, 'b) parser * ('a, 'b) parser -> ('a, 'b) parser
+    | Cons : ('a, 'b) parser * ('a, 'c) parser -> ('a, 'b * 'c) parser
+    (* | ConsAfter : ('a, 'b) parser * ('a, unit) parser -> ('a, 'b) parser *)
+    (* | ConsBefore : ('a, unit) parser * ('a, 'b) parser -> ('a, 'b) parser *)
+    (* | App : ('a, 'b -> 'c) parser * ('a, 'b) parser -> ('a, 'c) parser *)
+    (* | Map : ('b -> 'c) * ('a, 'b) parser -> ('a, 'c) parser *)
+    (* | Check : ('a, unit) parser * 'b -> ('a, 'b) parser *)
+    (* | Iter : ('a, 'b) parser-> ('a, 'b list) parser *)
+    (* | Iter1 : ('a, 'b) parser-> ('a, 'b list) parser *)
+    (* | Between : ('a, 'b) parser * 'a list -> ('a, 'b list) parser *)
+    | Lazy : ('a, 'b) parser lazy_t -> ('a, 'b) parser
+
+  let rec runParser : type a b . (a, b) parser -> (a, b) t = function
+
+    | Fail -> fail
+
+    | Kw k ->
+       let* k' = get in
+       if (k = k') then
+         return ()
+       else
+         fail
+
+    | Or (p, q) ->
+       fun s -> List.append (runParser p s) (runParser q s)
+
+    | Cons (p, q) ->
+       let* x = runParser p in
+       let* y = runParser q in
+       return (x, y)
+
+    | Lazy (lazy p) ->
+       runParser p
+
 
   (** If b is false, fails, otherwise parses unit *)
   let check b =
@@ -94,7 +133,7 @@ module ListMonad =
     with
     | _ -> fail) *)
   (* TODO To ni kul *)
-  
+
   let kw k =
     let* k' = get in
     check (k = k')
@@ -157,6 +196,10 @@ module ListMonad =
     let* xs = return [] ||| iter1 p in
     return (x :: xs)
 
+  (* example, does not belong here. *)
+  (* let factorial = *)
+  (*   fix (fun self -> fun n -> if n = 0 then 1 else n * self () (n - 1)) *)
+
   let rec between p = function
     | [] -> assert false
   | [k] -> kw k >> []
@@ -166,8 +209,8 @@ module ListMonad =
      let* xs = between p ks in
      return (x :: xs))
 
-     (** Between that maps to presyntax *) 
-  let betweenp p k = 
+     (** Between that maps to presyntax *)
+  let betweenp p k =
     let k = List.map (fun x -> Presyntax.Var x) k in
     between p k
 
@@ -209,7 +252,7 @@ module ListMonad =
        (print_endline (" + Undefined variable " ^ x); fail)
 
   | Presyntax.Seq es  ->
-      unwrap @@ (get_parser env) es 
+      unwrap @@ runParser (get_parser env) es
 
   | Presyntax.Int k ->
       return @@ Syntax.Int k
@@ -308,73 +351,104 @@ and app_parser env =
   let* p = iter get in
   wrap @@ make_app (List.rev p)
 
-and get_parser env =
+and get_parser env : (Presyntax.expr, Syntax.expr) parser =
   let g = env.operators in
 
-  let rec precs (ps: Precedence.graph) = 
-    match ps with
-    | [] -> app_parser env
-    | p::ps -> 
-        let sucs = precs ps in 
-        prec sucs (snd p) ||| sucs
+  let recursively build =
+    let rec self = lazy (build self) in
+    Lazy.force self
+  in
 
-      and prec sucs = function
-        | [] -> fail
-        | o::os -> op sucs o ||| prec sucs os
+  let cow_parser =
+    recursively (fun self ->
+      failwith "some stuff (may use self, but do not force it)"
+    )
+  in
 
-      and op up operator = 
-        let same_or_up = up in
-        let op_name = Syntax.Var (Syntax.op_name operator) in
-        let appr res b = List.fold_right (fun a b -> (Syntax.make_app op_name (a @ [b]))) res b in
-        let appl a res = List.fold_left (fun a b -> (Syntax.make_app op_name (a::b))) a res in
-      match operator with
+  let rec lazy_cat_parser =
+    lazy (failwith "some stuff (may use lazy_cat_parser, but do not force it)")
+  in
+  let cat_parser = Lazy.force lazy_cat_parser
+  in
 
-    | {fx=Closed; tokens} ->
-        let* res = betweenp same_or_up tokens in
-        return @@ Syntax.make_app op_name res
 
-    | {fx=Postfix; tokens} ->
-        let* head = up in
-        let* res = iter1 @@ betweenp same_or_up tokens in
-        return @@ appl head res
+  let build_parser self =
+    failwith "complicated stuff"
+  in
 
-    | {fx=Prefix; tokens} ->
-        let* res = iter1 @@ betweenp same_or_up tokens in
-        let* b = up in
-        return @@ appr res b 
+  let rec self = lazy (build_parser self) in
 
-    | {fx=Infix NonAssoc; tokens} ->
-      let* a = up in
-      let* mid = betweenp same_or_up tokens in
-      let* b = up in 
-      return @@ Syntax.make_app op_name (a::mid @ [b])  
+  Lazy.force self
 
-    | {fx=Infix LeftAssoc; tokens} ->
-      let* a = up in
-      let* mid = iter1 @@ betweenp same_or_up tokens in
-      let* b = up in 
-      (match mid with
-        | [] -> fail
-        | head::tail -> let head = a::head in return @@ appr ( head::tail) b
-      )
+  (* let rec precs (ps: Precedence.graph) = *)
+  (*   match ps with *)
+  (*   | [] -> app_parser env *)
+  (*   | p::ps -> *)
+  (*      let sucs = precs ps in *)
+  (*      prec sucs (snd p) ||| sucs *)
 
-    | {fx=Infix RightAssoc; tokens} ->
-      let* a = up in
-      let* mid = iter1 @@ betweenp same_or_up tokens in
-      let* b = up in 
-      let rec f = function
-        | [] -> []
-        | [last] -> [last @ [b]]
-        | head::tail -> (head::(f tail))
-      in
-        return @@ appl a (f mid)
+  (* and same_or_up up ops = *)
+  (*   up ||| prec up ops *)
 
-      in precs g
+  (* and prec up ops = *)
+  (*   let op operator = *)
+  (*     let same_up = up in *)
+  (*     let op_name = Syntax.Var (Syntax.op_name operator) in *)
+  (*     let appr res b = List.fold_right (fun a b -> (Syntax.make_app op_name (a @ [b]))) res b in *)
+  (*     let appl a res = List.fold_left (fun a b -> (Syntax.make_app op_name (a::b))) a res in *)
+  (*     match operator with *)
 
-      (** Čas za <*> ? *)
-let s (ts:string list)= ((fun a b -> [a; b]) <$> get) ts
-let k1 = kw "hello" >> "s";;
+  (*     | {fx=Closed; tokens} -> *)
+  (*        let* res = betweenp (precs g) tokens in *)
+  (*        return @@ Syntax.make_app op_name res *)
 
-let p = (s <*> k1);;
+  (*     | {fx=Postfix; tokens} -> *)
+  (*        let* head = up in *)
+  (*        let* res = iter1 @@ betweenp same_up tokens in *)
+  (*        return @@ appl head res *)
 
-let t = p ["hello"; "world"];;
+  (*     | {fx=Prefix; tokens} -> *)
+  (*        let* res = iter1 @@ betweenp same_up tokens in *)
+  (*        let* b = up in *)
+  (*        return @@ appr res b *)
+
+  (*     | {fx=Infix NonAssoc; tokens} -> *)
+  (*        let* a = up in *)
+  (*        let* mid = betweenp same_up tokens in *)
+  (*        let* b = up in *)
+  (*        return @@ Syntax.make_app op_name (a::mid @ [b]) *)
+
+  (*     | {fx=Infix LeftAssoc; tokens} -> *)
+  (*        let* a = up in *)
+  (*        let* mid = iter1 @@ betweenp same_up tokens in *)
+  (*        let* b = up in *)
+  (*        (match mid with *)
+  (*         | [] -> fail *)
+  (*         | head::tail -> let head = a::head in return @@ appr ( head::tail) b *)
+  (*        ) *)
+
+  (*     | {fx=Infix RightAssoc; tokens} -> *)
+  (*        let* a = up in *)
+  (*        let* mid = iter1 @@ betweenp same_up tokens in *)
+  (*        let* b = up in *)
+  (*        let rec f = function *)
+  (*          | [] -> [] *)
+  (*          | [last] -> [last @ [b]] *)
+  (*          | head::tail -> (head::(f tail)) *)
+  (*        in *)
+  (*        return @@ appl a (f mid) *)
+  (*   in *)
+
+  (*   match ops with *)
+  (*   | [] -> fail *)
+  (*   | o::os -> op o ||| prec up os *)
+
+  (* in precs g *)
+
+  (* (\** Čas za <*> ? *\) *)
+  (* let s (ts:string list)= ((fun a b -> [a; b]) <$> get) ts *)
+  (* let k1 = kw "hello" >> "s";; *)
+
+  (* let p = (s <*> k1);; *)
+
+  (* let t = p ["hello"; "world"];; *)
