@@ -77,7 +77,7 @@ expr:
   | arith               { $1 }
   | boolean             { $1 }
   | expr CONS expr      { Cons ($1, $3) }
-  | IF expr THEN expr ELSE expr	{ If ($2, $4, $6) }
+  | IF expr THEN expr ELSE expr { If ($2, $4, $6) }
   | FUN VAR COLON ty DARROW expr { Fun ($2, $4, $6) }
   | REC VAR COLON ty IS expr { Rec ($2, $4, $6) }
   | MATCH expr WITH nil DARROW expr ALTERNATIVE VAR CONS VAR DARROW expr
@@ -90,21 +90,21 @@ app:
   | non_app non_app     { Apply ($1, $2) }
 
 non_app:
-    VAR		        	  { Var $1 }
-  | TRUE                	  { Bool true }
-  | FALSE               	  { Bool false }
-  | INT		                  { Int $1 }
+    VAR                           { Var $1 }
+  | TRUE                          { Bool true }
+  | FALSE                         { Bool false }
+  | INT                           { Int $1 }
   | nil                           { Nil $1 }
-  | LPAREN expr RPAREN		  { $2 }    
+  | LPAREN expr RPAREN            { $2 }
   | LPAREN expr COMMA expr RPAREN { Pair ($2, $4) }
 
 arith:
   | MINUS INT           { Int (-$2) }
-  | expr PLUS expr	{ Plus ($1, $3) }
-  | expr MINUS expr	{ Minus ($1, $3) }
-  | expr TIMES expr	{ Times ($1, $3) }
-  | expr DIVIDE expr	{ Divide ($1, $3) }
-  | expr MOD expr	{ Mod ($1, $3) }
+  | expr PLUS expr      { Plus ($1, $3) }
+  | expr MINUS expr     { Minus ($1, $3) }
+  | expr TIMES expr     { Times ($1, $3) }
+  | expr DIVIDE expr    { Divide ($1, $3) }
+  | expr MOD expr       { Mod ($1, $3) }
 
 nil: LBRACK ty RBRACK   { $2 }
 
@@ -119,15 +119,15 @@ ty:
 ty_times :
   | ty_list                  { $1 }
   | ty_times TIMES ty_list   { TTimes ($1, $3) }
-  
+
 
 ty_list :
   | ty_simple { $1 }
   | ty_list TLIST            { TList $1 }
 
 ty_simple :
-  | TBOOL	 	     { TBool }
-  | TINT         	     { TInt }
+  | TBOOL                    { TBool }
+  | TINT                     { TInt }
   | LPAREN ty RPAREN         { $2 }
 
 %%

@@ -20,7 +20,7 @@ and type_of ctx = function
 
   | Syntax.Var x ->
       (try List.assoc x ctx with
-	   Not_found -> type_error "unknown identifier %s" x)
+           Not_found -> type_error "unknown identifier %s" x)
 
   | Syntax.Int _ -> Syntax.TInt
 
@@ -71,7 +71,7 @@ and type_of ctx = function
   | Syntax.If (e1, e2, e3) ->
       check ctx Syntax.TBool e1 ;
       let ty = type_of ctx e2 in
-	check ctx ty e3 ; ty
+        check ctx ty e3 ; ty
 
   | Syntax.Fun (x, ty, e) ->
      Syntax.TArrow (ty, type_of ((x,ty)::ctx) e)
@@ -83,20 +83,20 @@ and type_of ctx = function
   | Syntax.Match (e1, ty, e2, x, y, e3) ->
       (match type_of ctx e1 with
        | Syntax.TList _ ->
-	  check ctx (Syntax.TList ty) e1;
-	  let ty2 = type_of ctx e2 in
-	  check ((x,ty)::(y, Syntax.TList ty)::ctx) ty2 e3 ; ty2
+          check ctx (Syntax.TList ty) e1;
+          let ty2 = type_of ctx e2 in
+          check ((x,ty)::(y, Syntax.TList ty)::ctx) ty2 e3 ; ty2
        | ty -> type_error "%s is used as a list but its type is %s"
                           (Syntax.string_of_expr e1)
-			  (Syntax.string_of_type ty))
+                          (Syntax.string_of_type ty))
 
   | Syntax.Apply (e1, e2) ->
      (match type_of ctx e1 with
       | Syntax.TArrow (ty1, ty2) -> check ctx ty1 e2 ; ty2
       | ty ->
-	 type_error "%s is used as a function but its type is %s"
+         type_error "%s is used as a function but its type is %s"
                     Syntax.(string_of_expr e1)
-		    (Syntax.string_of_type ty))
+                    (Syntax.string_of_type ty))
 
   | Syntax.Pair (e1, e2) ->
      Syntax.TTimes (type_of ctx e1, type_of ctx e2)
@@ -105,7 +105,7 @@ and type_of ctx = function
       (match type_of ctx e with
        | Syntax.TTimes (ty1, _) -> ty1
        | ty ->
-	  type_error "%s is used as a pair but its type is %s"
+          type_error "%s is used as a pair but its type is %s"
                      (Syntax.string_of_expr e)
                      (Syntax.string_of_type ty))
 
@@ -113,6 +113,6 @@ and type_of ctx = function
       (match type_of ctx e with
        | Syntax.TTimes (_, ty2) -> ty2
        | ty ->
-	     type_error "%s is used as a pair but its type is %s"
+             type_error "%s is used as a pair but its type is %s"
                         (Syntax.string_of_expr e)
-			(Syntax.string_of_type ty))
+                        (Syntax.string_of_type ty))

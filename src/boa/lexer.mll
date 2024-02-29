@@ -17,7 +17,7 @@ rule token = parse
   | "fun"           { FUN }
   | "if"            { IF }
   | "in"            { IN }
-  | "let"           { LET }  
+  | "let"           { LET }
   | "not"           { NOT }
   | "or"            { OR }
   | "skip"          { SKIP }

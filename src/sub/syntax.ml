@@ -48,14 +48,14 @@ let string_of_type ty =
   let rec to_str n ty =
     let (m, str) =
       match ty with
-	| TInt -> (4, "int")
-	| TBool -> (4, "bool")
-	| TRecord ts ->
-	    (4, "{" ^
-	       String.concat ", "
-	       (List.map (fun (l,t) -> l ^ " : " ^ (to_str (-1) t)) ts) ^
-	       "}")
-	| TArrow (ty1, ty2) -> (1, (to_str 1 ty1) ^ " -> " ^ (to_str 0 ty2))
+        | TInt -> (4, "int")
+        | TBool -> (4, "bool")
+        | TRecord ts ->
+            (4, "{" ^
+               String.concat ", "
+               (List.map (fun (l,t) -> l ^ " : " ^ (to_str (-1) t)) ts) ^
+               "}")
+        | TArrow (ty1, ty2) -> (1, (to_str 1 ty1) ^ " -> " ^ (to_str 0 ty2))
     in
       if m > n then str else "(" ^ str ^ ")"
   in
@@ -67,7 +67,7 @@ let rec string_of_value = function
   | Bool b -> string_of_bool b
   | Record rs ->
       "{" ^ String.concat ", "
-	(List.map (fun (l,e) -> l ^ " = " ^ (string_of_value e)) rs) ^
-	"}"
+        (List.map (fun (l,e) -> l ^ " = " ^ (string_of_value e)) rs) ^
+        "}"
   | Closure _ -> "<fun>"
   | _ -> assert false

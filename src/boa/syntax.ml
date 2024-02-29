@@ -15,7 +15,7 @@ type boolop = And | Or
 (** Expressions *)
 type expr =
   | Var of name                      (** variable *)
-  | Bool of bool                     (** boolean constant [true] or [false] *)		
+  | Bool of bool                     (** boolean constant [true] or [false] *)
   | Int of int                       (** integer constant *)
   | ArithOp of arithop * expr * expr (** arithmetical operation [e1 op e2] *)
   | Not of expr                      (** logical negation [not e] *)

@@ -20,7 +20,7 @@ let exec env = function
       (* evaluate [e] *)
       let v = Eval.eval env e in
         Format.printf "%t@." (Eval.print_value v) ;
-	env
+        env
 
   | Syntax.Def (x, e) ->
       (* define a new global value *)

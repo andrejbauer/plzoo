@@ -24,7 +24,7 @@ to call by value and the weak head normal form to call by name.
 The file `example.lambda` contains an example session which defines booleans, numbers, and
 lists. You can use it as follows:
 
-    $ ./lambda.native -l example.lambda 
+    $ ./lambda.native -l example.lambda
     pair is defined.
     first is defined.
     second is defined.

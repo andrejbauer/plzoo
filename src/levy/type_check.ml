@@ -15,7 +15,7 @@ let rec print_vtype ?max_level vty ppf =
   match vty with
   | VInt -> Format.fprintf ppf "int"
   | VBool -> Format.fprintf ppf "bool"
-  | VForget cty -> 
+  | VForget cty ->
      Zoo.print_parens ?max_level ~at_level:2 ppf
                       "U@ %t"
                       (print_ctype ~max_level:1 cty)
@@ -24,7 +24,7 @@ and print_ctype ?max_level cty ppf =
   match cty with
   | CFree vty ->
      Zoo.print_parens ?max_level ~at_level:2 ppf
-                      "F@ %t" 
+                      "F@ %t"
                       (print_vtype ~max_level:1 vty)
   | CArrow (vty, cty) ->
      Zoo.print_parens ?max_level ~at_level:1 ppf
@@ -44,7 +44,7 @@ and as_vtype {Zoo.data=ty; loc} =
   | Syntax.VInt -> VInt
   | Syntax.VBool -> VBool
   | Syntax.VForget ty -> VForget (as_ctype ty)
-  | Syntax.CFree _ | Syntax.CArrow _ -> 
+  | Syntax.CFree _ | Syntax.CArrow _ ->
     type_error ~loc "this is not a value type"
 
 (** [check ctx ty e] checks that expression [e] has computation
@@ -71,10 +71,10 @@ and check_ctype ctx cty e =
 and vtype_of ctx {Zoo.data=e; loc} =
   match e with
   | Syntax.Var x ->
-     (try 
-	 List.assoc x ctx
+     (try
+         List.assoc x ctx
        with
-	 Not_found -> type_error ~loc "unknown identifier %s" x)
+         Not_found -> type_error ~loc "unknown identifier %s" x)
 
   | Syntax.Int _ -> VInt
 
@@ -140,7 +140,7 @@ and ctype_of ctx {Zoo.data=e; loc} =
          check_vtype ctx ty1 e2 ;
          ty2
       | ty ->
-	 type_error ~loc:(e1.Zoo.loc)
+         type_error ~loc:(e1.Zoo.loc)
                     "this expression is used as a function but its type is %t"
                     (print_ctype ty))
 
@@ -148,7 +148,7 @@ and ctype_of ctx {Zoo.data=e; loc} =
      (match ctype_of ctx e1 with
       | CFree ty1 -> ctype_of ((x,ty1)::ctx) e2
       | ty -> type_error ~loc:(e1.Zoo.loc)
-			 "this expression is sequenced but its type is %t"
+                         "this expression is sequenced but its type is %t"
                          (print_ctype ty))
 
   | Syntax.Let (x, e1, e2) ->
@@ -178,7 +178,7 @@ and ctype_of ctx {Zoo.data=e; loc} =
   | Syntax.Minus _
   | Syntax.Times _
   | Syntax.Equal _
-  | Syntax.Less _ 
+  | Syntax.Less _
   | Syntax.Thunk _ ->
      type_error ~loc "a computation was expected but a value was encountered"
 

@@ -63,4 +63,4 @@ Sample session, see also the file `example.miniprolog`.
     B = leia
     more? (y/n) [y] y
     No
-    miniProlog> 
+    miniProlog>

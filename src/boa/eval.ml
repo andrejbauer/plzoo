@@ -122,9 +122,9 @@ let eval env e =
 
     | Syntax.If (e1, e2, e3) ->
        if get_bool (eval th env e1) then
-	 eval th env e2
+         eval th env e2
        else
-	 eval th env e3
+         eval th env e3
 
     | Syntax.Skip -> unit_obj
 
@@ -145,8 +145,8 @@ let eval env e =
 
     | Syntax.This ->
        (match th with
-	| Some v -> v
-	| None -> Zoo.error "invalid use of 'this'")
+        | Some v -> v
+        | None -> Zoo.error "invalid use of 'this'")
 
     | Syntax.Object lst ->
        mk_obj (List.map (fun (x,e) -> (x, ref (eval th env e))) lst)

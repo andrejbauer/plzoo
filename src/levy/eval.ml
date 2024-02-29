@@ -26,16 +26,16 @@ let rec comp env e =
 
   | Syntax.If (e1, e2, e3) ->
       (match expr env e1 with
-	 | VBool true -> comp env e2
-	 | VBool false -> comp  env e3
-	 | _ -> runtime_error ~loc:(e1.Zoo.loc) "boolean expected")
+         | VBool true -> comp env e2
+         | VBool false -> comp  env e3
+         | _ -> runtime_error ~loc:(e1.Zoo.loc) "boolean expected")
 
   | Syntax.Apply (e1, e2) ->
       (match comp env e1 with
-	 | VFun (env', x, e) -> 
+         | VFun (env', x, e) ->
             let v2 = expr env e2 in
             comp ((x,v2)::env') e
-	 | _ -> runtime_error ~loc:(e1.Zoo.loc) "function expected")
+         | _ -> runtime_error ~loc:(e1.Zoo.loc) "function expected")
 
   | Syntax.Let (x, e1, e2) ->
       let v = expr env e1 in
@@ -50,8 +50,8 @@ let rec comp env e =
 
   | Syntax.Force e ->
       (match expr env e with
-	 | VThunk (env, e) -> comp env e
-	 | _ -> runtime_error ~loc:(e.Zoo.loc) "thunk expected in force")
+         | VThunk (env, e) -> comp env e
+         | _ -> runtime_error ~loc:(e.Zoo.loc) "thunk expected in force")
 
   | Syntax.Rec (x, _, e') -> comp ((x, VThunk (env, e)) :: env) e'
 
@@ -71,9 +71,9 @@ and expr env {Zoo.data=e; loc} =
 
   | Syntax.Var x ->
       (try
-	 List.assoc x env
+         List.assoc x env
        with
-	   Not_found -> runtime_error ~loc "unknown variable %s" x)
+           Not_found -> runtime_error ~loc "unknown variable %s" x)
 
   | Syntax.Int k -> VInt k
 
@@ -83,27 +83,27 @@ and expr env {Zoo.data=e; loc} =
 
   | Syntax.Times (e1, e2) ->
       (match (expr env e1), (expr env e2) with
-	 | VInt k1, VInt k2 -> VInt (k1 * k2)
-	 | _ -> runtime_error ~loc "integers expected in multiplication")
+         | VInt k1, VInt k2 -> VInt (k1 * k2)
+         | _ -> runtime_error ~loc "integers expected in multiplication")
 
   | Syntax.Plus (e1, e2) ->
       (match (expr env e1), (expr env e2) with
-	 | VInt k1, VInt k2 -> VInt (k1 + k2)
-	 | _ -> runtime_error ~loc "integers expected in addition")
+         | VInt k1, VInt k2 -> VInt (k1 + k2)
+         | _ -> runtime_error ~loc "integers expected in addition")
 
   | Syntax.Minus (e1, e2) ->
       (match (expr env e1), (expr env e2) with
-	 | VInt k1, VInt k2 -> VInt (k1 - k2)
-	 | _ -> runtime_error ~loc "integers expected in subtraction")
+         | VInt k1, VInt k2 -> VInt (k1 - k2)
+         | _ -> runtime_error ~loc "integers expected in subtraction")
 
   | Syntax.Equal (e1, e2) ->
       (match (expr env e1), (expr env e2) with
-	 | VInt k1, VInt k2 -> VBool (k1 = k2)
-	 | _ -> runtime_error ~loc "integers expected in =")
+         | VInt k1, VInt k2 -> VBool (k1 = k2)
+         | _ -> runtime_error ~loc "integers expected in =")
   | Syntax.Less (e1, e2) ->
       (match (expr env e1), (expr env e2) with
-	 | VInt k1, VInt k2 -> VBool (k1 < k2)
-	 | _ -> runtime_error ~loc "integers expected in <")
+         | VInt k1, VInt k2 -> VBool (k1 < k2)
+         | _ -> runtime_error ~loc "integers expected in <")
 
   | Syntax.Force _
   | Syntax.Return _

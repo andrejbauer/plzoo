@@ -25,7 +25,7 @@ rule token = parse
   | "if"            { IF }
   | "in"            { IN }
   | "is"            { IS }
-  | "let"           { LET }  
+  | "let"           { LET }
   | "rec"           { REC }
   | "return"        { RETURN }
   | "then"          { THEN }
