@@ -2,14 +2,40 @@
 
 type associativity = LeftAssoc | RightAssoc | NonAssoc
 
+let string_of_assoc = function
+  | LeftAssoc -> "left"
+  | RightAssoc -> "right"
+  | NonAssoc -> "non"
+
+(** The type of fixities. *)
+
 type fixity = Prefix | Postfix | Infix of associativity | Closed
+
+let string_of_fixity = function
+  | Prefix -> "prefix"
+  | Postfix -> "postfix"
+  | Infix LeftAssoc -> "infixl"
+  | Infix RightAssoc -> "infixr"
+  | Infix NonAssoc -> "infix"
+  | Closed -> "closed"
+
+(** The type of operators. *)
 
 type operator = {
   tokens: string list;
   fx : fixity;
-  prec: int;
 }
 
+let op_name {fx;tokens} =
+  let tokens = String.concat "_" tokens in
+  match fx with
+  | Prefix -> tokens ^ "_"
+  | Postfix -> "_" ^ tokens
+  | Infix assoc -> "_" ^ tokens ^ "_"
+  | Closed -> tokens
+
+let string_of_op ({fx;tokens} as op) = 
+  (op_name op) ^ " ("^(string_of_fixity fx) ^ " fixity)"
 
 (** The type of variable names. *)
 type name = string
@@ -42,8 +68,12 @@ type expr =
 type toplevel_cmd =
   | Expr of expr       (** an expression to be evaluated *)
   | Def of name * expr (** toplevel definition [let x = e] *)
-  | Mixfix of operator
+  | Mixfix of int * operator
   | Quit
+
+let rec make_app head = function
+  | [] -> head
+  | arg::args -> make_app (Apply (head, arg)) args 
 
 (** Conversion from an expression to a string *)
 let string_of_expr e =

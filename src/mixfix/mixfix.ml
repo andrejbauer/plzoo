@@ -11,7 +11,7 @@ module Mixfix = Zoo.Main(struct
   let options = [("-p", Arg.Int (fun n -> print_depth := n), "set print depth")]
 
   let initial_environment: environment = {
-    operators = Precedence.new_graph ();
+    operators = Precedence.empty_graph;
     context = [];
     env = [];
   }
@@ -34,9 +34,11 @@ module Mixfix = Zoo.Main(struct
        let ty = Type_check.type_of state.context e in
        Zoo.print_info "val %s : %s@." x (Presyntax.string_of_type ty) ;
       {state with context = (x,ty)::state.context; env = (x, ref (Interpret.VClosure (state.env,e)))::state.env}
-    | Syntax.Mixfix (operator)->
+    | Syntax.Mixfix (prec, operator)->
        (* Ad operator x with precedence prec and expression e to environment.operators *)
-      {state with operators = Precedence.add_operator state.operators operator }
+      let s = {state with operators = Precedence.add_operator state.operators prec operator } in 
+            Environment.dprintln (Precedence.string_of_graph s.operators); (*** DEBUG ***)
+            s
     | Syntax.Quit -> raise End_of_file
 end) ;;
 

@@ -46,7 +46,6 @@ type toplevel_cmd =
   | Mixfix of associativity * int * string
   | Quit               (** exit toplevel [$quit] *)
 
-
 (** Conversion from a type to a string *)
 let string_of_type ty =
   let rec to_str n ty =
@@ -69,7 +68,7 @@ let string_of_expr e =
     let (m, str) =
       match e with
         | Var v -> (100, v)
-      	| Seq exprs ->       (9, "[[" ^ String.concat ";" ( List.map (to_str 8) exprs) ^ "]]")
+      	| Seq exprs ->       (9, "[" ^ String.concat ";" ( List.map (to_str 8) exprs) ^ "]")
 	| Int n ->           (10, string_of_int n)
 	| Bool b ->          (10, string_of_bool b)
 	| Pair (e1, e2) ->   (10, "(" ^ (to_str 0 e1) ^ ", " ^ (to_str 0 e2) ^ ")")

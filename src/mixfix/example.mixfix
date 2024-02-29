@@ -2,11 +2,32 @@
 -- Basic operations on lists of integers
 ------------------------------------------------------------------------
 
+mixfix 1 _iscool
+let _iscool = fun n : int => $equals ($mod n 2) 0
+6 iscool
+
+mixfix 1 a_a
+let a_a = fun x :int => $cond ($less x 0) ($minus 0 x) x
+a -4 a
+
+mixfix 1 _doubled
+let _doubled = fun n : int => $times n 2
+$plus 2 (3 doubled) doubled doubled doubled
+-- should be 64
+
+mixfix 1 _but_mod
+let _but_mod = fun n m : int => $mod n m
+
+
+mixfix 1 ne_
+let ne_ = fun b : bool => $cond b false true
+let ne = false
+let ja = true
+ne ne ne
+
+
 let succ = rec succ : int -> int is fun x : int => $plus x 1 ;;
 -- let f = rec f : int -> int is fun t : int => t + 1 ;;
-
--- Completely wrong, should add fun with multiple var defenitions (with types and names).
-mixn _a_ 10 (fun t :int => $plus t 1)
 
 let not = fun b : bool => $cond b false true
 
