@@ -107,11 +107,11 @@ let ( >> ) p v =
 let kw k = Kw k
 
 (** Parses one or more occurances of p. *)
-let rec iter1 p =
+let iter1 p =
   Iter1 p
 
 (** Parses zero or more occurances of p. *)
-let rec iter p =
+let iter p =
   Iter p
 
 let rec runParser : type a b . (a, b) parser -> (a, b) t = function
@@ -245,7 +245,7 @@ let (<$>) f x_parser =
 (* let factorial = *)
 (*   fix (fun self -> fun n -> if n = 0 then 1 else n * self () (n - 1)) *)
 
-let rec between p tokens = Between (p, tokens) 
+let between p tokens = Between (p, tokens) 
 
     (** Between that maps to presyntax *)
 let betweenp p k =
@@ -269,110 +269,113 @@ let rec expr env e : Syntax.expr list =
   let open ListMonad in
   match e with
   | Presyntax.Var x ->
-      if List.mem_assoc x Environment.(env.context) then
-        return @@ Syntax.Var x
-     else
-       (print_endline (" + Undefined variable " ^ x); fail)
+    if List.mem_assoc x Environment.(env.context) then
+      return @@ Syntax.Var x
+    else
+      (print_endline (" + Undefined variable " ^ x); fail)
 
-| Presyntax.Seq es  ->
+  | Presyntax.Seq es  ->
     unwrap @@ runParser (get_parser env) es
 
-| Presyntax.Int k ->
+  | Presyntax.Int k ->
     return @@ Syntax.Int k
 
-| Presyntax.Bool b ->
+  | Presyntax.Bool b ->
     return @@ Syntax.Bool b
 
-| Presyntax.Nil ht ->
+  | Presyntax.Nil ht ->
     return @@ Syntax.Nil ht
 
-| Presyntax.Times (e1, e2) ->
+  | Presyntax.Times (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Times (e1, e2)
 
-| Presyntax.Divide (e1, e2) ->
+  | Presyntax.Divide (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Divide (e1, e2)
 
-| Presyntax.Mod (e1, e2) ->
+  | Presyntax.Mod (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Mod (e1, e2)
 
-| Presyntax.Plus (e1, e2) ->
+  | Presyntax.Plus (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Plus (e1, e2)
 
-| Presyntax.Minus (e1, e2) ->
+  | Presyntax.Minus (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Minus (e1, e2)
 
-| Presyntax.Equal (e1, e2) ->
+  | Presyntax.Equal (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Equal (e1, e2)
 
-| Presyntax.Less (e1, e2) ->
+  | Presyntax.Less (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Less (e1, e2)
 
-| Presyntax.If (e1, e2, e3) ->
+  | Presyntax.If (e1, e2, e3) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     let* e3 = expr env e3 in
     return @@ Syntax.If (e1, e2, e3)
 
-| Presyntax.Fun (x, ht, e) -> (* IMPORTANT! Add x to env*) (* MENTION *)
-  let env = { env with context = (x, ht) :: env.context} in
+  | Presyntax.Fun (x, ht, e) -> (* IMPORTANT! Add x to env*) (* MENTION *)
+    let env = { env with context = (x, ht) :: env.context} in
     let* e = expr env e in
     return @@ Syntax.Fun (x, ht, e)
 
-| Presyntax.Pair (e1, e2) ->
+  | Presyntax.Pair (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Pair (e1, e2)
 
-| Presyntax.Fst e ->
+  | Presyntax.Fst e ->
     let* e = expr env e in
     return @@ Syntax.Fst e
 
-| Presyntax.Snd e ->
+  | Presyntax.Snd e ->
     let* e = expr env e in
     return @@ Syntax.Snd e
 
-| Presyntax.Rec (x, ht, e) ->
+  | Presyntax.Rec (x, ht, e) ->
     let* e = expr env e in
     return @@ Syntax.Rec (x, ht, e)
 
-| Presyntax.Cons (e1, e2) ->
+  | Presyntax.Cons (e1, e2) ->
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Cons (e1, e2)
 
-| Presyntax.Match (e, ht, e1, x, y, e2) ->
+  | Presyntax.Match (e, ht, e1, x, y, e2) ->
     let* e = expr env e in
     let* e1 = expr env e1 in
     let* e2 = expr env e2 in
     return @@ Syntax.Match (e, ht, e1, x, y, e2)
 
 and app_parser env: (Presyntax.expr, Syntax.expr) parser =
-    let rec make_app =
-      let open ListMonad in
-      function
-        | [] -> fail
-    | [p] -> expr env p
-    | p :: ps ->
-        let* e1 = make_app ps in
-        let* e2 = expr env p in
-        return @@ Syntax.Apply (e1, e2)
-      in
+  let rec make_app =
+    let open ListMonad in
+    function
+      | [] -> fail
+      | [p] -> expr env p
+      | p :: ps ->
+      let* e1 = make_app ps in
+      let* e2 = expr env p in
+      return (e1::e2)
+    in
   let* p = runParser @@ Iter Get in
-  wrap @@ make_app (List.rev p)
+    (match make_app (List.rev p) with
+      | [] -> []
+      | one -> one
+      | head:: tail -> AppParser(head, tail) )
 
 and get_parser env : (Presyntax.expr, Syntax.expr) parser =
   let g = env.operators in
@@ -396,55 +399,80 @@ and get_parser env : (Presyntax.expr, Syntax.expr) parser =
 
    let rec graph_parser (g: Precedence.graph): (Presyntax.expr, Syntax.expr) parser = 
     recursively (fun self ->
-   let rec precedence_parser stronger operators = 
-     let operator_parser stronger_parser (operator:Syntax.operator) = 
-       match operator with 
-       | {fx=Closed; tokens} -> AppParser (operator, 
-          Betweenp (Lazy self, tokens)
-        )
+    let rec precedence_parser stronger operators = 
+      let operator_parser stronger_parser (operator:Syntax.operator) = 
+        match operator with 
 
-       | {fx=Postfix; tokens} ->  
-          AppParserLeft (operator, stronger_parser, Iter1 (Betweenp (Lazy self, tokens)))
+        | {fx=Closed; tokens} -> AppParser (operator, 
+            Betweenp (Lazy self, tokens)
+          )
 
-       | {fx=Prefix; tokens} -> 
-        AppParserRight (operator, Iter1 (Betweenp (Lazy self, tokens)), stronger_parser)
+        | {fx=Postfix; tokens} ->  
+            AppParserLeft (operator, stronger_parser, Iter1 (Betweenp (Lazy self, tokens)))
 
-       | {fx=Infix NonAssoc; tokens} -> 
-          let* a = up in 
-          let* mid = runParser @@ Between (same_up, tokens) in 
-          let* b = up in 
-          return @@ Syntax.make_app op_name (a::mid @ [b]) 
+        | {fx=Prefix; tokens} -> 
+          AppParserRight (operator, Iter1 (Betweenp (Lazy self, tokens)), stronger_parser)
 
-       | {fx=Infix LeftAssoc; tokens} -> 
-          let* a = up in 
-          let* mid = runParser @@ Iter1 (Between (same_up, tokens)) in 
-          let* b = up in 
-          (match mid with 
-           | [] -> fail 
-           | head::tail -> let head = a::head in return @@ appr ( head::tail) b 
-          ) 
+        | {fx=Infix NonAssoc; tokens} -> 
+          AppParser(
+            operator,
+            Map (
+              (fun (a, (mid, b)) -> (a::mid @ [b])),
+              Cons(
+                stronger_parser,
+                Cons(
+                  Betweenp (Lazy self, tokens),
+                  stronger_parser
+                )
+              )
+            )
+          )
 
-       | {fx=Infix RightAssoc; tokens} -> 
-          let* a = up in 
-          let* mid = runParser @@ Iter1 (Between (same_up, tokens)) in 
-          let* b = up in 
-          let rec f = function 
-            | [] -> [] 
-            | [last] -> [last @ [b]] 
-            | head::tail -> (head::(f tail)) 
+        | {fx=Infix LeftAssoc; tokens} -> 
+          AppParserRight (
+            operator,
+            Map(
+              (fun (a,b) -> match b with 
+                | [] -> []
+                | head::tail -> 
+                  let head = a::head in 
+                    head::tail),
+              Cons(
+                stronger_parser,
+                Iter1 (Betweenp (Lazy self, tokens))
+              )
+            ),
+            stronger_parser
+          )
+
+        | {fx=Infix RightAssoc; tokens} -> 
+          AppParserLeft (
+            operator,
+            stronger_parser,
+            Map(
+              (fun (mid,b) -> 
+                let rec f = function 
+                  | [] -> [] 
+                  | [last] -> [last @ [b]] 
+                  | head::tail -> (head::(f tail))
+                in f mid),
+                Cons(
+                  Iter1 (Betweenp (Lazy self, tokens)),
+                  stronger_parser
+                )
+              )
+            )
           in 
-          return @@ appl a (f mid) 
+          
+          match operators with 
+          | [] -> Fail 
+          | o::os -> Or (operator_parser stronger o, precedence_parser stronger os)
         in 
-        
-        match operators with 
-        | [] -> Fail 
-        | o::os -> Or(operator_parser stronger o, precedence_parser stronger os)
-      in 
-      match g with 
-      | [] -> app_parser env
-      | p::ps -> 
-        let sucs = graph_parser ps in
-        Or(precedence_parser sucs (snd p), sucs)
+        match g with 
+        | [] -> app_parser env
+        | p::ps -> 
+          let sucs = graph_parser ps in
+          Or(precedence_parser sucs (snd p), sucs)
       )
     in graph_parser g
 
